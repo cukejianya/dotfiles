@@ -14,7 +14,7 @@ set noeol
 " General Settings
 set mouse=i
 set number
-set encoding=utf-8
+set encoding=UTF-8
 set wrap
 set textwidth=79
 set tabstop=2
@@ -24,12 +24,22 @@ set autoindent
 set smartindent
 set backspace=2
 set list
+set hidden
 
 set wildignore+=*/tmp/*
 set wildignore+=*/node_modules/*
 set wildignore+=*/bower_components/*
 set wildignore+=*/build/*
 set wildignore+=*.swp
+
+" Automatically Close Brackets|Paranthesis|Quotes
+inoremap " ""<left>
+inoremap ' ''<left>
+inoremap ( ()<left>
+inoremap [ []<left>
+inoremap { {}<left>
+inoremap {<CR> {<CR>}<ESC>O
+inoremap {;<CR> {<CR>};<ESC>O
 
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
@@ -42,11 +52,12 @@ Plugin 'VundleVim/Vundle.vim'
 
 " Custom Plugins
 Plugin 'scrooloose/syntastic'
-Plugin 'valloric/youcompleteme'
+Plugin 'tpope/vim-surround'
+" Plugin 'valloric/youcompleteme'
 Plugin 'joshdick/onedark.vim'
-Plugin 'altercation/vim-colors-solarized'
+Plugin 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plugin 'airblade/vim-gitgutter' " Shows git diff in the 'gutter'
-Plugin 'vim-airline/vim-airline' 
+Plugin 'vim-airline/vim-airline'
 Plugin 'ap/vim-css-color'
 Plugin 'scrooloose/nerdtree'
 Plugin 'vim-airline/vim-airline-themes'
@@ -95,8 +106,6 @@ let g:javascript_plugin_jsdoc = 1
 
 syntax enable
 set background=dark
-let g:solarized_termcolors=256
-let g:onedark_termcolors=256
 colorscheme onedark
 
 " Syntastic Setup
@@ -113,9 +122,17 @@ let g:syntastic_html_tidy_ignore_errors = ["trimming empty <i>"]
 " NERDtree Setup
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
-map <C-n> :NERDTreeToggle<CR>
+map <Bar> :NERDTreeToggle<CR>
 let NERDTreeRespectWildIgnore=1
+" Next 4 lines is to fix spacing btw icon and arrows
+let g:WebDevIconsNerdTreeBeforeGlyphPadding = ''
+let g:WebDevIconsUnicodeDecorateFolderNodes = v:true
+let g:NERDTreeDirArrowExpandable = "\u00a0"
+let g:NERDTreeDirArrowCollapsible = "\u00a0"
 
+" Airline Setup
 let g:airline_theme='angr'
+let g:airline#extensions#tabline#enabled = 1
 
+" ctrl-p 
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git'

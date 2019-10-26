@@ -2,31 +2,34 @@ mv $PWD ~/.dotfiles
 ###############################################################################
 # Symbolic Links                                                              #
 ###############################################################################
-ln -s ~/dotfiles/.vimrc ~/.vimrc
-ln -s ~/dotfiles/.zshrc ~/.zshrc
+#ln -s ~/.dotfiles/.vimrc ~/.vimrc
+ln -s ~/.dotfiles/.zshrc ~/.zshrc
 
 ###############################################################################
 # General Installations                                                       #
 ###############################################################################
 
 # Install Homebew
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+# /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+#Install bundler
+# sudo gem install bundler
 
 # Install brew and casks
-bundle install && brew bundle
+# bundle install && brew bundle
 
 # Install NVM
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.0/install.sh | bash
+# curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.0/install.sh | bash
 
 # Install OhMyZSH
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+#sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 
 # Install NPM modules
 npm install -g tldr
 npm install -g expo
 
 # Install Vundle
-git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+# git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 
 # Remove Unnecessary folder
 rm -rf ~/Documents ~/Pictures ~/Movies ~/Music
@@ -41,7 +44,7 @@ vim +PlugInstall +qall
 /usr/bin/python ~/.vim/bundle/YouCompleteMe/install.py
 
 # Install Laravel
-composer global require laravel/installer
+#composer global require laravel/installer
 
 ###############################################################################
 # General macOS Setup                                                         #
