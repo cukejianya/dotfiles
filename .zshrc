@@ -115,13 +115,9 @@ export CPPFLAGS="${CPPFLAGS} -I/usr/local/opt/zlib/include"
 
 # For pkg-config to find zlib you may need to set:
 export PKG_CONFIG_PATH="${PKG_CONFIG_PATH} /usr/local/opt/zlib/lib/pkgconfig"
-source ~/.crowdskout/profile
 export PATH="/usr/local/sbin:$PATH"
 export PATH="/usr/local/opt/php@7.2/bin:$PATH"
 export PATH="/usr/local/opt/php@7.2/sbin:$PATH"
-
-# For Github Oauth (need to get it from https://github.com/settings/tokens)
-export GITHUB_ACCESS_TOKEN="$(cat $HOME/.github_access_token)"
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export PATH="$PATH:$HOME/.rvm/bin"

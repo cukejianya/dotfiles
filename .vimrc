@@ -25,12 +25,21 @@ set smartindent
 set backspace=2
 set list
 set hidden
+set foldmethod=indent
+set nofoldenable
 
 set wildignore+=*/tmp/*
 set wildignore+=*/node_modules/*
 set wildignore+=*/bower_components/*
 set wildignore+=*/build/*
 set wildignore+=*.swp
+
+" Toggle Relative Numberline
+nnoremap <leader>n :setlocal relativenumber!<CR>
+
+" Map enter key to esc
+inoremap jk <Esc>
+nnoremap <CR> li<CR>
 
 " Automatically Close Brackets|Paranthesis|Quotes
 inoremap " ""<left>
@@ -40,6 +49,26 @@ inoremap [ []<left>
 inoremap { {}<left>
 inoremap {<CR> {<CR>}<ESC>O
 inoremap {;<CR> {<CR>};<ESC>O
+
+" Mappings to access buffers (don't use "\p" because a
+" delay before pressing "p" would accidentally paste).
+" \l       : list buffers
+" \b \f \g : go back/forward/last-used
+" \1 \2 \3 : go to buffer 1/2/3 etc
+nnoremap <Leader>l :ls<CR>
+nnoremap <Leader>b :bp<CR>
+nnoremap <Leader>f :bn<CR>
+nnoremap <Leader>g :e#<CR>
+nnoremap <Leader>1 :1b<CR>
+nnoremap <Leader>2 :2b<CR>
+nnoremap <Leader>3 :3b<CR>
+nnoremap <Leader>4 :4b<CR>
+nnoremap <Leader>5 :5b<CR>
+nnoremap <Leader>6 :6b<CR>
+nnoremap <Leader>7 :7b<CR>
+nnoremap <Leader>8 :8b<CR>
+nnoremap <Leader>9 :9b<CR>
+nnoremap <Leader>0 :10b<CR>
 
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
@@ -62,7 +91,6 @@ Plugin 'ap/vim-css-color'
 Plugin 'scrooloose/nerdtree'
 Plugin 'vim-airline/vim-airline-themes'
 Plugin 'ctrlpvim/ctrlp.vim' " Finds files with ctrl-p
-Plugin 'wincent/command-t'
 Plugin 'Xuyuanp/nerdtree-git-plugin'
 Plugin 'sheerun/vim-polyglot'
 Plugin 'ryanoasis/vim-devicons'
@@ -134,5 +162,5 @@ let g:NERDTreeDirArrowCollapsible = "\u00a0"
 let g:airline_theme='angr'
 let g:airline#extensions#tabline#enabled = 1
 
-" ctrl-p 
+" Ctrl-P Setup
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git'
