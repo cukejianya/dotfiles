@@ -12,8 +12,8 @@ set binary
 set noeol
 
 " General Settings
-set mouse=i
 set number
+set relativenumber
 set encoding=UTF-8
 set wrap
 set textwidth=79
@@ -39,9 +39,9 @@ nnoremap <leader>n :setlocal relativenumber!<CR>
 
 " Map enter key to esc
 inoremap jk <Esc>
-nnoremap <CR> li<CR>
 
 " Automatically Close Brackets|Paranthesis|Quotes
+" if you don't want the default use clrl + v before type key
 inoremap " ""<left>
 inoremap ' ''<left>
 inoremap ( ()<left>
@@ -58,17 +58,30 @@ inoremap {;<CR> {<CR>};<ESC>O
 nnoremap <Leader>l :ls<CR>
 nnoremap <Leader>b :bp<CR>
 nnoremap <Leader>f :bn<CR>
+nnoremap <Leader>e :bd<CR>
 nnoremap <Leader>g :e#<CR>
-nnoremap <Leader>1 :1b<CR>
-nnoremap <Leader>2 :2b<CR>
-nnoremap <Leader>3 :3b<CR>
-nnoremap <Leader>4 :4b<CR>
-nnoremap <Leader>5 :5b<CR>
-nnoremap <Leader>6 :6b<CR>
-nnoremap <Leader>7 :7b<CR>
-nnoremap <Leader>8 :8b<CR>
-nnoremap <Leader>9 :9b<CR>
-nnoremap <Leader>0 :10b<CR>
+nnoremap <Leader>1 :bfirst<CR>
+nnoremap <Leader>2 :bfirst<CR>:1bn<CR>
+nnoremap <Leader>3 :bfirst<CR>:2bn<CR>
+nnoremap <Leader>4 :bfirst<CR>:3bn<CR>
+nnoremap <Leader>5 :bfirst<CR>:4bn<CR>
+nnoremap <Leader>6 :bfirst<CR>:5bn<CR>
+nnoremap <Leader>7 :bfirst<CR>:6bn<CR>
+nnoremap <Leader>8 :bfirst<CR>:7bn<CR>
+nnoremap <Leader>9 :bfirst<CR>:8bn<CR>
+nnoremap <Leader>0 :bfirst<CR>:9bn<CR>
+
+" Disable Arrow Keys scrolling
+map <up>    <nop>
+map <down>  <nop>
+map <left>  <nop>
+map <right> <nop>
+
+" Map Split Navigation
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
 
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
