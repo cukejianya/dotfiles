@@ -121,3 +121,8 @@ export PATH="/usr/local/opt/php@7.2/sbin:$PATH"
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export PATH="$PATH:$HOME/.rvm/bin"
+
+# Template Alias
+function create_html() {
+  cp ~/.template/basic.html ./"$1".html
+}
