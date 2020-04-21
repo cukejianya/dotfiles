@@ -39,6 +39,8 @@ nnoremap <leader>n :setlocal relativenumber!<CR>
 
 " Map enter key to esc
 inoremap jk <Esc>
+vnoremap jk <Esc>
+cnoremap jk <C-C><Esc>
 
 " Automatically Close Brackets|Paranthesis|Quotes
 " if you don't want the default use clrl + v before type key
@@ -161,9 +163,12 @@ let g:syntastic_html_tidy_inline_tags = ['svg', 'g', 'circle']
 let g:syntastic_html_tidy_ignore_errors = ["trimming empty <i>"] 
 
 " NERDtree Setup
+let g:NERDTreeQuitOnOpen=0
+let NERDTreeShowHidden=1
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
-map <Bar> :NERDTreeToggle<CR>
+map <Leader>k :NERDTreeToggle<CR>
+nmap <Leader>y :NERDTreeFind<CR>
 let NERDTreeRespectWildIgnore=1
 " Next 4 lines is to fix spacing btw icon and arrows
 let g:WebDevIconsNerdTreeBeforeGlyphPadding = ''
