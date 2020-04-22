@@ -91,16 +91,26 @@ export SSH_KEY_PATH="~/.ssh/rsa_id"
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
 # For a full list of active aliases, run `alias`.
 #
-# Example aliases
+
+#Set zsh to vi mode
+bindkey -v
+
+# Bind jk to <esc> key
+bindkey jk vi-cmd-mode
+
+# Reload zsh alias
 alias reload="source ~/.zshrc"
+
+# Config aliases
+alias tmuxconfig="vim ~/.tmux.conf"
 alias vimconfig="vim ~/.vimrc"
 alias zshconfig="vim ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
+
+# Config to Cpp build 
+alias cpp="clang++ -std=c++11 -stdlib=libc++"
 
 export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacad
-
-alias cpp="clang++ -std=c++11 -stdlib=libc++"
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
