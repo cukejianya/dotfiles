@@ -39,8 +39,6 @@ nnoremap <leader>n :setlocal relativenumber!<CR>
 
 " Map enter key to esc
 inoremap jk <Esc>
-vnoremap jk <Esc>
-cnoremap jk <C-C><Esc>
 
 " Automatically Close Brackets|Paranthesis|Quotes
 " if you don't want the default use clrl + v before type key
