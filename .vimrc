@@ -105,8 +105,9 @@ Plugin 'scrooloose/nerdtree'
 Plugin 'vim-airline/vim-airline-themes'
 Plugin 'ctrlpvim/ctrlp.vim' " Finds files with ctrl-p
 Plugin 'Xuyuanp/nerdtree-git-plugin'
-Plugin 'sheerun/vim-polyglot'
+Plugin 'sheerun/vim-polyglot' " Syntax Highlighter Bundle
 Plugin 'ryanoasis/vim-devicons'
+Plugin 'rking/ag.vim'
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.
 " plugin on GitHub repo
@@ -149,6 +150,12 @@ syntax enable
 set background=dark
 colorscheme onedark
 
+" Enable mysql cli editting mode to use syntax highlighting
+augroup sql
+  autocmd!
+  autocmd BufNew,BufEnter /**/sql[\w]* setlocal filetype=sql
+augroup END
+
 " Syntastic Setup
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 1
@@ -159,6 +166,11 @@ let g:syntastic_check_on_wq = 0
 let g:syntastic_html_tidy_blocklevel_tags = ['svg', 'g', 'circle']
 let g:syntastic_html_tidy_inline_tags = ['svg', 'g', 'circle'] 
 let g:syntastic_html_tidy_ignore_errors = ["trimming empty <i>"] 
+
+" Syntastic Setup
+let g:syntastic_php_checkers = ['phpcs']
+"" let g:syntastic_php_phpcs_quiet_messages = { 'type': 'style' }
+let g:syntastic_php_phpcs_args = "--tab-width=0"
 
 " NERDtree Setup
 let g:NERDTreeQuitOnOpen=0
