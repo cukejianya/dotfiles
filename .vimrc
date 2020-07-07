@@ -1,5 +1,8 @@
 " ---------------------Content
 " general_settings
+" config_automation
+" config_buffer
+" config_motion
 " config_plugins
 " config_syntastic
 " config_nerdtree
@@ -52,6 +55,8 @@ nnoremap <leader>n :setlocal relativenumber!<CR>
 " Map enter key to esc
 inoremap jk <Esc>
 
+"-------------------------------------------------------------------------------
+"                                                            config_automation 
 " Automatically Close Brackets|Paranthesis|Quotes
 " if you don't want the default use clrl + v before type key
 inoremap " ""<left>
@@ -62,6 +67,8 @@ inoremap { {}<left>
 inoremap {<CR> {<CR>}<ESC>O
 inoremap {;<CR> {<CR>};<ESC>O
 
+"-------------------------------------------------------------------------------
+"                                                                config_buffer
 " Mappings to access buffers (don't use "\p" because a
 " delay before pressing "p" would accidentally paste).
 " \l       : list buffers
@@ -83,6 +90,8 @@ nnoremap <Leader>8 :bfirst<CR>:7bn<CR>
 nnoremap <Leader>9 :bfirst<CR>:8bn<CR>
 nnoremap <Leader>0 :bfirst<CR>:9bn<CR>
 
+"-------------------------------------------------------------------------------
+"                                                                config_motion
 " Disable Arrow Keys scrolling
 map <up>    <nop>
 map <down>  <nop>
