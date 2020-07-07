@@ -1,3 +1,9 @@
+" ---------------------Content
+" general_settings
+" config_plugins
+" config_syntastic
+" config_nerdtree
+"_______________________________________________________________________________
 set nocompatible              " be iMproved, required
 filetype off                  " required
 
@@ -8,10 +14,11 @@ set path+=**
 set wildmenu
 
 " Don’t add empty newlines at the end of files
-set binary
-set noeol
+" set binary
+" set noeol
 
-" General Settings
+"-------------------------------------------------------------------------------
+"                                                             general_settings
 set number
 set relativenumber
 set encoding=UTF-8
@@ -27,6 +34,11 @@ set list
 set hidden
 set foldmethod=indent
 set nofoldenable
+set colorcolumn=81
+set hlsearch
+set cursorline
+set splitbelow
+set splitright
 
 set wildignore+=*/tmp/*
 set wildignore+=*/node_modules/*
@@ -83,6 +95,8 @@ nnoremap <C-K> <C-W><C-K>
 nnoremap <C-L> <C-W><C-L>
 nnoremap <C-H> <C-W><C-H>
 
+"------------------------------------------------------------------------------
+"                                                             config_plugins
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
@@ -91,7 +105,6 @@ call vundle#begin()
 
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
-
 " Custom Plugins
 Plugin 'scrooloose/syntastic'
 Plugin 'tpope/vim-surround'
@@ -100,6 +113,7 @@ Plugin 'joshdick/onedark.vim'
 Plugin 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plugin 'airblade/vim-gitgutter' " Shows git diff in the 'gutter'
 Plugin 'vim-airline/vim-airline'
+Plugin 'jiangmiao/auto-pairs'
 Plugin 'ap/vim-css-color'
 Plugin 'scrooloose/nerdtree'
 Plugin 'vim-airline/vim-airline-themes'
@@ -156,9 +170,11 @@ augroup sql
   autocmd BufNew,BufEnter /**/sql[\w]* setlocal filetype=sql
 augroup END
 
+"_______________________________________________________________________________
+"                                                             config_syntastic 
 " Syntastic Setup
 let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
+let g:syntastic_auto_loc_list = 2
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 
@@ -168,10 +184,12 @@ let g:syntastic_html_tidy_inline_tags = ['svg', 'g', 'circle']
 let g:syntastic_html_tidy_ignore_errors = ["trimming empty <i>"] 
 
 " Syntastic Setup
-let g:syntastic_php_checkers = ['phpcs']
-"" let g:syntastic_php_phpcs_quiet_messages = { 'type': 'style' }
-let g:syntastic_php_phpcs_args = "--tab-width=0"
+let g:syntastic_php_checkers = ['php', 'phpcs']
+let g:syntastic_php_phpcs_quiet_messages = { '!level': 'error' }
+let g:syntastic_php_phpcs_args='--standard=~/.phpcs.xml'
 
+"_______________________________________________________________________________
+"                                                             config_nerdtree
 " NERDtree Setup
 let g:NERDTreeQuitOnOpen=0
 let NERDTreeShowHidden=1
