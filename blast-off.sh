@@ -1,35 +1,37 @@
-mv $PWD ~/.dotfiles
-###############################################################################
-# Symbolic Links                                                              #
-###############################################################################
-ln -s $PWD/.vimrc ~/.vimrc
-ln -s $PWD/.zshrc ~/.zshrc
-
-###############################################################################
-# General Installations                                                       #
-###############################################################################
+# install Command Line Tools
+# xcode-select --install
 
 # Install Homebew
 # /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
+mv $PWD ~/.dotfiles
+###############################################################################
+# General Installations                                                       #
+###############################################################################
+
 #Install bundler
-# sudo gem install bundler
+ sudo gem install bundler
 
 # Install brew and casks
-# bundle install && brew bundle
+ bundle install && brew bundle
 
 # Install NVM
-# curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.0/install.sh | bash
+ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.0/install.sh | bash
 
 # Install OhMyZSH
-#sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+
+# Symbolic Links                                                              #
+ln -s $PWD/.vimrc ~/.vimrc
+ln -sf $PWD/.zshrc ~/.zshrc
+ln -s $PWD/.tmux.conf ~/.tmux.conf
 
 # Install NPM modules
 npm install -g tldr
 npm install -g expo
 
 # Install Vundle
-# git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 
 # Remove Unnecessary folder
 rm -rf ~/Documents ~/Pictures ~/Movies ~/Music
@@ -37,14 +39,14 @@ rm -rf ~/Documents ~/Pictures ~/Movies ~/Music
 # Make Development and Screenshot folder
 mkdir ~/Development ~/Screenshots
 
+# Create ssh key
+ssh-keygen -o
+
 # Install Vim Plugins
 vim +PlugInstall +qall
 
-# Install YouCompleteMe completely
-/usr/bin/python ~/.vim/bundle/YouCompleteMe/install.py
-
-# Install Laravel
-#composer global require laravel/installer
+# Install Tmux Manager
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 ###############################################################################
 # General macOS Setup                                                         #
