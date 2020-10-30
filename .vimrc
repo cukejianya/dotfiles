@@ -1,11 +1,12 @@
 " ---------------------Content
 " general_settings
-" config_automation
 " config_buffer
 " config_motion
 " config_plugins
 " config_syntastic
 " config_nerdtree
+" config_gutentags
+" config_plugin_settings
 "_______________________________________________________________________________
 set nocompatible              " be iMproved, required
 filetype off                  " required
@@ -48,24 +49,13 @@ set wildignore+=*/node_modules/*
 set wildignore+=*/bower_components/*
 set wildignore+=*/build/*
 set wildignore+=*.swp
+set wildignore+=*.swp
 
 " Toggle Relative Numberline
 nnoremap <leader>n :setlocal relativenumber!<CR>
 
 " Map enter key to esc
 inoremap jk <Esc>
-
-"-------------------------------------------------------------------------------
-"                                                            config_automation 
-" Automatically Close Brackets|Paranthesis|Quotes
-" if you don't want the default use clrl + v before type key
-inoremap " ""<left>
-inoremap ' ''<left>
-inoremap ( ()<left>
-inoremap [ []<left>
-inoremap { {}<left>
-inoremap {<CR> {<CR>}<ESC>O
-inoremap {;<CR> {<CR>};<ESC>O
 
 "-------------------------------------------------------------------------------
 "                                                                config_buffer
@@ -130,7 +120,11 @@ Plugin 'ctrlpvim/ctrlp.vim' " Finds files with ctrl-p
 Plugin 'Xuyuanp/nerdtree-git-plugin'
 Plugin 'sheerun/vim-polyglot' " Syntax Highlighter Bundle
 Plugin 'ryanoasis/vim-devicons'
-Plugin 'rking/ag.vim'
+Plugin 'mileszs/ack.vim'
+Plugin 'mattn/emmet-vim'
+Plugin 'scrooloose/nerdcommenter'
+Plugin 'ludovicchabant/vim-gutentags'
+Plugin 'kshenoy/vim-signature'
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.
 " plugin on GitHub repo
@@ -192,13 +186,16 @@ let g:syntastic_html_tidy_blocklevel_tags = ['svg', 'g', 'circle']
 let g:syntastic_html_tidy_inline_tags = ['svg', 'g', 'circle'] 
 let g:syntastic_html_tidy_ignore_errors = ["trimming empty <i>"] 
 
-" Syntastic Setup
+" Syntastic PHP Setup
 let g:syntastic_php_checkers = ['php', 'phpcs']
 let g:syntastic_php_phpcs_quiet_messages = { '!level': 'error' }
 let g:syntastic_php_phpcs_args='--standard=~/.phpcs.xml'
 
+" Syntastic Typescript Setup
+let g:syntastic_typescript_checkers = ['tslint']
+let g:syntastic_typescript_tslint_args = "--config ~/Crowdskout/helm-front/tslint.json"
 "_______________________________________________________________________________
-"                                                             config_nerdtree
+"                                                               config_nerdtree
 " NERDtree Setup
 let g:NERDTreeQuitOnOpen=0
 let NERDTreeShowHidden=1
@@ -212,10 +209,102 @@ let g:WebDevIconsNerdTreeBeforeGlyphPadding = ''
 let g:WebDevIconsUnicodeDecorateFolderNodes = v:true
 let g:NERDTreeDirArrowExpandable = "\u00a0"
 let g:NERDTreeDirArrowCollapsible = "\u00a0"
+" Enable line numbers
+let NERDTreeShowLineNumbers=1
+" Make sure relative line numbers are used
+autocmd FileType nerdtree setlocal relativenumber
+"_______________________________________________________________________________
+"                                                               config_gutentags
+" Gutentags Setup
+" let g:gutentags_add_default_project_roots = 0
+let g:gutentags_project_root = ['package.json', '.git']
+let g:gutentags_cache_dir = expand('~/.cache/vim/ctags/')
+
+" Running automatically
+let g:gutentags_generate_on_new = 1
+let g:gutentags_generate_on_missing = 1
+let g:gutentags_generate_on_write = 1
+" let g:gutentags_generate_on_empty_buffer = 0
+
+" " Generate more info tags
+" " a: Access (or export) of class members
+" " i: Inheritance information
+" " l: Language of input file containing tag
+" " m: Implementation information
+" " n: Line number of tag definition
+" " s: Signature of routine (e.g. prototype or parameter list)
+" let g:gutentags_ctags_extra_args = [
+      " \ '--tag-relative=yes',
+      " \ '--fields=+ailmnS',
+      " \ ]
+" " List of files ignoring
+" let g:gutentags_ctags_exclude = [
+      " \ '*.git', '*.svg', '*.hg',
+      " \ '*/tests/*',
+      " \ 'build',
+      " \ 'dist',
+      " \ '*sites/*/files/*',
+      " \ 'bin',
+      " \ 'node_modules',
+      " \ 'bower_components',
+      " \ 'cache',
+      " \ 'compiled',
+      " \ 'docs',
+      " \ 'example',
+      " \ 'bundle',
+      " \ 'vendor',
+      " \ '*.md',
+      " \ '*-lock.json',
+      " \ '*.lock',
+      " \ '*bundle*.js',
+      " \ '*build*.js',
+      " \ '.*rc*',
+      " \ '*.json',
+      " \ '*.min.*',
+      " \ '*.map',
+      " \ '*.bak',
+      " \ '*.zip',
+      " \ '*.pyc',
+      " \ '*.class',
+      " \ '*.sln',
+      " \ '*.Master',
+      " \ '*.csproj',
+      " \ '*.tmp',
+      " \ '*.csproj.user',
+      " \ '*.cache',
+      " \ '*.pdb',
+      " \ 'tags*',
+      " \ 'cscope.*',
+      " \ '*.css',
+      " \ '*.less',
+      " \ '*.scss',
+      " \ '*.exe', '*.dll',
+      " \ '*.mp3', '*.ogg', '*.flac',
+      " \ '*.swp', '*.swo',
+      " \ '*.bmp', '*.gif', '*.ico', '*.jpg', '*.png',
+      " \ '*.rar', '*.zip', '*.tar', '*.tar.gz', '*.tar.xz', '*.tar.bz2',
+      " \ '*.pdf', '*.doc', '*.docx', '*.ppt', '*.pptx',
+      " \ ]
+"_______________________________________________________________________________ "                                                         config_plugin_settings
+" Ack Setup
+if executable('ag')
+  let g:ackprg = 'ag --vimgrep'
+endif
+
+" NerdCommenter Setup
+let g:NERDSpaceDelims = 1
 
 " Airline Setup
 let g:airline_theme='angr'
 let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#gutentags#enabled = 1
 
 " Ctrl-P Setup
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git'
+
+" Emmet Setup
+let g:user_emmet_leader_key=','
+let g:user_emmet_mode='nv'
+
+" Fugitive Setup
+let g:fugitive_pty = 0
