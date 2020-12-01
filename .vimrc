@@ -57,6 +57,9 @@ nnoremap <leader>n :setlocal relativenumber!<CR>
 " Map enter key to esc
 inoremap jk <Esc>
 
+" Reload and edit vim config file
+nnoremap <Leader>ve :e $MYVIMRC<CR>
+nnoremap <Leader>vr :source $MYVIMRC<CR>
 "-------------------------------------------------------------------------------
 "                                                                config_buffer
 " Mappings to access buffers (don't use "\p" because a
