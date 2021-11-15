@@ -50,6 +50,7 @@ set wildignore+=*/bower_components/*
 set wildignore+=*/build/*
 set wildignore+=*.swp
 set wildignore+=*.swp
+set wildignore+=*/venv/*
 
 " Toggle Relative Numberline
 nnoremap <leader>n :setlocal relativenumber!<CR>
@@ -70,8 +71,8 @@ nnoremap <Leader>vr :source $MYVIMRC<CR>
 nnoremap <Leader>l :ls<CR>
 nnoremap <Leader>b :bp<CR>
 nnoremap <Leader>f :bn<CR>
-nnoremap <Leader>e :bd<CR>
-nnoremap <Leader>g :e#<CR>
+nnoremap <Leader>e :Bd<CR>
+nnoremap <Leader>a :e#<CR>
 nnoremap <Leader>1 :bfirst<CR>
 nnoremap <Leader>2 :bfirst<CR>:1bn<CR>
 nnoremap <Leader>3 :bfirst<CR>:2bn<CR>
@@ -128,6 +129,11 @@ Plugin 'mattn/emmet-vim'
 Plugin 'scrooloose/nerdcommenter'
 Plugin 'ludovicchabant/vim-gutentags'
 Plugin 'kshenoy/vim-signature'
+Plugin 'quramy/tsuquyomi'
+Plugin 'pantharshit00/vim-prisma'
+Plugin 'jparise/vim-graphql'
+Plugin 'moll/vim-bbye'
+Plugin 'w0rp/ale'
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.
 " plugin on GitHub repo
@@ -178,25 +184,26 @@ augroup END
 
 "_______________________________________________________________________________
 "                                                             config_syntastic 
-" Syntastic Setup
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 2
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
+" " Syntastic Setup
+" let g:syntastic_always_populate_loc_list = 1
+" let g:syntastic_auto_loc_list = 2
+" let g:syntastic_check_on_open = 1
+" let g:syntastic_check_on_wq = 0
 
-" Syntastic HTML Setup
-let g:syntastic_html_tidy_blocklevel_tags = ['svg', 'g', 'circle']
-let g:syntastic_html_tidy_inline_tags = ['svg', 'g', 'circle'] 
-let g:syntastic_html_tidy_ignore_errors = ["trimming empty <i>"] 
+" " Syntastic HTML Setup
+" let g:syntastic_html_tidy_blocklevel_tags = ['svg', 'g', 'circle']
+" let g:syntastic_html_tidy_inline_tags = ['svg', 'g', 'circle'] 
+" let g:syntastic_html_tidy_ignore_errors = ["trimming empty <i>"] 
 
-" Syntastic PHP Setup
-let g:syntastic_php_checkers = ['php', 'phpcs']
-let g:syntastic_php_phpcs_quiet_messages = { '!level': 'error' }
-let g:syntastic_php_phpcs_args='--standard=~/.phpcs.xml'
+" " Syntastic PHP Setup
+" let g:syntastic_php_checkers = ['php', 'phpcs']
+" let g:syntastic_php_phpcs_quiet_messages = { '!level': 'error' }
+" let g:syntastic_php_phpcs_args='--standard=~/.phpcs.xml'
 
-" Syntastic Typescript Setup
-let g:syntastic_typescript_checkers = ['tslint']
-let g:syntastic_typescript_tslint_args = "--config ~/Crowdskout/helm-front/tslint.json"
+" " Syntastic Typescript Setup
+" let g:syntastic_typescript_checkers = ['tsc', 'tslint']
+" let g:syntastic_typescript_tsc_fname = ''
+
 "_______________________________________________________________________________
 "                                                               config_nerdtree
 " NERDtree Setup
@@ -311,3 +318,14 @@ let g:user_emmet_mode='nv'
 
 " Fugitive Setup
 let g:fugitive_pty = 0
+
+" Ale
+let g:ale_linters = {'javascript': ['eslint'], 'typescript': ['eslint'] }
+let g:ale_fixers = {'javascript': ['eslint'], 'typescript': ['eslint'] }
+let g:ale_pattern_options = {
+ \ '.*node_modules.*$': {'ale_enabled': 0},
+ \ '.*dist.*$': {'ale_enabled': 0},
+ \ '.*-config.js$': {'ale_enabled': 0},
+ \}
+
+let g:ale_fix_on_save = 1
