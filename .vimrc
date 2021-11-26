@@ -128,6 +128,8 @@ Plugin 'mattn/emmet-vim'
 Plugin 'scrooloose/nerdcommenter'
 Plugin 'ludovicchabant/vim-gutentags'
 Plugin 'kshenoy/vim-signature'
+Plugin 'dense-analysis/ale'
+Plugin 'neoclide/coc.nvim'
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.
 " plugin on GitHub repo
@@ -311,3 +313,8 @@ let g:user_emmet_mode='nv'
 
 " Fugitive Setup
 let g:fugitive_pty = 0
+
+" Ale Setup
+let g:ale_linters = {
+\   'javascript': ['eslint'],
+\}

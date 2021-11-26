@@ -62,6 +62,7 @@ plugins=(
   git
   wd
   jsontools
+  dotenv
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -138,4 +139,3 @@ export PATH="$PATH:$HOME/.rvm/bin"
 function create_html() {
   cp ~/.template/basic.html ./"$1".html
 }
-source ~/.crowdskout/profile

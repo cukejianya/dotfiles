@@ -35,6 +35,7 @@ sudo rm -rf ~/Documents ~/Movies ~/Music
 
 # Make Development and Screenshot folder
 mkdir ~/Development ~/Screenshots
+ln -s ~/Screenshots ~/Desktop/Screenshots
 
 # Create ssh key
 ssh-keygen -t ed25519 -C "cukejianya@gmail.com"
@@ -45,3 +46,7 @@ vim +PluginInstall +qall
 
 # Install Tmux Manager
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+
+# Install Monaco Nerd Font
+git clone https://github.com/Karmenzind/monaco-nerd-fonts.git
+
