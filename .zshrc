@@ -96,6 +96,9 @@ export SSH_KEY_PATH="~/.ssh/rsa_id"
 #Set zsh to vi mode
 bindkey -v
 
+#Set bash to vi mode
+set -o vi
+
 # Bind jk to <esc> key
 bindkey jk vi-cmd-mode
 
@@ -116,6 +119,30 @@ export LSCOLORS=ExFxBxDxCxegedabagacad
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# Automate node switch
+# place this after nvm initialization!
+autoload -U add-zsh-hook
+load-nvmrc() {
+  local node_version="$(nvm version)"
+  local nvmrc_path="$(nvm_find_nvmrc)"
+  
+  if [ -n "$nvmrc_path"  ]; then
+    local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
+  
+    if [ "$nvmrc_node_version" = "N/A"  ]; then
+      nvm install
+    elif [ "$nvmrc_node_version" != "$node_version"  ];
+    then
+      nvm use
+    fi
+  elif [ "$node_version" != "$(nvm version default)" ]; then
+    echo "Reverting to nvm default
+    version"
+    nvm use default
+  fi
+}
+add-zsh-hook chpwd load-nvmrc
+load-nvmrc
 
 #export PYENV_ROOT="$HOME/.pyenv"
 #export PYTHON_CONFIGURE_OPTS="--enable-framework"
@@ -134,6 +161,15 @@ export PATH="/usr/local/opt/php@7.2/sbin:$PATH"
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export PATH="$PATH:$HOME/.rvm/bin"
+
+# Git pretty log
+alias lg="git lg1"
+alias lg1="git lg1-specific --all"
+alias lg2="git lg2-specific --all"
+alias lg3="git lg3-specific --all"
+alias lg1-specific="log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'"
+alias lg2-specific="log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'"
+alias lg3-specific="log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''          %C(white)%s%C(reset)%n''          %C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'V"
 
 # Template Alias
 function create_html() {
