@@ -15,6 +15,7 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/mas
 # Symbolic Links                                                              #
 ln -s $PWD/.vimrc ~/.vimrc
 ln -sf $PWD/.zshrc ~/.zshrc
+ln -sf $PWD/init.vim ~/.config/nvim/init.vim
 ln -s $PWD/.tmux.conf ~/.tmux.conf
 ln -sf $PWD/.ssh_config ~/.ssh/config
 
