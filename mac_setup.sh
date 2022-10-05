@@ -44,7 +44,7 @@ defaults write com.apple.ActivityMonitor SortDirection -int 0
 sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.locate.plist
 
 # Kill affected applications                                                  #
-for app in "Address Book" "Calendar" "Contacts" "Dock" "Finder" "Mail" "Safari" "SystemUIServer" "iCal"; do
+for app in "Address Book" "Contacts" "Dock" "Finder" "Mail" "Safari" "SystemUIServer"; do
   killall "${app}" &> /dev/null
 done
 

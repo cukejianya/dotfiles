@@ -21,7 +21,7 @@ ZSH_THEME="robbyrussell"
 
 # Uncomment the following line to use hyphen-insensitive completion. Case
 # sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
+HYPHEN_INSENSITIVE="true"
 
 # Uncomment the following line to disable bi-weekly auto-update checks.
 # DISABLE_AUTO_UPDATE="true"
@@ -36,7 +36,7 @@ ZSH_THEME="robbyrussell"
 # DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
+ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
 # COMPLETION_WAITING_DOTS="true"
@@ -110,7 +110,7 @@ alias tmuxconfig="vim ~/.tmux.conf"
 alias vimconfig="vim ~/.vimrc"
 alias zshconfig="vim ~/.zshrc"
 
-# Config to Cpp build 
+# Config to Cpp build
 alias cpp="clang++ -std=c++11 -stdlib=libc++"
 
 export CLICOLOR=1
@@ -125,10 +125,10 @@ autoload -U add-zsh-hook
 load-nvmrc() {
   local node_version="$(nvm version)"
   local nvmrc_path="$(nvm_find_nvmrc)"
-  
+
   if [ -n "$nvmrc_path"  ]; then
     local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
-  
+
     if [ "$nvmrc_node_version" = "N/A"  ]; then
       nvm install
     elif [ "$nvmrc_node_version" != "$node_version"  ];
