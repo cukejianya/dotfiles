@@ -106,6 +106,9 @@ bindkey jk vi-cmd-mode
 alias reload="source ~/.zshrc"
 
 # Config aliases
+alias vim="nvim" 
+alias cat="bat -pp"
+alias fzf-preview="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
 alias tmuxconfig="vim ~/.tmux.conf"
 alias vimconfig="vim ~/.vimrc"
 alias zshconfig="vim ~/.zshrc"
@@ -141,13 +144,6 @@ load-nvmrc() {
     nvm use default
   fi
 }
-add-zsh-hook chpwd load-nvmrc
-load-nvmrc
-
-#export PYENV_ROOT="$HOME/.pyenv"
-#export PYTHON_CONFIGURE_OPTS="--enable-framework"
-#export PATH="$PYENV_ROOT/bin:$PATH"
-#eval "$(pyenv init -)"
 
 # For compilers to find zlib you may need to set:
 export LDFLAGS="${LDFLAGS} -L/usr/local/opt/zlib/lib"
@@ -171,7 +167,5 @@ alias lg1-specific="log --graph --abbrev-commit --decorate --format=format:'%C(b
 alias lg2-specific="log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'"
 alias lg3-specific="log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''          %C(white)%s%C(reset)%n''          %C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'V"
 
-# Template Alias
-function create_html() {
-  cp ~/.template/basic.html ./"$1".html
-}
+# functions
+decodeURL() { printf "%b\n" "$(sed 's/+/ /g; s/%\([0-9a-f][0-9a-f]\)/\\x\1/g;')"; }
