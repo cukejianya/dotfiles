@@ -11,7 +11,7 @@ export HOMEBREW_INSTALL_FROM_API=1
  sudo gem install bundler
 
 # Install brew and casks
- bundle install && brew bundle
+brew bundle
 
 # Install OhMyZSH
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
@@ -19,13 +19,15 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/mas
 # Symbolic Links                                                              #
 ln -s $PWD/.vimrc ~/.vimrc
 ln -sf $PWD/.zshrc ~/.zshrc
+mkdir ~/.config/nvim/
 ln -sf $PWD/init.vim ~/.config/nvim/init.vim
 ln -s $PWD/.tmux.conf ~/.tmux.conf
 ln -sf $PWD/.ssh_config ~/.ssh/config
-ln -sf $PWD/.gitconfig ~/.ssh/config
+ln -sf $PWD/.gitconfig ~/.gitconfig
 
 # Install NVM
 sh -c "$(curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh)"
+source ~/.zshrc
 nvm install --lts
 nvm use --lts
 
@@ -34,6 +36,7 @@ npm install -g tldr
 
 # Install Vundle
 git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+vim +PluginInstall +qall
 
 # Remove Unnecessary folder
 sudo rm -rf ~/Documents ~/Movies ~/Music
@@ -49,9 +52,12 @@ ssh-add
 # Install Vim Plugins
 vim +PluginInstall +qall
 
+# Install CoC
+npx yarn --cwd ~/.vim/bundle/coc.nvim
+
 # Install Tmux Manager
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
-# Install Monaco Nerd Font
-git clone https://github.com/Karmenzind/monaco-nerd-fonts.git
-
+# Install Fira Code Retina Font 
+curl -L -O https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/FiraCode/Retina/complete/Fira%20Code%20Retina%20Nerd%20Font%20Complete.ttf
+mv Fira%20Code%20Retina%20Nerd%20Font%20Complete.ttf ~/Library/Fonts/FiraCode-Retina-NerdFont-Complete.ttf
