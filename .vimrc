@@ -3,9 +3,7 @@
 " config_buffer
 " config_motion
 " config_plugins
-" config_syntastic
 " config_nerdtree
-" config_gutentags
 " config_plugin_settings
 "_______________________________________________________________________________
 set nocompatible              " be iMproved, required
@@ -109,32 +107,27 @@ call vundle#begin()
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
 " Custom Plugins
-Plugin 'scrooloose/syntastic'
 Plugin 'tpope/vim-surround'
-" Plugin 'valloric/youcompleteme'
 Plugin 'joshdick/onedark.vim'
-Plugin 'tiagofumo/vim-nerdtree-syntax-highlight'
-Plugin 'airblade/vim-gitgutter' " Shows git diff in the 'gutter'
 Plugin 'vim-airline/vim-airline'
 Plugin 'jiangmiao/auto-pairs'
 Plugin 'ap/vim-css-color'
-Plugin 'scrooloose/nerdtree'
 Plugin 'vim-airline/vim-airline-themes'
-Plugin 'ctrlpvim/ctrlp.vim' " Finds files with ctrl-p
-Plugin 'Xuyuanp/nerdtree-git-plugin'
-Plugin 'sheerun/vim-polyglot' " Syntax Highlighter Bundle
 Plugin 'ryanoasis/vim-devicons'
-Plugin 'mileszs/ack.vim'
 Plugin 'mattn/emmet-vim'
 Plugin 'scrooloose/nerdcommenter'
-Plugin 'ludovicchabant/vim-gutentags'
 Plugin 'kshenoy/vim-signature'
-Plugin 'dense-analysis/ale'
 Plugin 'neoclide/coc.nvim'
 Plugin 'quramy/tsuquyomi'
 Plugin 'pantharshit00/vim-prisma'
 Plugin 'jparise/vim-graphql'
 Plugin 'moll/vim-bbye'
+Plugin 'kyazdani42/nvim-web-devicons' " optional, for file icons
+Plugin 'kyazdani42/nvim-tree.lua'
+Plugin 'junegunn/fzf'
+Plugin 'junegunn/fzf.vim'
+Plugin 'nvim-treesitter/nvim-treesitter'
+Plugin 'vim-test/vim-test'
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.
 " plugin on GitHub repo
@@ -177,131 +170,12 @@ syntax enable
 set background=dark
 colorscheme onedark
 
-" Enable mysql cli editting mode to use syntax highlighting
-augroup sql
-  autocmd!
-  autocmd BufNew,BufEnter /**/sql[\w]* setlocal filetype=sql
-augroup END
-
-"_______________________________________________________________________________
-"                                                             config_syntastic 
-" " Syntastic Setup
-" let g:syntastic_always_populate_loc_list = 1
-" let g:syntastic_auto_loc_list = 2
-" let g:syntastic_check_on_open = 1
-" let g:syntastic_check_on_wq = 0
-
-" " Syntastic HTML Setup
-" let g:syntastic_html_tidy_blocklevel_tags = ['svg', 'g', 'circle']
-" let g:syntastic_html_tidy_inline_tags = ['svg', 'g', 'circle'] 
-" let g:syntastic_html_tidy_ignore_errors = ["trimming empty <i>"] 
-
-" " Syntastic PHP Setup
-" let g:syntastic_php_checkers = ['php', 'phpcs']
-" let g:syntastic_php_phpcs_quiet_messages = { '!level': 'error' }
-" let g:syntastic_php_phpcs_args='--standard=~/.phpcs.xml'
-
-" " Syntastic Typescript Setup
-" let g:syntastic_typescript_checkers = ['tsc', 'tslint']
-" let g:syntastic_typescript_tsc_fname = ''
-
-"_______________________________________________________________________________
-"                                                               config_nerdtree
-" NERDtree Setup
-let g:NERDTreeQuitOnOpen=0
-let NERDTreeShowHidden=1
-autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
-map <Leader>k :NERDTreeToggle<CR>
-nmap <Leader>y :NERDTreeFind<CR>
-let NERDTreeRespectWildIgnore=1
-" Next 4 lines is to fix spacing btw icon and arrows
-let g:WebDevIconsNerdTreeBeforeGlyphPadding = ''
-let g:WebDevIconsUnicodeDecorateFolderNodes = v:true
-let g:NERDTreeDirArrowExpandable = "\u00a0"
-let g:NERDTreeDirArrowCollapsible = "\u00a0"
-" Enable line numbers
-let NERDTreeShowLineNumbers=1
-" Make sure relative line numbers are used
-autocmd FileType nerdtree setlocal relativenumber
-"_______________________________________________________________________________
-"                                                               config_gutentags
-" Gutentags Setup
-" let g:gutentags_add_default_project_roots = 0
-let g:gutentags_project_root = ['package.json', '.git']
-let g:gutentags_cache_dir = expand('~/.cache/vim/ctags/')
-
-" Running automatically
-let g:gutentags_generate_on_new = 1
-let g:gutentags_generate_on_missing = 1
-let g:gutentags_generate_on_write = 1
-" let g:gutentags_generate_on_empty_buffer = 0
-
-" " Generate more info tags
-" " a: Access (or export) of class members
-" " i: Inheritance information
-" " l: Language of input file containing tag
-" " m: Implementation information
-" " n: Line number of tag definition
-" " s: Signature of routine (e.g. prototype or parameter list)
-" let g:gutentags_ctags_extra_args = [
-      " \ '--tag-relative=yes',
-      " \ '--fields=+ailmnS',
-      " \ ]
-" " List of files ignoring
-" let g:gutentags_ctags_exclude = [
-      " \ '*.git', '*.svg', '*.hg',
-      " \ '*/tests/*',
-      " \ 'build',
-      " \ 'dist',
-      " \ '*sites/*/files/*',
-      " \ 'bin',
-      " \ 'node_modules',
-      " \ 'bower_components',
-      " \ 'cache',
-      " \ 'compiled',
-      " \ 'docs',
-      " \ 'example',
-      " \ 'bundle',
-      " \ 'vendor',
-      " \ '*.md',
-      " \ '*-lock.json',
-      " \ '*.lock',
-      " \ '*bundle*.js',
-      " \ '*build*.js',
-      " \ '.*rc*',
-      " \ '*.json',
-      " \ '*.min.*',
-      " \ '*.map',
-      " \ '*.bak',
-      " \ '*.zip',
-      " \ '*.pyc',
-      " \ '*.class',
-      " \ '*.sln',
-      " \ '*.Master',
-      " \ '*.csproj',
-      " \ '*.tmp',
-      " \ '*.csproj.user',
-      " \ '*.cache',
-      " \ '*.pdb',
-      " \ 'tags*',
-      " \ 'cscope.*',
-      " \ '*.css',
-      " \ '*.less',
-      " \ '*.scss',
-      " \ '*.exe', '*.dll',
-      " \ '*.mp3', '*.ogg', '*.flac',
-      " \ '*.swp', '*.swo',
-      " \ '*.bmp', '*.gif', '*.ico', '*.jpg', '*.png',
-      " \ '*.rar', '*.zip', '*.tar', '*.tar.gz', '*.tar.xz', '*.tar.bz2',
-      " \ '*.pdf', '*.doc', '*.docx', '*.ppt', '*.pptx',
-      " \ ]
-"_______________________________________________________________________________ "                                                         config_plugin_settings
-" Ack Setup
-if executable('ag')
-  let g:ackprg = 'ag --vimgrep'
-endif
-
+" " Enable mysql cli editting mode to use syntax highlighting
+" augroup sql
+  " autocmd!
+  " autocmd BufNew,BufEnter /**/sql[\w]* setlocal filetype=sql
+" augroup END
+"______________________________________________________________________________config_plugin_settings
 " NerdCommenter Setup
 let g:NERDSpaceDelims = 1
 
@@ -310,8 +184,9 @@ let g:airline_theme='angr'
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#gutentags#enabled = 1
 
-" Ctrl-P Setup
-let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git'
+" fzf Setup
+nmap <silent> <C-p> :Files<CR> 
+let g:ctrlf_custom_ignore = 'node_modules\|DS_Store\|git'
 
 " Emmet Setup
 let g:user_emmet_leader_key=','
@@ -320,13 +195,51 @@ let g:user_emmet_mode='nv'
 " Fugitive Setup
 let g:fugitive_pty = 0
 
-" Ale Setup
-let g:ale_linters = {'javascript': ['eslint'], 'typescript': ['eslint'] }
-let g:ale_fixers = {'javascript': ['eslint'], 'typescript': ['eslint'] }
-let g:ale_pattern_options = {
- \ '.*node_modules.*$': {'ale_enabled': 0},
- \ '.*dist.*$': {'ale_enabled': 0},
- \ '.*-config.js$': {'ale_enabled': 0},
- \}
+" CoC Setup
+let g:coc_global_extensions = [
+      \ 'coc-json', 
+      \ 'coc-git',
+      \ 'coc-java',
+      \ 'coc-prettier',
+      \ 'coc-sh',
+      \ 'coc-sql',
+      \ 'coc-diagnostic',
+      \ 'coc-eslint',
+      \ 'coc-tsserver'
+\]
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
 
-let g:ale_fix_on_save = 1
+nmap <leader>rn <Plug>(coc-rename)
+
+" Vim Test Setup
+nmap <silent> <leader>tn :TestNearest<CR>
+nmap <silent> <leader>tt :TestFile<CR>"
+nmap <silent> <leader>ta :TestSuite<CR>
+nmap <silent> gt :TestVisit<CR>
+"_______________________________________________________________________________
+"                                                       config_nvimtree_settings
+" Nvim Tree Setup
+nnoremap <Leader>k :NvimTreeToggle<CR>
+nnoremap <Leader>y :NvimTreeFindFile<CR>
+lua << EOF
+require("nvim-tree").setup({
+  sort_by = "case_sensitive",
+  view = {
+    adaptive_size = true,
+    mappings = {
+      list = {
+        { key = "u", action = "dir_up" },
+      },
+    },
+  },
+  renderer = {
+    group_empty = true,
+  },
+  filters = {
+    dotfiles = true,
+  },
+})
+EOF
