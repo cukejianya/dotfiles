@@ -119,6 +119,12 @@ alias cpp="clang++ -std=c++11 -stdlib=libc++"
 export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacad
 
+# Colorize man pages
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+
+# Config FZF
+export FZF_DEFAULT_COMMAND="rg --hidden --no-ignore --files"
+
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
@@ -169,3 +175,4 @@ alias lg3-specific="log --graph --abbrev-commit --decorate --format=format:'%C(b
 
 # functions
 decodeURL() { printf "%b\n" "$(sed 's/+/ /g; s/%\([0-9a-f][0-9a-f]\)/\\x\1/g;')"; }
+

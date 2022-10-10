@@ -65,22 +65,9 @@ nnoremap <Leader>vr :source $MYVIMRC<CR>
 " delay before pressing "p" would accidentally paste).
 " \l       : list buffers
 " \b \f \g : go back/forward/last-used
-" \1 \2 \3 : go to buffer 1/2/3 etc
-nnoremap <Leader>l :ls<CR>
 nnoremap <Leader>b :bp<CR>
 nnoremap <Leader>f :bn<CR>
 nnoremap <Leader>e :Bd<CR>
-nnoremap <Leader>a :e#<CR>
-nnoremap <Leader>1 :bfirst<CR>
-nnoremap <Leader>2 :bfirst<CR>:1bn<CR>
-nnoremap <Leader>3 :bfirst<CR>:2bn<CR>
-nnoremap <Leader>4 :bfirst<CR>:3bn<CR>
-nnoremap <Leader>5 :bfirst<CR>:4bn<CR>
-nnoremap <Leader>6 :bfirst<CR>:5bn<CR>
-nnoremap <Leader>7 :bfirst<CR>:6bn<CR>
-nnoremap <Leader>8 :bfirst<CR>:7bn<CR>
-nnoremap <Leader>9 :bfirst<CR>:8bn<CR>
-nnoremap <Leader>0 :bfirst<CR>:9bn<CR>
 
 "-------------------------------------------------------------------------------
 "                                                                config_motion
@@ -108,6 +95,7 @@ call vundle#begin()
 Plugin 'VundleVim/Vundle.vim'
 " Custom Plugins
 Plugin 'tpope/vim-surround'
+Plugin 'tpope/vim-projectionist'
 Plugin 'joshdick/onedark.vim'
 Plugin 'vim-airline/vim-airline'
 Plugin 'jiangmiao/auto-pairs'
@@ -185,8 +173,9 @@ let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#gutentags#enabled = 1
 
 " fzf Setup
-nmap <silent> <C-p> :Files<CR> 
-let g:ctrlf_custom_ignore = 'node_modules\|DS_Store\|git'
+nmap <silent> <C-p> :GFiles<CR> 
+nmap <Leader>l :Buffers<CR>
+nmap <Leader>o :GFiles?<CR>
 
 " Emmet Setup
 let g:user_emmet_leader_key=','
@@ -214,11 +203,54 @@ nmap <silent> gr <Plug>(coc-references)
 
 nmap <leader>rn <Plug>(coc-rename)
 
+function! CheckBackspace() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+" Use <c-space> to trigger completion.
+if has('nvim')
+  inoremap <silent><expr> <c-space> coc#refresh()
+else
+  inoremap <silent><expr> <c-@> coc#refresh()
+endif
+
+" Use K to show documentation in preview window.
+nnoremap <silent> K :call ShowDocumentation()<CR>
+
+function! ShowDocumentation()
+  if CocAction('hasProvider', 'hover')
+    call CocActionAsync('doHover')
+  else
+    call feedkeys('K', 'in')
+  endif
+endfunction
+
+" Apply AutoFix to problem on the current line.
+nmap <leader>qf  <Plug>(coc-fix-current)
+
+" Run the Code Lens action on the current line.
+nmap <leader>cl  <Plug>(coc-codelens-action)
+
 " Vim Test Setup
 nmap <silent> <leader>tn :TestNearest<CR>
 nmap <silent> <leader>tt :TestFile<CR>"
 nmap <silent> <leader>ta :TestSuite<CR>
 nmap <silent> gt :TestVisit<CR>
+
+" Vim Projectionist Setup
+let g:projectionist_heuristics = {
+      \   "pom.xml": {
+      \     "src/main/java/*.java": {
+      \       "type": "source",
+      \       "alternate": "src/test/java/{dirname}/{basename}Test.java"
+      \     },
+      \     "src/test/java/*Test.java": {
+      \       "type": "test",
+      \       "alternate": "src/main/java/{}.java"
+      \     },
+      \   },
+      \ }
 "_______________________________________________________________________________
 "                                                       config_nvimtree_settings
 " Nvim Tree Setup
@@ -239,7 +271,7 @@ require("nvim-tree").setup({
     group_empty = true,
   },
   filters = {
-    dotfiles = true,
+    dotfiles = false,
   },
 })
 EOF
