@@ -106,6 +106,7 @@ bindkey jk vi-cmd-mode
 alias reload="source ~/.zshrc"
 
 # Config aliases
+alias vi="nvim"
 alias vim="nvim" 
 alias cat="bat -pp"
 alias fzf-preview="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
