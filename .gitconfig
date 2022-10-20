@@ -3,3 +3,6 @@
 # Please adapt and uncomment the following lines:
 	name = Chinedum Ukejianya
 	email = cukejianya@gmail.com
+  
+[core]
+  editor = nvim
