@@ -41,6 +41,14 @@ set hlsearch
 set cursorline
 set splitbelow
 set splitright
+set ignorecase
+set smartcase
+set incsearch
+set formatoptions-=cro " Stop auto commenting newlines
+set undofile
+autocmd FileType yaml set colorcolumn
+autocmd FileType yml set colorcolumn
+autocmd FileType python set colorcolumn
 
 set wildignore+=*/tmp/*
 set wildignore+=*/node_modules/*
@@ -116,7 +124,8 @@ Plugin 'junegunn/fzf'
 Plugin 'junegunn/fzf.vim'
 Plugin 'nvim-treesitter/nvim-treesitter'
 Plugin 'vim-test/vim-test'
-" The following are examples of different formats supported.
+Plugin 'junegunn/goyo.vim'
+" The foignorellowing are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.
 " plugin on GitHub repo
 Plugin 'tpope/vim-fugitive'
@@ -185,6 +194,21 @@ let g:user_emmet_mode='nv'
 let g:fugitive_pty = 0
 
 " CoC Setup
+set nobackup
+set nowritebackup
+set updatetime=300
+
+" Use tab for trigger completion with characters ahead and navigate.
+" NOTE: There's always complete item selected by default, you may want to enable
+" no select by `"suggest.noselect": true` in your configuration file.
+" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
+" other plugin before putting this into your config.
+inoremap <silent><expr> <TAB>
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+
 let g:coc_global_extensions = [
       \ 'coc-json', 
       \ 'coc-git',
@@ -226,6 +250,8 @@ function! ShowDocumentation()
   endif
 endfunction
 
+" Remap keys for applying codeAction to the current buffer.
+nmap <leader>ac  <Plug>(coc-codeaction)
 " Apply AutoFix to problem on the current line.
 nmap <leader>qf  <Plug>(coc-fix-current)
 
@@ -236,7 +262,7 @@ nmap <leader>cl  <Plug>(coc-codelens-action)
 nmap <silent> <leader>tn :TestNearest<CR>
 nmap <silent> <leader>tt :TestFile<CR>"
 nmap <silent> <leader>ta :TestSuite<CR>
-nmap <silent> gt :TestVisit<CR>
+nmap <silent> gt :A<CR>
 
 " Vim Projectionist Setup
 let g:projectionist_heuristics = {
