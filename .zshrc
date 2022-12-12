@@ -177,3 +177,11 @@ alias lg3-specific="log --graph --abbrev-commit --decorate --format=format:'%C(b
 # functions
 decodeURL() { printf "%b\n" "$(sed 's/+/ /g; s/%\([0-9a-f][0-9a-f]\)/\\x\1/g;')"; }
 
+
+getPastCommand() {
+  history | fzf | sed -E 's/^ * ([0-9]+).*/\!\1/g' | pbcopy
+}
+
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"

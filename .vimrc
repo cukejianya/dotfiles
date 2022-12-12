@@ -104,7 +104,7 @@ Plugin 'VundleVim/Vundle.vim'
 " Custom Plugins
 Plugin 'tpope/vim-surround'
 Plugin 'tpope/vim-projectionist'
-Plugin 'joshdick/onedark.vim'
+Plugin 'cukejianya/onedark.vim'
 Plugin 'vim-airline/vim-airline'
 Plugin 'jiangmiao/auto-pairs'
 Plugin 'ap/vim-css-color'
@@ -125,6 +125,8 @@ Plugin 'junegunn/fzf.vim'
 Plugin 'nvim-treesitter/nvim-treesitter'
 Plugin 'vim-test/vim-test'
 Plugin 'junegunn/goyo.vim'
+Plugin 'uiiaoo/java-syntax.vim'
+Plugin 'sheerun/vim-polyglot'
 " The foignorellowing are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.
 " plugin on GitHub repo
@@ -203,66 +205,66 @@ set updatetime=300
 " no select by `"suggest.noselect": true` in your configuration file.
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
 " other plugin before putting this into your config.
-inoremap <silent><expr> <TAB>
-      \ coc#pum#visible() ? coc#pum#next(1) :
-      \ CheckBackspace() ? "\<Tab>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+" inoremap <silent><expr> <TAB>
+      " \ coc#pum#visible() ? coc#pum#next(1) :
+      " \ CheckBackspace() ? "\<Tab>" :
+      " \ coc#refresh()
+" inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
 
-let g:coc_global_extensions = [
-      \ 'coc-json', 
-      \ 'coc-git',
-      \ 'coc-java',
-      \ 'coc-prettier',
-      \ 'coc-sh',
-      \ 'coc-sql',
-      \ 'coc-diagnostic',
-      \ 'coc-eslint',
-      \ 'coc-tsserver'
-\]
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
+" let g:coc_global_extensions = [
+      " \ 'coc-json', 
+      " \ 'coc-git',
+      " \ 'coc-java',
+      " \ 'coc-prettier',
+      " \ 'coc-sh',
+      " \ 'coc-sql',
+      " \ 'coc-diagnostic',
+      " \ 'coc-eslint',
+      " \ 'coc-tsserver',
+" \]
+" nmap <silent> gd <Plug>(coc-definition)
+" nmap <silent> gy <Plug>(coc-type-definition)
+" nmap <silent> gi <Plug>(coc-implementation)
+" nmap <silent> gr <Plug>(coc-references)
 
-nmap <leader>rn <Plug>(coc-rename)
+" nmap <leader>rn <Plug>(coc-rename)
 
-function! CheckBackspace() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
+" function! CheckBackspace() abort
+  " let col = col('.') - 1
+  " return !col || getline('.')[col - 1]  =~# '\s'
+" endfunction
 
-" Use <c-space> to trigger completion.
-if has('nvim')
-  inoremap <silent><expr> <c-space> coc#refresh()
-else
-  inoremap <silent><expr> <c-@> coc#refresh()
-endif
+" " Use <c-space> to trigger completion.
+" if has('nvim')
+  " inoremap <silent><expr> <c-space> coc#refresh()
+" else
+  " inoremap <silent><expr> <c-@> coc#refresh()
+" endif
 
-" Use K to show documentation in preview window.
-nnoremap <silent> K :call ShowDocumentation()<CR>
+" " Use K to show documentation in preview window.
+" nnoremap <silent> K :call ShowDocumentation()<CR>
 
-function! ShowDocumentation()
-  if CocAction('hasProvider', 'hover')
-    call CocActionAsync('doHover')
-  else
-    call feedkeys('K', 'in')
-  endif
-endfunction
+" function! ShowDocumentation()
+  " if CocAction('hasProvider', 'hover')
+    " call CocActionAsync('doHover')
+  " else
+    " call feedkeys('K', 'in')
+  " endif
+" endfunction
 
-" Remap keys for applying codeAction to the current buffer.
-nmap <leader>ac  <Plug>(coc-codeaction)
-" Apply AutoFix to problem on the current line.
-nmap <leader>qf  <Plug>(coc-fix-current)
+" " Remap keys for applying codeAction to the current buffer.
+" nmap <leader>ac  <Plug>(coc-codeaction)
+" " Apply AutoFix to problem on the current line.
+" nmap <leader>qf  <Plug>(coc-fix-current)
 
-" Run the Code Lens action on the current line.
-nmap <leader>cl  <Plug>(coc-codelens-action)
+" " Run the Code Lens action on the current line.
+" nmap <leader>cl  <Plug>(coc-codelens-action)
 
 " Vim Test Setup
 nmap <silent> <leader>tn :TestNearest<CR>
 nmap <silent> <leader>tt :TestFile<CR>"
 nmap <silent> <leader>ta :TestSuite<CR>
-nmap <silent> gt :A<CR>
+nmap <silent> gT :A<CR>
 
 " Vim Projectionist Setup
 let g:projectionist_heuristics = {
