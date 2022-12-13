@@ -48,8 +48,8 @@ ln -s ~/Screenshots ~/Desktop/Screenshots
 ssh-keygen -t ed25519 -C "cukejianya@gmail.com"
 ssh-add
 
-# Install Vim Plugins
-vim +PluginInstall +qall
+# Install Nvim Plugins
+vim +PackerInstall +qall
 
 # Install Tmux Manager
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm

@@ -12,6 +12,9 @@ require('packer').startup(function(use)
   use 'mfussenegger/nvim-jdtls'
   use 'mfussenegger/nvim-lsp-compl'
 
+  use 'kyazdani42/nvim-web-devicons' --optional, for file icons
+  use 'kyazdani42/nvim-tree.lua'
+
   use 'hrsh7th/nvim-cmp'
   use 'hrsh7th/cmp-buffer'
   use 'hrsh7th/cmp-path'

@@ -113,16 +113,12 @@ Plugin 'ryanoasis/vim-devicons'
 Plugin 'mattn/emmet-vim'
 Plugin 'scrooloose/nerdcommenter'
 Plugin 'kshenoy/vim-signature'
-Plugin 'neoclide/coc.nvim'
 Plugin 'quramy/tsuquyomi'
 Plugin 'pantharshit00/vim-prisma'
 Plugin 'jparise/vim-graphql'
 Plugin 'moll/vim-bbye'
-Plugin 'kyazdani42/nvim-web-devicons' " optional, for file icons
-Plugin 'kyazdani42/nvim-tree.lua'
 Plugin 'junegunn/fzf'
 Plugin 'junegunn/fzf.vim'
-Plugin 'nvim-treesitter/nvim-treesitter'
 Plugin 'vim-test/vim-test'
 Plugin 'junegunn/goyo.vim'
 Plugin 'uiiaoo/java-syntax.vim'
@@ -184,8 +180,8 @@ let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#gutentags#enabled = 1
 
 " fzf Setup
-nmap <silent> <C-p> :GFiles<CR> 
-nmap <Leader>l :Buffers<CR>
+nmap <silent> <C-p> :Files<CR> 
+nmap <Leader>l :GFiles<CR>
 nmap <Leader>o :GFiles?<CR>
 
 " Emmet Setup
@@ -194,71 +190,6 @@ let g:user_emmet_mode='nv'
 
 " Fugitive Setup
 let g:fugitive_pty = 0
-
-" CoC Setup
-set nobackup
-set nowritebackup
-set updatetime=300
-
-" Use tab for trigger completion with characters ahead and navigate.
-" NOTE: There's always complete item selected by default, you may want to enable
-" no select by `"suggest.noselect": true` in your configuration file.
-" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
-" other plugin before putting this into your config.
-" inoremap <silent><expr> <TAB>
-      " \ coc#pum#visible() ? coc#pum#next(1) :
-      " \ CheckBackspace() ? "\<Tab>" :
-      " \ coc#refresh()
-" inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
-
-" let g:coc_global_extensions = [
-      " \ 'coc-json', 
-      " \ 'coc-git',
-      " \ 'coc-java',
-      " \ 'coc-prettier',
-      " \ 'coc-sh',
-      " \ 'coc-sql',
-      " \ 'coc-diagnostic',
-      " \ 'coc-eslint',
-      " \ 'coc-tsserver',
-" \]
-" nmap <silent> gd <Plug>(coc-definition)
-" nmap <silent> gy <Plug>(coc-type-definition)
-" nmap <silent> gi <Plug>(coc-implementation)
-" nmap <silent> gr <Plug>(coc-references)
-
-" nmap <leader>rn <Plug>(coc-rename)
-
-" function! CheckBackspace() abort
-  " let col = col('.') - 1
-  " return !col || getline('.')[col - 1]  =~# '\s'
-" endfunction
-
-" " Use <c-space> to trigger completion.
-" if has('nvim')
-  " inoremap <silent><expr> <c-space> coc#refresh()
-" else
-  " inoremap <silent><expr> <c-@> coc#refresh()
-" endif
-
-" " Use K to show documentation in preview window.
-" nnoremap <silent> K :call ShowDocumentation()<CR>
-
-" function! ShowDocumentation()
-  " if CocAction('hasProvider', 'hover')
-    " call CocActionAsync('doHover')
-  " else
-    " call feedkeys('K', 'in')
-  " endif
-" endfunction
-
-" " Remap keys for applying codeAction to the current buffer.
-" nmap <leader>ac  <Plug>(coc-codeaction)
-" " Apply AutoFix to problem on the current line.
-" nmap <leader>qf  <Plug>(coc-fix-current)
-
-" " Run the Code Lens action on the current line.
-" nmap <leader>cl  <Plug>(coc-codelens-action)
 
 " Vim Test Setup
 nmap <silent> <leader>tn :TestNearest<CR>
@@ -280,26 +211,3 @@ let g:projectionist_heuristics = {
       \   },
       \ }
 "_______________________________________________________________________________
-"                                                       config_nvimtree_settings
-" Nvim Tree Setup
-nnoremap <Leader>k :NvimTreeToggle<CR>
-nnoremap <Leader>y :NvimTreeFindFile<CR>
-lua << EOF
-require("nvim-tree").setup({
-  sort_by = "case_sensitive",
-  view = {
-    adaptive_size = true,
-    mappings = {
-      list = {
-        { key = "u", action = "dir_up" },
-      },
-    },
-  },
-  renderer = {
-    group_empty = true,
-  },
-  filters = {
-    dotfiles = false,
-  },
-})
-EOF
