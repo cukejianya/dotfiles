@@ -19,8 +19,7 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/mas
 # Symbolic Links                                                              #
 ln -s $PWD/.vimrc ~/.vimrc
 ln -sf $PWD/.zshrc ~/.zshrc
-mkdir ~/.config/nvim/
-ln -sf $PWD/init.vim ~/.config/nvim/init.vim
+ln -sf $PWD/.config ~/.config
 ln -s $PWD/.tmux.conf ~/.tmux.conf
 ln -sf $PWD/.ssh_config ~/.ssh/config
 ln -sf $PWD/.gitconfig ~/.gitconfig
@@ -51,9 +50,6 @@ ssh-add
 
 # Install Vim Plugins
 vim +PluginInstall +qall
-
-# Install CoC
-npx yarn --cwd ~/.vim/bundle/coc.nvim
 
 # Install Tmux Manager
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
