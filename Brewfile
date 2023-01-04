@@ -7,3 +7,7 @@ brew "fzf"
 brew "the_silver_searcher"
 brew "bat"
 brew "ripgrep"
+brew "jdtls"
+brew "lua-language-server"
+brew "jq"
+

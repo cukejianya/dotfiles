@@ -33,6 +33,28 @@ nvm use --lts
 # Install NPM modules
 npm install -g tldr
 
+# Install SDK
+curl -s "https://get.sdkman.io" | bash\n
+source "$HOME/.sdkman/bin/sdkman-init.sh"\n
+
+# Install Java
+sdk install maven
+sdk install java 17.0.4-amzn
+sdk install java 11.0.17-amzn
+sdk default java 17.0.4-amzn
+
+cd ./packages
+
+git clone https://github.com/microsoft/java-debug.git
+cd ../java-debug
+./mvnw clean install
+cd ../
+
+git clone https://github.com/microsoft/vscode-java-test.git
+cd ../vscode-java-test
+npm install
+cd ../../
+
 # Install Vundle
 git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 vim +PluginInstall +qall

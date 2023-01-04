@@ -106,13 +106,12 @@ bindkey jk vi-cmd-mode
 alias reload="source ~/.zshrc"
 
 # Config aliases
-alias vi="nvim"
-alias vim="nvim" 
+
 alias cat="bat -pp"
 alias fzf-preview="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
-alias tmuxconfig="vim ~/.tmux.conf"
+alias tmuxconfig="nvim ~/.tmux.conf"
 alias vimconfig="vim ~/.vimrc"
-alias zshconfig="vim ~/.zshrc"
+alias zshconfig="nvim ~/.zshrc"
 
 # Config to Cpp build
 alias cpp="clang++ -std=c++11 -stdlib=libc++"
@@ -162,17 +161,26 @@ export PATH="/usr/local/sbin:$PATH"
 export PATH="/usr/local/opt/php@7.2/bin:$PATH"
 export PATH="/usr/local/opt/php@7.2/sbin:$PATH"
 
+# Add Java HOME environment 
+export JAVA_HOME="/Users/chinedumu/.sdkman/candidates/java/current"
+
+# Add RUST bin to PATH
+export PATH="$PATH:$HOME/.cargo/bin"
+
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export PATH="$PATH:$HOME/.rvm/bin"
+
+# Add .local/bin to PATH
+export PATH="$HOME/.local/bin:$PATH"
 
 # Git pretty log
 alias lg="git lg1"
 alias lg1="git lg1-specific --all"
 alias lg2="git lg2-specific --all"
 alias lg3="git lg3-specific --all"
-alias lg1-specific="log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'"
-alias lg2-specific="log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'"
-alias lg3-specific="log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''          %C(white)%s%C(reset)%n''          %C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'V"
+alias lg1-specific="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'"
+alias lg2-specific="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'"
+alias lg3-specific="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''          %C(white)%s%C(reset)%n''          %C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'V"
 
 # functions
 decodeURL() { printf "%b\n" "$(sed 's/+/ /g; s/%\([0-9a-f][0-9a-f]\)/\\x\1/g;')"; }
@@ -185,3 +193,6 @@ getPastCommand() {
 export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
+
+source "$HOME/.sdkman/bin/sdkman-init.sh"
+source ~/.zprofile

@@ -22,7 +22,6 @@ set wildmenu
 "-------------------------------------------------------------------------------
 "                                                             general_settings
 set number
-set relativenumber
 set encoding=UTF-8
 set wrap
 set textwidth=79
@@ -59,7 +58,7 @@ set wildignore+=*.swp
 set wildignore+=*/venv/*
 
 " Toggle Relative Numberline
-nnoremap <leader>n :setlocal relativenumber!<CR>
+nnoremap <leader>re :setlocal relativenumber!<CR>
 
 " Map enter key to esc
 inoremap jk <Esc>
@@ -74,7 +73,7 @@ nnoremap <Leader>vr :source $MYVIMRC<CR>
 " \l       : list buffers
 " \b \f \g : go back/forward/last-used
 nnoremap <Leader>b :bp<CR>
-nnoremap <Leader>f :bn<CR>
+nnoremap <Leader>n :bn<CR>
 nnoremap <Leader>e :Bd<CR>
 
 "-------------------------------------------------------------------------------
@@ -104,11 +103,12 @@ Plugin 'VundleVim/Vundle.vim'
 " Custom Plugins
 Plugin 'tpope/vim-surround'
 Plugin 'tpope/vim-projectionist'
-Plugin 'cukejianya/onedark.vim'
-Plugin 'vim-airline/vim-airline'
+" Plugin 'cukejianya/onedark.vim'
+" Plugin 'joshdick/onedark.vim'
+" Plugin 'vim-airline/vim-airline'
 Plugin 'jiangmiao/auto-pairs'
 Plugin 'ap/vim-css-color'
-Plugin 'vim-airline/vim-airline-themes'
+" Plugin 'vim-airline/vim-airline-themes'
 Plugin 'ryanoasis/vim-devicons'
 Plugin 'mattn/emmet-vim'
 Plugin 'scrooloose/nerdcommenter'
@@ -117,8 +117,6 @@ Plugin 'quramy/tsuquyomi'
 Plugin 'pantharshit00/vim-prisma'
 Plugin 'jparise/vim-graphql'
 Plugin 'moll/vim-bbye'
-Plugin 'junegunn/fzf'
-Plugin 'junegunn/fzf.vim'
 Plugin 'vim-test/vim-test'
 Plugin 'junegunn/goyo.vim'
 Plugin 'uiiaoo/java-syntax.vim'
@@ -161,9 +159,15 @@ filetype plugin indent on    " required
 
 let g:javascript_plugin_jsdoc = 1
 
-syntax enable
-set background=dark
-colorscheme onedark
+" syntax enable
+" if (has("nvim"))
+      " let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+" endif
+" if (has("termguicolors"))
+      " set termguicolors
+" endif
+" colorscheme onedark
+let g:onedark_terminal_italics=1
 
 " " Enable mysql cli editting mode to use syntax highlighting
 " augroup sql
@@ -175,14 +179,9 @@ colorscheme onedark
 let g:NERDSpaceDelims = 1
 
 " Airline Setup
-let g:airline_theme='angr'
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#gutentags#enabled = 1
-
-" fzf Setup
-nmap <silent> <C-p> :Files<CR> 
-nmap <Leader>l :GFiles<CR>
-nmap <Leader>o :GFiles?<CR>
+" let g:airline_theme='angr'
+" let g:airline#extensions#tabline#enabled = 1
+" let g:airline#extensions#gutentags#enabled = 1
 
 " Emmet Setup
 let g:user_emmet_leader_key=','

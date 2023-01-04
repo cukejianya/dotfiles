@@ -1,5 +1,7 @@
 -- See `:help vim.lsp.start_client` for an overview of the supported `config` options.
 
+local lspconfig = require('lspconfig')
+
 vim.opt.completeopt={'menu', 'menuone', 'noselect'}
 
 -- Set up nvim-cmp.
@@ -44,7 +46,7 @@ cmp.setup.filetype('gitcommit', {
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
 local common_on_attach = function(client, bufr)
-  local bufopts = { noremap=true, silent=true, buffer=bufnr }
+  local bufopts = { noremap=true, silent=true, buffer=bufr }
   vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
   vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
   vim.keymap.set('n', 'gt', vim.lsp.buf.type_definition, bufopts)
@@ -55,6 +57,18 @@ local common_on_attach = function(client, bufr)
   vim.keymap.set('n', "<leader>ac", vim.lsp.buf.code_action, bufopts)
 end
 
+-- Use telescope when looking up references
+vim.lsp.handlers["textDocument/references"] = require("telescope.builtin").lsp_references
+
+lspconfig.sumneko_lua.setup{
+  capabilities = capabilities,
+  on_attach = common_on_attach,
+}
+
+lspconfig.lemminx.setup{
+  capabilities = capabilities,
+  on_attach = common_on_attach,
+}
 
 local lsp = {
   capabilities = capabilities,
