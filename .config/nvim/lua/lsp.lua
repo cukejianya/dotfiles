@@ -42,6 +42,26 @@ cmp.setup.filetype('gitcommit', {
       })
   })
 
+-- Set up cmp formatting
+cmp.setup {
+  formatting = {
+    format = function(entry, vim_item)
+      -- Kind icons
+      -- This concatonates the icons with the name of the item kind
+      vim_item.kind = string.format('%s (%s)', require('lsp_kind_icons')[vim_item.kind], vim_item.kind)
+      -- Source
+      vim_item.menu = ({
+        buffer = "[Buffer]",
+        nvim_lsp = "[LSP]",
+        luasnip = "[LuaSnip]",
+        nvim_lua = "[Lua]",
+        latex_symbols = "[LaTeX]",
+      })[entry.source.name]
+      return vim_item
+    end
+  },
+}
+
 -- Set up lspconfig;
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
@@ -53,12 +73,13 @@ local common_on_attach = function(client, bufr)
   vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
   vim.keymap.set('n', "gr", vim.lsp.buf.references, bufopts)
   vim.keymap.set('n', "<leader>df", vim.diagnostic.goto_next, bufopts)
-  vim.keymap.set('n', "<leader>r", vim.lsp.buf.rename, bufopts)
+  vim.keymap.set('n', "<leader>rn", vim.lsp.buf.rename, bufopts)
   vim.keymap.set('n', "<leader>ac", vim.lsp.buf.code_action, bufopts)
 end
 
 -- Use telescope when looking up references
 vim.lsp.handlers["textDocument/references"] = require("telescope.builtin").lsp_references
+
 
 lspconfig.sumneko_lua.setup{
   capabilities = capabilities,

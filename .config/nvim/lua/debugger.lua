@@ -10,6 +10,7 @@ vim.keymap.set("n", "<leader>db", ":lua require'dap'.toggle_breakpoint()<CR>")
 vim.keymap.set("n", "<leader>dB", ":lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>")
 vim.keymap.set("n", "<leader>lp", ":lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>")
 vim.keymap.set("n", "<leader>dr", ":lua require'dapui'.open()<CR>")
+vim.keymap.set("n", "<leader>de", ":lua require'dapui'.close()<CR>")
 
 require("nvim-dap-virtual-text").setup()
 dapui.setup()

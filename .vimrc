@@ -58,7 +58,7 @@ set wildignore+=*.swp
 set wildignore+=*/venv/*
 
 " Toggle Relative Numberline
-nnoremap <leader>re :setlocal relativenumber!<CR>
+nnoremap <leader>r :setlocal relativenumber!<CR>
 
 " Map enter key to esc
 inoremap jk <Esc>
