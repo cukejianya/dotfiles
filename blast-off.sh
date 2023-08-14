@@ -37,6 +37,9 @@ npm install -g tldr
 curl -s "https://get.sdkman.io" | bash
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 
+# Install LSP Servers
+yarn global add yaml-language-server
+
 # Install Java
 sdk install maven
 sdk install java 17.0.4-amzn

@@ -34,9 +34,9 @@ local config = {
     '--add-opens', 'java.base/java.util=ALL-UNNAMED',
     '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
 
-    '-jar', '/opt/homebrew/Cellar/jdtls/1.18.0/libexec/plugins/org.eclipse.equinox.launcher_1.6.400.v20210924-0641.jar',
+    '-jar', '/opt/homebrew/Cellar/jdtls/1.26.0/libexec/plugins/org.eclipse.equinox.launcher_1.6.500.v20230717-2134.jar',
 
-    '-configuration', '/opt/homebrew/Cellar/jdtls/1.18.0/libexec/config_mac',
+    '-configuration', '/opt/homebrew/Cellar/jdtls/1.26.0/libexec/config_mac',
     '-data', workspace_dir
   },
   root_dir = jdtls.setup.find_root({'.git', 'mvnw', 'gradlew'}),
@@ -48,6 +48,10 @@ local config = {
   -- See https://github.com/mfussenegger/nvim-jdtls#java-debug-installation
   --
   -- If you don't plan on using the debugger or other eclipse.jdt.ls plugins you can remove this
+  format = {
+    enabled = true,
+    settings = { url = '~/.dotfiles/misc/spotify-checkstyle-idea.xml' }
+  },
   init_options = {
     bundles = bundles,
   }

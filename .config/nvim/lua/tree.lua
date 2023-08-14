@@ -1,15 +1,27 @@
 local HEIGHT_RATIO = 0.8  -- You can change this
-local WIDTH_RATIO = 0.5   -- You can change this too
+local WIDTH_RATIO = 0.8   -- You can change this too
+
+local function on_attach(bufnr)
+  local api = require('nvim-tree.api')
+
+  local function opts(desc)
+    return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+  end
+
+  api.config.mappings.default_on_attach(bufnr)
+
+  vim.keymap.set('n', 'd', api.tree.change_root_to_node, opts('dir_down'))
+  vim.keymap.set('n', 'u', api.tree.change_root_to_parent, opts('dir_up'))
+
+  vim.keymap.set('n', 'Z', api.node.run.system, opts('Run System'))
+
+end
 
 require("nvim-tree").setup({
+  on_attach = on_attach,
   sort_by = "case_sensitive",
   view = {
     adaptive_size = true,
-    mappings = {
-      list = {
-        { key = "u", action = "dir_up" },
-      },
-    },
     float = {
       enable = true,
       open_win_config = function()

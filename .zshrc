@@ -1,5 +1,6 @@
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:/usr/local/bin:$PATH
+export FZF_BASE=$(brew --prefix)/opt/fzf
 
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
@@ -59,10 +60,17 @@ HIST_STAMPS="mm/dd/yyyy"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-  git
-  wd
-  jsontools
   dotenv
+  fzf
+  fzf-tab
+  gcloud
+  git
+  git-escape-magic
+  jsontools
+  kubectl
+  mvn
+  tmux
+  wd
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -196,3 +204,5 @@ eval "$(pyenv init -)"
 
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 source ~/.zprofile
+
+[ -f "/Users/chinedumu/.ghcup/env" ] && source "/Users/chinedumu/.ghcup/env" # ghcup-env

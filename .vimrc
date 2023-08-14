@@ -7,7 +7,7 @@
 " config_plugin_settings
 "_______________________________________________________________________________
 set nocompatible              " be iMproved, required
-filetype off                  " required
+filetype on
 
 " Provides tab-completion for all file-related tasks
 set path+=**
@@ -45,6 +45,7 @@ set smartcase
 set incsearch
 set formatoptions-=cro " Stop auto commenting newlines
 set undofile
+set relativenumber
 autocmd FileType yaml set colorcolumn
 autocmd FileType yml set colorcolumn
 autocmd FileType python set colorcolumn
@@ -113,7 +114,7 @@ Plugin 'ryanoasis/vim-devicons'
 Plugin 'mattn/emmet-vim'
 Plugin 'scrooloose/nerdcommenter'
 Plugin 'kshenoy/vim-signature'
-Plugin 'quramy/tsuquyomi'
+" Plugin 'quramy/tsuquyomi'
 Plugin 'pantharshit00/vim-prisma'
 Plugin 'jparise/vim-graphql'
 Plugin 'moll/vim-bbye'
@@ -157,7 +158,7 @@ filetype plugin indent on    " required
 " see :h vundle for more details or wiki for FAQ
 " Put your non-Plugin stuff after this line
 
-let g:javascript_plugin_jsdoc = 1
+" let g:javascript_plugin_jsdoc = 1
 
 " syntax enable
 " if (has("nvim"))

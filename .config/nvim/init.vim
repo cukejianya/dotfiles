@@ -8,9 +8,12 @@ lua <<EOF
   require('telescope_conf')
   require('debugger')
   require('theme')
-  require('buffer')
   require('statusline')
   require('git')
+  require('treesitter_setup')
+  require('indent_blankline')
+
+  require('git-conflict').setup({})
 
   vim.keymap.set('n', '<leader>vr', ':source ~/.config/nvim/init.vim<CR>')
 EOF

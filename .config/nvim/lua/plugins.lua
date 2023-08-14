@@ -24,6 +24,13 @@ require('packer').startup(function(use)
   use 'L3MON4D3/LuaSnip'
   use 'saadparwaiz1/cmp_luasnip'
 
+  use 'lukas-reineke/indent-blankline.nvim'
+
+  use {
+    "williamboman/mason.nvim",
+    "williamboman/mason-lspconfig.nvim",
+  }
+
   use 'mfussenegger/nvim-dap'
   use { "rcarriga/nvim-dap-ui", requires = {"mfussenegger/nvim-dap"} }
   use 'theHamsta/nvim-dap-virtual-text'
@@ -33,11 +40,7 @@ require('packer').startup(function(use)
     requires = { {'nvim-lua/plenary.nvim'} }
   }
 
-  use {
-    'akinsho/bufferline.nvim',
-    tag = "v3.*",
-    requires = 'nvim-tree/nvim-web-devicons'
-  }
+  use {'nvim-telescope/telescope-ui-select.nvim' }
 
   use {
     'nvim-lualine/lualine.nvim',
@@ -46,4 +49,14 @@ require('packer').startup(function(use)
 
   use { 'lewis6991/gitsigns.nvim' }
 
+  use {'akinsho/git-conflict.nvim', tag = "*", config = function()
+    require('git-conflict').setup()
+  end}
+
+  use({'scalameta/nvim-metals', requires = { "nvim-lua/plenary.nvim" }})
+
+  use {
+        'nvim-treesitter/nvim-treesitter',
+        run = ':TSUpdate'
+    }
 end)
