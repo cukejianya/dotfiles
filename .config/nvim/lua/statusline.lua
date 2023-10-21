@@ -1,6 +1,6 @@
 local custom_filename = require('lualine.components.filename'):extend()
 local highlight = require'lualine.highlight'
-local default_status_colors = { saved = '#ABB2BF', modified = '#C70039' }
+local default_status_colors = { saved = '#ABB2BF', modified = '#e06c75' }
 
 function custom_filename:init(options)
   custom_filename.super.init(self, options)
@@ -23,6 +23,7 @@ end
 
 require('lualine').setup {
   sections = {
-    lualine_c = { custom_filename },
+    lualine_b = { custom_filename, 'diff', 'diagnostics' },
+    lualine_c = {'branch'}
   }
 }

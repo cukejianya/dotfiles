@@ -120,7 +120,7 @@ Plugin 'jparise/vim-graphql'
 Plugin 'moll/vim-bbye'
 Plugin 'vim-test/vim-test'
 Plugin 'junegunn/goyo.vim'
-Plugin 'uiiaoo/java-syntax.vim'
+" Plugin 'uiiaoo/java-syntax.vim'
 Plugin 'sheerun/vim-polyglot'
 " The foignorellowing are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.

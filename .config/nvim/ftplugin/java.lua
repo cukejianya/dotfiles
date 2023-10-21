@@ -22,7 +22,7 @@ local config = {
   capabilities = lsp.capabilities,
 
   cmd = {
-    '/Users/chinedumu/.sdkman/candidates/java/17.0.4-amzn/bin/java',
+    '/Users/chinedumu/.sdkman/candidates/java/17.0.7-amzn/bin/java',
 
     '-Declipse.application=org.eclipse.jdt.ls.core.id1',
     '-Dosgi.bundles.defaultStartLevel=4',

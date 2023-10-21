@@ -1,0 +1,12 @@
+packages/
+misc/
+
+.config/jgit/
+.config/iterm2/
+.config/ghc/
+.config/gcloud/
+.config/configstore/
+.config/yarn/
+.config/pip/
+
+.zshrc-e

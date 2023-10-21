@@ -195,7 +195,7 @@ decodeURL() { printf "%b\n" "$(sed 's/+/ /g; s/%\([0-9a-f][0-9a-f]\)/\\x\1/g;')"
 
 
 getPastCommand() {
-  history | fzf | sed -E 's/^ * ([0-9]+).*/\!\1/g' | pbcopy
+  history | fzf | sed -E 's/^ *([0-9]+).*/\!\1/g' | pbcopy
 }
 
 export PYENV_ROOT="$HOME/.pyenv"
