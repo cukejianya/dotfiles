@@ -4,7 +4,6 @@ export FZF_BASE=$(brew --prefix)/opt/fzf
 
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
-
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
@@ -192,7 +191,6 @@ alias lg3-specific="git log --graph --abbrev-commit --decorate --format=format:'
 
 # functions
 decodeURL() { printf "%b\n" "$(sed 's/+/ /g; s/%\([0-9a-f][0-9a-f]\)/\\x\1/g;')"; }
-
 
 getPastCommand() {
   history | fzf | sed -E 's/^ *([0-9]+).*/\!\1/g' | pbcopy
