@@ -117,7 +117,7 @@ alias reload="source ~/.zshrc"
 alias cat="bat -pp"
 alias fzf-preview="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
 alias tmuxconfig="nvim ~/.tmux.conf"
-alias vimconfig="vim ~/.vimrc"
+alias vimconfig="nvim ~/.vimrc"
 alias zshconfig="nvim ~/.zshrc"
 
 # Config to Cpp build
