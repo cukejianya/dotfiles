@@ -12,6 +12,7 @@ lua <<EOF
   require('git')
   require('treesitter_setup')
   require('indent_blankline')
+  require('formatter_conf')
 
   require('git-conflict').setup({})
 

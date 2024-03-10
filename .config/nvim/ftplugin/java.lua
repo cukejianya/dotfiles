@@ -24,6 +24,9 @@ local config = {
   cmd = {
     '/Users/chinedumu/.sdkman/candidates/java/17.0.7-amzn/bin/java',
 
+    --- Uncomment below to debug eclipse.jdt.ls
+    -- '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044',
+
     '-Declipse.application=org.eclipse.jdt.ls.core.id1',
     '-Dosgi.bundles.defaultStartLevel=4',
     '-Declipse.product=org.eclipse.jdt.ls.core.product',
@@ -34,9 +37,9 @@ local config = {
     '--add-opens', 'java.base/java.util=ALL-UNNAMED',
     '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
 
-    '-jar', '/opt/homebrew/Cellar/jdtls/1.26.0/libexec/plugins/org.eclipse.equinox.launcher_1.6.500.v20230717-2134.jar',
+    '-jar', '/opt/homebrew/Cellar/jdtls/1.33.0/libexec/plugins/org.eclipse.equinox.launcher_1.6.700.v20231214-2017.jar',
 
-    '-configuration', '/opt/homebrew/Cellar/jdtls/1.26.0/libexec/config_mac',
+    '-configuration', '/opt/homebrew/Cellar/jdtls/1.33.0/libexec/config_mac',
     '-data', workspace_dir
   },
   root_dir = jdtls.setup.find_root({'.git', 'mvnw', 'gradlew'}),
@@ -48,14 +51,12 @@ local config = {
   -- See https://github.com/mfussenegger/nvim-jdtls#java-debug-installation
   --
   -- If you don't plan on using the debugger or other eclipse.jdt.ls plugins you can remove this
-  format = {
-    enabled = true,
-    settings = { url = '~/.dotfiles/misc/spotify-checkstyle-idea.xml' }
-  },
   init_options = {
     bundles = bundles,
   }
 };
+
+
 -- This starts a new client & server,
 -- or attaches to an existing client & server depending on the `root_dir`.
 jdtls.start_or_attach(config)
