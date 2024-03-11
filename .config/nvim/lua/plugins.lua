@@ -1,64 +1,94 @@
 -- This file can be loaded by calling `lua require('plugins')` from your init.vim
+require("lazy").setup({
 
--- Only required if you have packer configured as `opt`
-vim.cmd [[packadd packer.nvim]]
+  { 'navarasu/onedark.nvim', lazy = false },
+  {
+    'neovim/nvim-lspconfig', -- Configurations for Nvim LSP
+    lazy = false
+  },
+  'mfussenegger/nvim-jdtls',
+  'mfussenegger/nvim-lsp-compl',
+  'kyazdani42/nvim-web-devicons', --optional, for file icons
+  'kyazdani42/nvim-tree.lua',
+  {
+    "hrsh7th/nvim-cmp",
+    -- load cmp on InsertEnter
+    event = "InsertEnter",
+    -- these dependencies will only be loaded when cmp loads
+    -- dependencies are always lazy-loaded unless specified otherwise
+    dependencies = {
+      "hrsh7th/cmp-nvim-lsp",
+      "hrsh7th/cmp-buffer",
+      'hrsh7th/cmp-path',
+      'L3MON4D3/LuaSnip',
+      'saadparwaiz1/cmp_luasnip',
+    },
+  },
+  'williamboman/mason.nvim',
+  'williamboman/mason-lspconfig.nvim',
 
-require('packer').startup(function(use)
-  -- Packer can manage itself
-  use 'wbthomason/packer.nvim'
-
-  use 'navarasu/onedark.nvim'
-
-  use 'neovim/nvim-lspconfig' -- Configurations for Nvim LSP
-
-  use 'mfussenegger/nvim-jdtls'
-  use 'mfussenegger/nvim-lsp-compl'
-
-  use 'kyazdani42/nvim-web-devicons' --optional, for file icons
-  use 'kyazdani42/nvim-tree.lua'
-
-  use 'hrsh7th/nvim-cmp'
-  use 'hrsh7th/cmp-buffer'
-  use 'hrsh7th/cmp-path'
-  use 'hrsh7th/cmp-nvim-lsp'
-  use 'L3MON4D3/LuaSnip'
-  use 'saadparwaiz1/cmp_luasnip'
-
-  use 'lukas-reineke/indent-blankline.nvim'
-
-  use {
-    "williamboman/mason.nvim",
-    "williamboman/mason-lspconfig.nvim",
-  }
-
-  use 'mfussenegger/nvim-dap'
-  use { "rcarriga/nvim-dap-ui", requires = {"mfussenegger/nvim-dap"} }
-  use 'theHamsta/nvim-dap-virtual-text'
-
-  use {
-    'nvim-telescope/telescope.nvim', tag = '0.1.5',
-    requires = { {'nvim-lua/plenary.nvim'} }
-  }
-
-  use {'nvim-telescope/telescope-ui-select.nvim' }
-
-  use {
+  { 'mfussenegger/nvim-dap', event = 'VeryLazy'},
+  'rcarriga/nvim-dap-ui',
+  'theHamsta/nvim-dap-virtual-text',
+  'lukas-reineke/indent-blankline.nvim',
+  {
+    'nvim-telescope/telescope.nvim',
+    version = '0.1.5',
+    dependencies = { 'nvim-lua/plenary.nvim' }
+  },
+  'nvim-telescope/telescope-ui-select.nvim',
+  {
     'nvim-lualine/lualine.nvim',
-    requires = { 'kyazdani42/nvim-web-devicons', opt = true }
-  }
-
-  use { 'lewis6991/gitsigns.nvim' }
-
-  use {'akinsho/git-conflict.nvim', tag = "*", config = function()
-    require('git-conflict').setup()
-  end}
-
-  use({'scalameta/nvim-metals', requires = { "nvim-lua/plenary.nvim" }})
-
-  use {
-        'nvim-treesitter/nvim-treesitter',
-        run = ':TSUpdate'
+    dependencies = { 'kyazdani42/nvim-web-devicons' }
+  },
+  'lewis6991/gitsigns.nvim',
+  {
+    'nvim-treesitter/nvim-treesitter',
+    build = ':TSUpdate'
+  },
+  {
+    'akinsho/git-conflict.nvim',
+    event = "VeryLazy",
+    version = "*",
+    config = function()
+      require('git-conflict').setup()
+    end
+  },
+  {
+    'scalameta/nvim-metals',
+    dependencies = { "nvim-lua/plenary.nvim" }
+  },
+  'mhartington/formatter.nvim',
+  {
+    "folke/noice.nvim",
+    event = "VeryLazy",
+    opts = {
+      -- add any options here
+    },
+    dependencies = {
+      -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
+      "MunifTanjim/nui.nvim",
+      -- OPTIONAL:
+      --   `nvim-notify` is only needed, if you want to use the notification view.
+      --   If not available, we use `mini` as the fallback
+      "rcarriga/nvim-notify",
     }
-
-  use { 'mhartington/formatter.nvim' }
-end)
+  },
+  {
+  'kristijanhusak/vim-dadbod-ui',
+  dependencies = {
+    { 'tpope/vim-dadbod', lazy = true },
+    { 'kristijanhusak/vim-dadbod-completion', ft = { 'sql', 'mysql', 'plsql' }, lazy = true },
+  },
+  cmd = {
+    'DBUI',
+    'DBUIToggle',
+    'DBUIAddConnection',
+    'DBUIFindBuffer',
+  },
+  init = function()
+    -- Your DBUI configuration
+    vim.g.db_ui_use_nerd_fonts = 1
+  end,
+}
+  })

@@ -1,17 +1,23 @@
+vim.fn.sign_define(
+  "DapBreakpoint",
+  { text = "", texthl = "special", linehl = "", numhl = "" }
+)
+
 local dap, dapui = require("dap"), require("dapui")
 
-vim.keymap.set("n", "<leader>dd", ":JdtRefreshDebugConfigs<CR>")
-vim.keymap.set("n", "<leader>dc", ":lua require'dap'.continue()<CR>")
-vim.keymap.set("n", "<leader>dn", ":lua require'dap'.step_over()<CR>")
-vim.keymap.set("n", "<leader>di", ":lua require'dap'.step_into()<CR>")
-vim.keymap.set("n", "<leader>dt", ":lua require'jdtls'.test_nearest_method()<CR>")
-vim.keymap.set("n", "<leader>db", ":lua require'dap'.toggle_breakpoint()<CR>")
-vim.keymap.set("n", "<leader>dB", ":lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>")
-vim.keymap.set("n", "<leader>lp", ":lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>")
-vim.keymap.set("n", "<leader>dk", ":lua require'dapui'.toggle()<CR>")
-vim.keymap.set("n", "<leader>do", ":lua require'dapui'.open()<CR>")
-vim.keymap.set("n", "<leader>d=", ":lua require'dapui'.open({ reset = true })<CR>")
-vim.keymap.set("n", "<leader>dq", ":lua require'dapui'.close()<CR>")
+local map = vim.keymap.set
+map("n", "<leader>dd", ":JdtRefreshDebugConfigs<CR>")
+map("n", "<leader>dc", ":lua require'dap'.continue()<CR>")
+map("n", "<leader>dn", ":lua require'dap'.step_over()<CR>")
+map("n", "<leader>di", ":lua require'dap'.step_into()<CR>")
+map("n", "<leader>dt", ":lua require'jdtls'.test_nearest_method()<CR>")
+map("n", "<leader>db", ":lua require'dap'.toggle_breakpoint()<CR>")
+map("n", "<leader>dB", ":lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>")
+map("n", "<leader>lp", ":lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>")
+map("n", "<leader>dk", ":lua require'dapui'.toggle()<CR>")
+map("n", "<leader>do", ":lua require'dapui'.open()<CR>")
+map("n", "<leader>d=", ":lua require'dapui'.open({ reset = true })<CR>")
+map("n", "<leader>dq", ":lua require'dapui'.close()<CR>")
 
 require("nvim-dap-virtual-text").setup()
 dapui.setup()

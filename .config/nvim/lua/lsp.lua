@@ -1,5 +1,4 @@
 -- See `:help vim.lsp.start_client` for an overview of the supported `config` options.
-
 local lspconfig = require('lspconfig')
 
 vim.opt.completeopt = { 'menu', 'menuone', 'noselect' }
