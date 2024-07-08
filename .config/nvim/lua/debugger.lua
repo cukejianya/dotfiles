@@ -4,8 +4,8 @@ vim.fn.sign_define(
 )
 
 local dap, dapui = require("dap"), require("dapui")
-
 local map = vim.keymap.set
+
 map("n", "<leader>dd", ":JdtRefreshDebugConfigs<CR>")
 map("n", "<leader>dc", ":lua require'dap'.continue()<CR>")
 map("n", "<leader>dn", ":lua require'dap'.step_over()<CR>")

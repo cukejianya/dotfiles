@@ -102,12 +102,10 @@ call vundle#begin()
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
 " Custom Plugins
-Plugin 'tpope/vim-surround'
 Plugin 'tpope/vim-projectionist'
 " Plugin 'cukejianya/onedark.vim'
 " Plugin 'joshdick/onedark.vim'
 " Plugin 'vim-airline/vim-airline'
-Plugin 'jiangmiao/auto-pairs'
 Plugin 'ap/vim-css-color'
 " Plugin 'vim-airline/vim-airline-themes'
 Plugin 'ryanoasis/vim-devicons'
@@ -117,18 +115,17 @@ Plugin 'kshenoy/vim-signature'
 " Plugin 'quramy/tsuquyomi'
 Plugin 'pantharshit00/vim-prisma'
 Plugin 'jparise/vim-graphql'
-Plugin 'moll/vim-bbye'
 Plugin 'vim-test/vim-test'
 Plugin 'junegunn/goyo.vim'
 " Plugin 'uiiaoo/java-syntax.vim'
-Plugin 'sheerun/vim-polyglot'
+" Plugin 'sheerun/vim-polyglot'
 " The foignorellowing are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.
 " plugin on GitHub repo
 Plugin 'tpope/vim-fugitive'
 " plugin from http://vim-scripts.org/vim/scripts.html
 Plugin 'L9'
-Plugin 'ZoomWin'
+" Plugin 'ZoomWin'
 
 " Git plugin not hosted on GitHub
 " Plugin 'git://git.wincent.com/command-t.git'
@@ -196,6 +193,7 @@ nmap <silent> <leader>tn :TestNearest<CR>
 nmap <silent> <leader>tt :TestFile<CR>"
 nmap <silent> <leader>ta :TestSuite<CR>
 nmap <silent> gT :A<CR>
+nmap <silent> <C-W>e <C-W>\|<C-W>_
 
 " Vim Projectionist Setup
 let g:projectionist_heuristics = {

@@ -201,6 +201,9 @@ command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 
 source "$HOME/.sdkman/bin/sdkman-init.sh"
-source ~/.zprofile
 
 [ -f "/Users/chinedumu/.ghcup/env" ] && source "/Users/chinedumu/.ghcup/env" # ghcup-env
+source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+source ~/.zprofile
+export PATH=/opt/spotify-devex/bin:$PATH

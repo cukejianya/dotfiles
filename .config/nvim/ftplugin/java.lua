@@ -22,7 +22,7 @@ local config = {
   capabilities = lsp.capabilities,
 
   cmd = {
-    '/Users/chinedumu/.sdkman/candidates/java/17.0.7-amzn/bin/java',
+    '/Users/chinedumu/.sdkman/candidates/java/21.0.2-amzn/bin/java',
 
     --- Uncomment below to debug eclipse.jdt.ls
     -- '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044',
@@ -37,9 +37,9 @@ local config = {
     '--add-opens', 'java.base/java.util=ALL-UNNAMED',
     '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
 
-    '-jar', '/opt/homebrew/Cellar/jdtls/1.33.0/libexec/plugins/org.eclipse.equinox.launcher_1.6.700.v20231214-2017.jar',
+    '-jar', '/opt/homebrew/Cellar/jdtls/1.35.0/libexec/plugins/org.eclipse.equinox.launcher_1.6.800.v20240330-1250.jar',
 
-    '-configuration', '/opt/homebrew/Cellar/jdtls/1.33.0/libexec/config_mac',
+    '-configuration', '/opt/homebrew/Cellar/jdtls/1.35.0/libexec/config_mac',
     '-data', workspace_dir
   },
   root_dir = jdtls.setup.find_root({'.git', 'mvnw', 'gradlew'}),

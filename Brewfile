@@ -10,4 +10,5 @@ brew "ripgrep"
 brew "jdtls"
 brew "lua-language-server"
 brew "jq"
-
+brew "mysql"
+brew "zsh-syntax-highlighting"

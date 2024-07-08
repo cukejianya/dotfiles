@@ -46,6 +46,7 @@ cmp.setup({
   sources = cmp.config.sources({
     { name = 'nvim_lsp' }, -- Required
     { name = 'luasnip' },  -- For luasnip users.
+    { name = 'vim-dadbod-completion' }
   }, {
     { name = 'buffer' },
     { name = 'path' }
@@ -109,6 +110,7 @@ mason_lspconfig.setup {
     "sqlls",
     "spectral", -- OpenAPI
     "tsserver",
+    "lemminx",
     "yamlls"
   },
 }

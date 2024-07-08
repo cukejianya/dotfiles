@@ -1,6 +1,21 @@
 -- This file can be loaded by calling `lua require('plugins')` from your init.vim
 require("lazy").setup({
 
+  { 'github/copilot.vim', event = "InsertEnter",},
+  { 'tpope/vim-fugitive', event = 'VeryLazy', cmd = {'Git', 'Gvsplit'}},
+  {
+    'windwp/nvim-autopairs',
+    event = "InsertEnter",
+    config = true
+  },
+  { 'numToStr/Comment.nvim',
+    config = function()
+      require('Comment').setup()
+    end
+  },
+  { 'moll/vim-bbye', event = 'VeryLazy'},
+  { 'tpope/vim-surround', event = 'VeryLazy'},
+  { 'junegunn/goyo.vim', event = 'VeryLazy'},
   { 'navarasu/onedark.nvim', lazy = false },
   {
     'neovim/nvim-lspconfig', -- Configurations for Nvim LSP
@@ -28,9 +43,13 @@ require("lazy").setup({
   'williamboman/mason-lspconfig.nvim',
 
   { 'mfussenegger/nvim-dap', event = 'VeryLazy'},
-  'rcarriga/nvim-dap-ui',
+  {
+    "rcarriga/nvim-dap-ui",
+    dependencies = {"mfussenegger/nvim-dap", "nvim-neotest/nvim-nio"}
+  },
   'theHamsta/nvim-dap-virtual-text',
   'lukas-reineke/indent-blankline.nvim',
+  'nvim-neotest/nvim-nio',
   {
     'nvim-telescope/telescope.nvim',
     version = '0.1.5',
@@ -75,20 +94,20 @@ require("lazy").setup({
     }
   },
   {
-  'kristijanhusak/vim-dadbod-ui',
-  dependencies = {
-    { 'tpope/vim-dadbod', lazy = true },
-    { 'kristijanhusak/vim-dadbod-completion', ft = { 'sql', 'mysql', 'plsql' }, lazy = true },
-  },
-  cmd = {
-    'DBUI',
-    'DBUIToggle',
-    'DBUIAddConnection',
-    'DBUIFindBuffer',
-  },
-  init = function()
-    -- Your DBUI configuration
-    vim.g.db_ui_use_nerd_fonts = 1
-  end,
-}
+    'kristijanhusak/vim-dadbod-ui',
+    dependencies = {
+      { 'tpope/vim-dadbod', lazy = true },
+      { 'kristijanhusak/vim-dadbod-completion', ft = { 'sql', 'mysql', 'plsql' }, lazy = true },
+    },
+    cmd = {
+      'DBUI',
+      'DBUIToggle',
+      'DBUIAddConnection',
+      'DBUIFindBuffer',
+    },
+    init = function()
+      -- Your DBUI configuration
+      vim.g.db_ui_use_nerd_fonts = 1
+    end,
+  }
   })
