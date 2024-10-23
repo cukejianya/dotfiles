@@ -109,8 +109,9 @@ set -o vi
 # Bind jk to <esc> key
 bindkey jk vi-cmd-mode
 
-# Reload zsh alias
-alias reload="source ~/.zshrc"
+# Reload alias
+alias zshreload="source ~/.zshrc"
+alias tmuxreload="tmux source-file ~/.tmux.conf"
 
 # Config aliases
 
@@ -203,7 +204,18 @@ eval "$(pyenv init -)"
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 [ -f "/Users/chinedumu/.ghcup/env" ] && source "/Users/chinedumu/.ghcup/env" # ghcup-env
-source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 source ~/.zprofile
+
+
+source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+ZSH_HIGHLIGHT_STYLES[single-hyphen-option]='fg=yellow'
+ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg=yellow,bold'
+ZSH_HIGHLIGHT_STYLES[path]='fg=cyan'
+ZSH_HIGHLIGHT_STYLES[command]='fg=blue'
+ZSH_HIGHLIGHT_STYLES[builtin]='fg=blue'
+ZSH_HIGHLIGHT_STYLES[alias]='fg=blue'
+ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=green'
+ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=green,bold'
 export PATH=/opt/spotify-devex/bin:$PATH
