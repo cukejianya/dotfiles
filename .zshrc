@@ -82,11 +82,11 @@ source $ZSH/oh-my-zsh.sh
 # export LANG=en_US.UTF-8
 
 # Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
+if [[ -n $SSH_CONNECTION ]]; then
+  export EDITOR='vim'
+else
+  export EDITOR='nvim +setfiletype=sh'
+fi
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
@@ -109,6 +109,9 @@ set -o vi
 # Bind jk to <esc> key
 bindkey jk vi-cmd-mode
 
+# Bind vv to command line editor
+bindkey vv edit-command-line
+
 # Reload alias
 alias zshreload="source ~/.zshrc"
 alias tmuxreload="tmux source-file ~/.tmux.conf"
@@ -118,7 +121,7 @@ alias tmuxreload="tmux source-file ~/.tmux.conf"
 alias cat="bat -pp"
 alias fzf-preview="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
 alias tmuxconfig="nvim ~/.tmux.conf"
-alias vimconfig="nvim ~/.vimrc"
+alias vimconfig="nvim ~/.config/nvim/init.vim"
 alias zshconfig="nvim ~/.zshrc"
 
 # Config to Cpp build
@@ -182,14 +185,13 @@ export PATH="$PATH:$HOME/.rvm/bin"
 export PATH="$HOME/.local/bin:$PATH"
 
 # Git pretty log
-alias lg="git lg1"
-alias lg1="git lg1-specific --all"
-alias lg2="git lg2-specific --all"
-alias lg3="git lg3-specific --all"
 alias lg1-specific="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'"
 alias lg2-specific="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'"
 alias lg3-specific="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''          %C(white)%s%C(reset)%n''          %C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'V"
-
+alias lg="lg1"
+alias lg1="lg1-specific --all"
+alias lg2="lg2-specific --all"
+alias lg3="lg3-specific --all"
 # functions
 decodeURL() { printf "%b\n" "$(sed 's/+/ /g; s/%\([0-9a-f][0-9a-f]\)/\\x\1/g;')"; }
 
@@ -210,6 +212,7 @@ source ~/.zprofile
 
 source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
+# Highlisth Commands Config
 ZSH_HIGHLIGHT_STYLES[single-hyphen-option]='fg=yellow'
 ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg=yellow,bold'
 ZSH_HIGHLIGHT_STYLES[path]='fg=cyan'
