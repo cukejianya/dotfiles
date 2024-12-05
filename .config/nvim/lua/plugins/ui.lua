@@ -1,24 +1,29 @@
 return {
-  'kyazdani42/nvim-web-devicons', --optional, for file icons
   {
-    'navarasu/onedark.nvim',
+    "navarasu/onedark.nvim",
     lazy = false,
     opts = {
-        style = 'cool',
-        toggle_style_key = "<leader>sc"
+      style = "deep",
+      toggle_style_key = "<leader>sc",
+      highlights = {
+        DashboardHeader = { fg = "$cyan" },
+      },
     },
     config = function(_, opts)
-      require('onedark').setup(opts)
-      require('onedark').load()
-    end
+      require("onedark").setup(opts)
+      require("onedark").load()
+    end,
   },
   {
-    'nvim-lualine/lualine.nvim',
-    dependencies = { 'kyazdani42/nvim-web-devicons' }
-  },
-  {
-    'norcalli/nvim-colorizer.lua',
+    "norcalli/nvim-colorizer.lua",
     lazy = false,
+    opts = {},
+  },
+  {
+    "lukas-reineke/indent-blankline.nvim",
+    main = "ibl",
+    ---@module "ibl"
+    ---@type ibl.config
     opts = {},
   },
 }

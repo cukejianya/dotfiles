@@ -1,25 +1,24 @@
-local HEIGHT_RATIO = 0.8  -- You can change this
-local WIDTH_RATIO = 0.8   -- You can change this too
+local HEIGHT_RATIO = 0.8 -- You can change this
+local WIDTH_RATIO = 0.8 -- You can change this too
 
 local function on_attach(bufnr)
-  local api = require('nvim-tree.api')
+  local api = require("nvim-tree.api")
 
   local function opts(desc)
-    return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+    return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
   end
 
   api.config.mappings.default_on_attach(bufnr)
 
-  vim.keymap.set('n', 'd', api.tree.change_root_to_node, opts('dir_down'))
-  vim.keymap.set('n', 'u', api.tree.change_root_to_parent, opts('dir_up'))
+  vim.keymap.set("n", "d", api.tree.change_root_to_node, opts("dir_down"))
+  vim.keymap.set("n", "u", api.tree.change_root_to_parent, opts("dir_up"))
 
-  vim.keymap.set('n', 'Z', api.node.run.system, opts('Run System'))
+  vim.keymap.set("n", "Z", api.node.run.system, opts("Run System"))
 end
 
-
-
 return {
-  'kyazdani42/nvim-tree.lua',
+  "kyazdani42/nvim-tree.lua",
+  enabled = false,
 
   config = function()
     require("nvim-tree").setup({
@@ -37,11 +36,10 @@ return {
             local window_w_int = math.floor(window_w)
             local window_h_int = math.floor(window_h)
             local center_x = (screen_w - window_w) / 2
-            local center_y = ((vim.opt.lines:get() - window_h) / 2)
-            - vim.opt.cmdheight:get()
+            local center_y = ((vim.opt.lines:get() - window_h) / 2) - vim.opt.cmdheight:get()
             return {
-              border = 'rounded',
-              relative = 'editor',
+              border = "rounded",
+              relative = "editor",
               row = center_y,
               col = center_x,
               width = window_w_int,
@@ -61,7 +59,7 @@ return {
       },
     })
 
-    vim.keymap.set('n', '<leader>k', ':NvimTreeToggle<CR>')
-    vim.keymap.set('n', '<leader>y', ':NvimTreeFindFile<CR>')
-  end
+    vim.keymap.set("n", "<leader>k", ":NvimTreeToggle<CR>")
+    vim.keymap.set("n", "<leader>y", ":NvimTreeFindFile<CR>")
+  end,
 }

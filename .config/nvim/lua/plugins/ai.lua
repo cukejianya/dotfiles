@@ -1,3 +1,6 @@
 return {
-  { 'github/copilot.vim', event = "InsertEnter",},
+  {
+    "David-Kunz/gen.nvim",
+    cmd = "Gen",
+  },
 }

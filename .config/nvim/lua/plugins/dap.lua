@@ -1,19 +1,18 @@
 return {
-  { 'mfussenegger/nvim-dap', event = 'VeryLazy'},
+  {
+    "mfussenegger/nvim-dap",
+    event = "VeryLazy",
+  },
   {
     "rcarriga/nvim-dap-ui",
     dependencies = {
       "mfussenegger/nvim-dap",
       "theHamsta/nvim-dap-virtual-text",
-      "nvim-neotest/nvim-nio"
+      "nvim-neotest/nvim-nio",
     },
-    opt = {},
-    event = 'VeryLazy',
+    event = "VeryLazy",
     config = function()
-      vim.fn.sign_define(
-        "DapBreakpoint",
-        { text = "", texthl = "special", linehl = "", numhl = "" }
-      )
+      vim.fn.sign_define("DapBreakpoint", { text = "", texthl = "special", linehl = "", numhl = "" })
 
       local dap, dapui = require("dap"), require("dapui")
       local map = vim.keymap.set
@@ -31,7 +30,6 @@ return {
       map("n", "<leader>d=", ":lua require'dapui'.open({ reset = true })<CR>")
       map("n", "<leader>dq", ":lua require'dapui'.close()<CR>")
 
-
       -- dap.listeners.after.event_initialized["dapui_config"] = function()
       -- dapui.open()
       -- end
@@ -43,6 +41,4 @@ return {
       end
     end,
   },
-  {'theHamsta/nvim-dap-virtual-text', opt = {}},
-  'nvim-neotest/nvim-nio',
 }
