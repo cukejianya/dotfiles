@@ -6,6 +6,7 @@ return {
     },
     ---@module "auto-session"
     ---@type AutoSession.Config
+    enabled = false,
     opts = {
       auto_restore = true, -- Enables/disables auto restoring session on start
       auto_save = true, -- Enables/disables auto saving session on exit

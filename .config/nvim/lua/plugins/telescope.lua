@@ -1,5 +1,6 @@
 return {
   {
+    event = "VeryLazy",
     "nvim-telescope/telescope.nvim",
     version = "0.1.5",
     dependencies = {
@@ -9,7 +10,11 @@ return {
       "airblade/vim-rooter",
     },
     config = function()
+      local builtin = require("telescope.builtin")
+      local actions = require("telescope.actions")
+
       require("telescope").setup({
+
         defaults = {
           path_display = { "smart" },
         },
@@ -19,6 +24,14 @@ return {
           },
           live_grep = {
             find_command = { "rg", "--files", "--hidden", "--glob", "!**/.git/*" },
+          },
+          buffers = {
+            sort_lastused = true,
+            mappings = {
+              i = {
+                ["<C-x>"] = actions.delete_buffer,
+              },
+            },
           },
           file_browser = {
             theme = "ivy",
@@ -45,10 +58,10 @@ return {
           ["ui-select"] = { require("telescope.themes").get_dropdown({}) },
         },
       })
+
       require("telescope").load_extension("file_browser")
       require("telescope").load_extension("ui-select")
       vim.g.rooter_patterns = { ".git", "Makefile", "package.json" }
-      local builtin = require("telescope.builtin")
 
       vim.keymap.set("n", "<leader>k", ":Telescope file_browser<CR>")
       vim.keymap.set("n", "<space>y", ":Telescope file_browser path=%:p:h select_buffer=true<CR>")
@@ -59,34 +72,6 @@ return {
       vim.keymap.set("n", "<leader>fs", builtin.grep_string, {})
       vim.keymap.set("n", "<leader>fb", builtin.buffers, {})
       vim.keymap.set("n", "<leader>fh", builtin.help_tags, {})
-
-      -- vim.api.nvim_create_autocmd("VimEnter", {
-      --   callback = function()
-      --     vim.cmd("Rooter")
-      --     if vim.fn.argv(0) == "" then
-      --       -- Wipe out the initial "No Name" buffer
-      --       vim.cmd("bwipeout")
-      --       require("telescope.builtin").find_files(require("telescope.themes").get_dropdown({
-      --         mappings = {
-      --           i = {
-      --             ["<Esc>"] = function() end, -- Disable `<Esc>` in insert mode
-      --             ["<C-c>"] = function() end, -- Disable `<C-c>` in insert mode
-      --           },
-      --           n = {
-      --             ["q"] = function() end, -- Disable `q` in normal mode
-      --             ["<Esc>"] = function() end, -- Disable `<Esc>` in normal mode
-      --           },
-      --         },
-      --         layout_strategy = "horizontal", -- Or "vertical", "center"
-      --         layout_config = {
-      --           width = 0.99,
-      --           height = 0.99,
-      --           prompt_position = "top",
-      --         },
-      --       }))
-      --     end
-      --   end,
-      -- })
     end,
   },
 }

@@ -9,6 +9,7 @@ local lsp_servers = {
   "ts_ls",
   "lemminx",
   "yamlls",
+  "pyright",
 }
 
 local lsp_kind_icons = {
@@ -51,7 +52,6 @@ local lsp_kind_icons = {
 return {
   {
     "williamboman/mason.nvim",
-    lazy = false,
     config = function()
       require("mason").setup({
         ui = {
@@ -78,8 +78,8 @@ return {
     dependencies = { "nvim-lua/plenary.nvim" },
   },
   {
+    event = "VeryLazy",
     "neovim/nvim-lspconfig", -- Configurations for Nvim LSP
-    lazy = false,
     dependencies = {
       "williamboman/mason-lspconfig.nvim",
       "williamboman/mason.nvim",
@@ -89,15 +89,20 @@ return {
     config = function()
       local lspconfig = require("lspconfig")
       local lsp = require("lsp")
+      local lsp_conf = {
+        on_attach = lsp.on_attach,
+        capabilities = lsp.capabilities(),
+      }
       for _, server in ipairs(lsp_servers) do
-        lspconfig[server].setup(lsp)
+        lspconfig[server].setup(lsp_conf)
       end
 
-      lspconfig.tsserver.filetypes = { "javascript", "typescript", "typescriptreact", "typescript.tsx" }
+      lspconfig.ts_ls.filetypes = { "javascript", "typescript", "typescriptreact", "typescript.tsx" }
     end,
   },
   "mfussenegger/nvim-jdtls",
   {
+    event = "VeryLazy",
     "hrsh7th/cmp-nvim-lsp",
     dependencies = {
       "hrsh7th/nvim-cmp",
@@ -106,7 +111,7 @@ return {
   {
     "hrsh7th/nvim-cmp",
     -- load cmp on InsertEnter
-    event = "InsertEnter",
+    event = "VeryLazy",
     -- these dependencies will only be loaded when cmp loads
     -- dependencies are always lazy-loaded unless specified otherwise
     dependencies = {

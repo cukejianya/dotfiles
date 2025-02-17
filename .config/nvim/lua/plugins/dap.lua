@@ -10,8 +10,7 @@ return {
       "theHamsta/nvim-dap-virtual-text",
       "nvim-neotest/nvim-nio",
     },
-    event = "VeryLazy",
-    config = function()
+    config = function(_, opts)
       vim.fn.sign_define("DapBreakpoint", { text = "", texthl = "special", linehl = "", numhl = "" })
 
       local dap, dapui = require("dap"), require("dapui")
@@ -39,6 +38,7 @@ return {
       dap.listeners.before.event_exited["dapui_config"] = function()
         dapui.close()
       end
+      dapui.setup(opts)
     end,
   },
 }

@@ -1,4 +1,6 @@
 return {
+  { "norcalli/nvim-colorizer.lua", event = "VeryLazy" },
+  { "folke/zen-mode.nvim", event = "VeryLazy" },
   {
     "navarasu/onedark.nvim",
     lazy = false,
@@ -15,15 +17,11 @@ return {
     end,
   },
   {
-    "norcalli/nvim-colorizer.lua",
-    lazy = false,
-    opts = {},
-  },
-  {
     "lukas-reineke/indent-blankline.nvim",
     main = "ibl",
     ---@module "ibl"
     ---@type ibl.config
     opts = {},
+    event = "InsertEnter",
   },
 }

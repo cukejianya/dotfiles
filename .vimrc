@@ -33,7 +33,7 @@ set smartindent
 set backspace=2
 set list
 set hidden
-set foldmethod=indent
+" set foldmethod=indent
 set nofoldenable
 set colorcolumn=81
 set hlsearch
@@ -46,9 +46,6 @@ set incsearch
 set formatoptions-=cro " Stop auto commenting newlines
 set undofile
 set relativenumber
-autocmd FileType yaml set colorcolumn
-autocmd FileType yml set colorcolumn
-autocmd FileType python set colorcolumn
 
 set wildignore+=*/tmp/*
 set wildignore+=*/node_modules/*
@@ -106,11 +103,11 @@ Plugin 'tpope/vim-projectionist'
 " Plugin 'cukejianya/onedark.vim'
 " Plugin 'joshdick/onedark.vim'
 " Plugin 'vim-airline/vim-airline'
-Plugin 'ap/vim-css-color'
+" Plugin 'ap/vim-css-color'
 " Plugin 'vim-airline/vim-airline-themes'
-Plugin 'ryanoasis/vim-devicons'
-Plugin 'mattn/emmet-vim'
-Plugin 'scrooloose/nerdcommenter'
+" Plugin 'ryanoasis/vim-devicons'
+" Plugin 'mattn/emmet-vim'
+" Plugin 'scrooloose/nerdcommenter'
 Plugin 'kshenoy/vim-signature'
 " Plugin 'quramy/tsuquyomi'
 Plugin 'pantharshit00/vim-prisma'
@@ -165,7 +162,7 @@ filetype plugin indent on    " required
       " set termguicolors
 " endif
 " colorscheme onedark
-let g:onedark_terminal_italics=1
+" let g:onedark_terminal_italics=1
 
 " " Enable mysql cli editting mode to use syntax highlighting
 " augroup sql
@@ -174,7 +171,7 @@ let g:onedark_terminal_italics=1
 " augroup END
 "______________________________________________________________________________config_plugin_settings
 " NerdCommenter Setup
-let g:NERDSpaceDelims = 1
+" let g:NERDSpaceDelims = 1
 
 " Airline Setup
 " let g:airline_theme='angr'
@@ -182,18 +179,18 @@ let g:NERDSpaceDelims = 1
 " let g:airline#extensions#gutentags#enabled = 1
 
 " Emmet Setup
-let g:user_emmet_leader_key='\,'
-let g:user_emmet_mode='nv'
+" let g:user_emmet_leader_key='\,'
+" let g:user_emmet_mode='nv'
 
 " Fugitive Setup
 let g:fugitive_pty = 0
 
 " Vim Test Setup
-nmap <silent> <leader>tn :TestNearest<CR>
-nmap <silent> <leader>tt :TestFile<CR>"
-nmap <silent> <leader>ta :TestSuite<CR>
-nmap <silent> gT :A<CR>
-nmap <silent> <C-W>e <C-W>\|<C-W>_
+" nmap <silent> <leader>tn :TestNearest<CR>
+" nmap <silent> <leader>tt :TestFile<CR>"
+" nmap <silent> <leader>ta :TestSuite<CR>
+" nmap <silent> gT :A<CR>
+" nmap <silent> <C-W>e <C-W>\|<C-W>_
 
 " Vim Projectionist Setup
 let g:projectionist_heuristics = {

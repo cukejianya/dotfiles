@@ -1,6 +1,7 @@
 return {
+  event = "VeryLazy",
   "nvim-lualine/lualine.nvim",
-  dependencies = { "nvim-tree/nvim-web-devicons" },
+  dependencies = { "nvim-tree/nvim-web-devicons", "folke/noice.nvim" },
   config = function()
     local custom_filename = require("lualine.components.filename"):extend()
     local highlight = require("lualine.highlight")
