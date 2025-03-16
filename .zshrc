@@ -59,7 +59,6 @@ HIST_STAMPS="mm/dd/yyyy"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-  dotenv
   fzf
   fzf-tab
   gcloud
@@ -209,7 +208,6 @@ source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 source ~/.zprofile
 
-
 source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 # Highlisth Commands Config
@@ -221,4 +219,5 @@ ZSH_HIGHLIGHT_STYLES[builtin]='fg=blue'
 ZSH_HIGHLIGHT_STYLES[alias]='fg=blue'
 ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=green'
 ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=green,bold'
+export PATH="/opt/homebrew/opt/mysql@8.4/bin:$PATH"
 export PATH=/opt/spotify-devex/bin:$PATH

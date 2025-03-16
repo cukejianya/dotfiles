@@ -1,11 +1,13 @@
 local lsp = require("lsp")
 local jdtls = require("jdtls")
 local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
-local workspace_dir = "/Users/chinedumu/workspace/" .. project_name
-local path_to_lombak = "/Users/chinedumu/.dotfiles/packages/lombok.jar"
+local home_dir = vim.fn.expand("$HOME")
+-- local workspace_dir = home_dir .. "/.local/share/nvim/workspace/java/" .. project_name
+local workspace_dir = home_dir .. "/workspace/" .. project_name
+local path_to_lombak = home_dir .. "/.dotfiles/packages/lombok.jar"
 
 local on_attach = function(client, bufr)
-  -- require('jdtls').setup_dap()
+  -- require("jdtls").setup_dap()
   lsp.on_attach(client, bufr)
   jdtls.setup_dap({ hotcodereplace = "auto" })
   jdtls.setup.add_commands()
@@ -26,7 +28,7 @@ local config = {
   capabilities = lsp.capabilities(),
 
   cmd = {
-    "/Users/chinedumu/.sdkman/candidates/java/21.0.2-amzn/bin/java",
+    home_dir .. "/.sdkman/candidates/java/21.0.2-amzn/bin/java",
 
     --- Uncomment below to debug eclipse.jdt.ls
     -- '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044',
@@ -45,10 +47,10 @@ local config = {
     "java.base/java.lang=ALL-UNNAMED",
 
     "-jar",
-    "/opt/homebrew/Cellar/jdtls/1.35.0/libexec/plugins/org.eclipse.equinox.launcher_1.6.800.v20240330-1250.jar",
+    "/opt/homebrew/Cellar/jdtls/1.45.0/libexec/plugins/org.eclipse.equinox.launcher_1.6.1000.v20250131-0606.jar",
 
     "-configuration",
-    "/opt/homebrew/Cellar/jdtls/1.35.0/libexec/config_mac",
+    "/opt/homebrew/Cellar/jdtls/1.45.0/libexec/config_mac",
     "-data",
     workspace_dir,
   },

@@ -1,9 +1,0 @@
--- return {
---   "mfussenegger/nvim-jdtls",
---   ft = "java",
---   dependencies = {
---     "hrsh7th/cmp-nvim-lsp",
---     "nvim-telescope/telescope.nvim",
---   },
---   config = function() end,
--- }

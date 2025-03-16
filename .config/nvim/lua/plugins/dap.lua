@@ -16,6 +16,16 @@ return {
       local dap, dapui = require("dap"), require("dapui")
       local map = vim.keymap.set
 
+      dap.configurations.java = {
+        {
+          type = "java",
+          request = "attach",
+          name = "Attach to the process",
+          hostName = "localhost",
+          port = "5005",
+        },
+      }
+
       map("n", "<leader>dd", ":JdtRefreshDebugConfigs<CR>")
       map("n", "<leader>dc", ":lua require'dap'.continue()<CR>")
       map("n", "<leader>dn", ":lua require'dap'.step_over()<CR>")

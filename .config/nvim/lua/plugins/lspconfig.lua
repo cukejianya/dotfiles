@@ -1,4 +1,5 @@
 local lsp_servers = {
+  "bashls",
   "cssls",
   "hls",
   "jsonls",
