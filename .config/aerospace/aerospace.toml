@@ -99,9 +99,11 @@ automatically-unhide-macos-hidden-apps = true
     # '''
 
     alt-d = '''exec-and-forget osascript -e 'tell application "System Events" to key code 103''''
-    alt-j = "exec-and-forget ~/.local/bin/cycle-through-windows"
-    alt-l = 'exec-and-forget open -a Vivaldi'
-    alt-k = 'exec-and-forget open -a kitty'
+    alt-semicolon = "exec-and-forget ~/.local/bin/cycle-through-windows"
+    alt-l = "focus --boundaries-action wrap-around-the-workspace right"
+
+    alt-j = 'exec-and-forget open -a kitty'
+    alt-k = 'exec-and-forget open -a Vivaldi'
     alt-s = 'exec-and-forget open -a Slack'
     alt-m = "exec-and-forget ~/.local/bin/open-google-meet" # Google Meets
     alt-n = "exec-and-forget open -a Notes"

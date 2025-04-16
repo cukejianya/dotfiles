@@ -5,12 +5,14 @@ local lsp_servers = {
   "jsonls",
   "lua_ls",
   "marksman",
+  "ltex",
   "sqlls",
   "spectral", -- OpenAPI
   "ts_ls",
   "lemminx",
   "yamlls",
   "pyright",
+  "tailwindcss",
 }
 
 local lsp_kind_icons = {
@@ -52,6 +54,17 @@ local lsp_kind_icons = {
 
 return {
   {
+    "folke/lazydev.nvim",
+    ft = "lua", -- only load on lua files
+    opts = {
+      library = {
+        -- See the configuration section for more details
+        -- Load luvit types when the `vim.uv` word is found
+        { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+      },
+    },
+  },
+  {
     "williamboman/mason.nvim",
     config = function()
       require("mason").setup({
@@ -86,6 +99,8 @@ return {
       "williamboman/mason.nvim",
       "nvim-telescope/telescope.nvim",
       "hrsh7th/cmp-nvim-lsp",
+      "folke/lazydev.nvim",
+      "barreiroleo/ltex-extra.nvim",
     },
     config = function()
       local lspconfig = require("lspconfig")
@@ -96,6 +111,11 @@ return {
       }
       for _, server in ipairs(lsp_servers) do
         lspconfig[server].setup(lsp_conf)
+      end
+
+      lspconfig.ltex.on_attach = function(client, buffer)
+        require("ltex_extra").setup({})
+        lsp.on_attach(client, buffer)
       end
 
       lspconfig.ts_ls.filetypes = { "javascript", "typescript", "typescriptreact", "typescript.tsx" }

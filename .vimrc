@@ -23,7 +23,6 @@ set wildmenu
 "                                                             general_settings
 set number
 set encoding=UTF-8
-set wrap
 set textwidth=79
 set tabstop=2
 set shiftwidth=2

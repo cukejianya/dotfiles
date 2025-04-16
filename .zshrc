@@ -118,10 +118,12 @@ alias tmuxreload="tmux source-file ~/.tmux.conf"
 # Config aliases
 
 alias cat="bat -pp"
+alias ls="eza --icons"
 alias fzf-preview="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
 alias tmuxconfig="nvim ~/.tmux.conf"
 alias vimconfig="nvim ~/.config/nvim/init.vim"
 alias zshconfig="nvim ~/.zshrc"
+alias git-commit-msg="git diff HEAD~1 | ollama run tavernari/git-commit-message | awk 'NR==2'"
 
 # Config to Cpp build
 alias cpp="clang++ -std=c++11 -stdlib=libc++"
@@ -131,6 +133,11 @@ export LSCOLORS=ExFxBxDxCxegedabagacad
 
 # Colorize man pages
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+
+# Use bat for git pager
+export GIT_PAGER="bat -l=diff -p --pager=never"
+
+alias gitdiff="git diff | bat -l=diff"
 
 # Config FZF
 export FZF_DEFAULT_COMMAND="rg --hidden --no-ignore --files"
@@ -182,6 +189,9 @@ export PATH="$PATH:$HOME/.rvm/bin"
 
 # Add .local/bin to PATH
 export PATH="$HOME/.local/bin:$PATH"
+
+# Enable developer mode in Slack
+export SLACK_DEVELOPER_MENU=true
 
 # Git pretty log
 alias lg1-specific="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'"

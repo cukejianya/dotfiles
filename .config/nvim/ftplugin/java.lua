@@ -5,23 +5,28 @@ local home_dir = vim.fn.expand("$HOME")
 -- local workspace_dir = home_dir .. "/.local/share/nvim/workspace/java/" .. project_name
 local workspace_dir = home_dir .. "/workspace/" .. project_name
 local path_to_lombak = home_dir .. "/.dotfiles/packages/lombok.jar"
+local jdtls_path = vim.fn.expand("/opt/homebrew/Cellar/jdtls/**/libexec")
+print(jdtls_path)
+local jar_path = vim.fn.glob(jdtls_path .. "/plugins/org.eclipse.equinox.launcher_*.jar")
+local config_path = jdtls_path .. "/config_mac_arm"
+
+print(jar_path)
+print(config_path)
 
 local on_attach = function(client, bufr)
-  -- require("jdtls").setup_dap()
   lsp.on_attach(client, bufr)
-  jdtls.setup_dap({ hotcodereplace = "auto" })
-  jdtls.setup.add_commands()
+  jdtls.setup_dap()
   require("jdtls.dap").setup_dap_main_class_configs()
 end
 
 local bundles = {
   vim.fn.glob(
     "$HOME/.dotfiles/packages/java-debug/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-*.jar",
-    1
+    true
   ),
 }
 
-vim.list_extend(bundles, vim.split(vim.fn.glob("$HOME/.dotfiles/packages/vscode-java-test/server/*.jar", 1), "\n"))
+vim.list_extend(bundles, vim.split(vim.fn.glob("$HOME/.dotfiles/packages/vscode-java-test/server/*.jar", true), "\n"))
 
 local config = {
   on_attach = on_attach,
@@ -47,10 +52,10 @@ local config = {
     "java.base/java.lang=ALL-UNNAMED",
 
     "-jar",
-    "/opt/homebrew/Cellar/jdtls/1.45.0/libexec/plugins/org.eclipse.equinox.launcher_1.6.1000.v20250131-0606.jar",
+    jar_path,
 
     "-configuration",
-    "/opt/homebrew/Cellar/jdtls/1.45.0/libexec/config_mac",
+    config_path,
     "-data",
     workspace_dir,
   },

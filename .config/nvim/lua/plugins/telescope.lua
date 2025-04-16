@@ -17,22 +17,65 @@ return {
 
         defaults = {
           path_display = { "smart" },
+          vimgrep_arguments = {
+            "rg",
+            "--hidden",
+            "--color=never",
+            "--no-heading",
+            "--with-filename",
+            "--line-number",
+            "--column",
+            "--smart-case",
+            "--glob=!**/.git/*",
+            "--glob=!**/node_modules/*",
+            "--glob=!**/target/*",
+          },
         },
+
         pickers = {
           find_files = {
-            find_command = { "rg", "--files", "--hidden", "--glob", "!**/.git/*" },
+            find_command = {
+              "rg",
+              "--files",
+              "--hidden",
+              "-g",
+              "!**/.git/*",
+              "-g",
+              "!**/node_modules/*",
+              "-g",
+              "!**/target/*",
+            },
           },
-          live_grep = {
-            find_command = { "rg", "--files", "--hidden", "--glob", "!**/.git/*" },
-          },
+
           buffers = {
             sort_lastused = true,
             mappings = {
-              i = {
-                ["<C-x>"] = actions.delete_buffer,
+              n = {
+                ["dd"] = actions.delete_buffer,
               },
             },
           },
+
+          lsp_references = {
+            theme = "dropdown",
+            initial_mode = "normal",
+          },
+
+          lsp_definitions = {
+            theme = "dropdown",
+            initial_mode = "normal",
+          },
+
+          lsp_declarations = {
+            theme = "dropdown",
+            initial_mode = "normal",
+          },
+
+          lsp_implementations = {
+            theme = "dropdown",
+            initial_mode = "normal",
+          },
+
           file_browser = {
             theme = "ivy",
             initial_browser = "tree",
@@ -48,7 +91,7 @@ return {
               ["i"] = {
                 -- your custom insert mode mappings
               },
-              ["n"] = {
+              ["dd"] = {
                 -- your custom normal mode mappings
               },
             },
@@ -56,6 +99,7 @@ return {
         },
         extensions = {
           ["ui-select"] = { require("telescope.themes").get_dropdown({}) },
+          fzf = {},
         },
       })
 
