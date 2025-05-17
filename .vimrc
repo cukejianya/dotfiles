@@ -45,6 +45,7 @@ set incsearch
 set formatoptions-=cro " Stop auto commenting newlines
 set undofile
 set relativenumber
+set nowrap
 
 set wildignore+=*/tmp/*
 set wildignore+=*/node_modules/*

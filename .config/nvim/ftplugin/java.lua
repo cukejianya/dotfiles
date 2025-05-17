@@ -6,12 +6,8 @@ local home_dir = vim.fn.expand("$HOME")
 local workspace_dir = home_dir .. "/workspace/" .. project_name
 local path_to_lombak = home_dir .. "/.dotfiles/packages/lombok.jar"
 local jdtls_path = vim.fn.expand("/opt/homebrew/Cellar/jdtls/**/libexec")
-print(jdtls_path)
 local jar_path = vim.fn.glob(jdtls_path .. "/plugins/org.eclipse.equinox.launcher_*.jar")
 local config_path = jdtls_path .. "/config_mac_arm"
-
-print(jar_path)
-print(config_path)
 
 local on_attach = function(client, bufr)
   lsp.on_attach(client, bufr)

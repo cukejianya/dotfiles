@@ -12,7 +12,6 @@ local lsp_servers = {
   "lemminx",
   "yamlls",
   "pyright",
-  "tailwindcss",
 }
 
 local lsp_kind_icons = {
@@ -79,7 +78,12 @@ return {
     end,
   },
   {
+    event = "VeryLazy",
     "williamboman/mason-lspconfig.nvim",
+    dependencies = {
+      { "mason-org/mason.nvim", version = "^1.0.0" },
+      { "mason-org/mason-lspconfig.nvim", version = "^1.0.0" },
+    },
     config = function()
       require("mason-lspconfig").setup({
         automatic_installation = true,
@@ -95,8 +99,6 @@ return {
     event = "VeryLazy",
     "neovim/nvim-lspconfig", -- Configurations for Nvim LSP
     dependencies = {
-      "williamboman/mason-lspconfig.nvim",
-      "williamboman/mason.nvim",
       "nvim-telescope/telescope.nvim",
       "hrsh7th/cmp-nvim-lsp",
       "folke/lazydev.nvim",

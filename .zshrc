@@ -118,12 +118,12 @@ alias tmuxreload="tmux source-file ~/.tmux.conf"
 # Config aliases
 
 alias cat="bat -pp"
-alias ls="eza --icons"
+alias ls="eza --icons --color=always"
 alias fzf-preview="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
 alias tmuxconfig="nvim ~/.tmux.conf"
 alias vimconfig="nvim ~/.config/nvim/init.vim"
 alias zshconfig="nvim ~/.zshrc"
-alias git-commit-msg="git diff HEAD~1 | ollama run tavernari/git-commit-message | awk 'NR==2'"
+alias git-commit-msg="git --no-pager diff HEAD~1 | ollama run tavernari/git-commit-message | awk 'NR==2'"
 
 # Config to Cpp build
 alias cpp="clang++ -std=c++11 -stdlib=libc++"
@@ -133,11 +133,6 @@ export LSCOLORS=ExFxBxDxCxegedabagacad
 
 # Colorize man pages
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-
-# Use bat for git pager
-export GIT_PAGER="bat -l=diff -p --pager=never"
-
-alias gitdiff="git diff | bat -l=diff"
 
 # Config FZF
 export FZF_DEFAULT_COMMAND="rg --hidden --no-ignore --files"
@@ -198,7 +193,7 @@ alias lg1-specific="git log --graph --abbrev-commit --decorate --format=format:'
 alias lg2-specific="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'"
 alias lg3-specific="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''          %C(white)%s%C(reset)%n''          %C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'V"
 alias lg="lg1"
-alias lg1="lg1-specific --all"
+alias lg2="lg1-specific --all"
 alias lg2="lg2-specific --all"
 alias lg3="lg3-specific --all"
 # functions
@@ -207,6 +202,12 @@ decodeURL() { printf "%b\n" "$(sed 's/+/ /g; s/%\([0-9a-f][0-9a-f]\)/\\x\1/g;')"
 getPastCommand() {
   history | fzf | sed -E 's/^ *([0-9]+).*/\!\1/g' | pbcopy
 }
+
+midpoint() {
+  echo $(( ($1 + $2 ) / 2 ))
+}
+
+wt() { cd $(git worktree list | fzf | awk '{ print $1 }'); }
 
 export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
@@ -219,6 +220,28 @@ source "$HOME/.sdkman/bin/sdkman-init.sh"
 source ~/.zprofile
 
 source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# Changing Tmux window names
+cd() {
+  builtin cd "$@" || return
+  local name;
+  if git rev-parse --is-inside-work-tree &>/dev/null; then
+    name=$(git rev-parse --git-common-dir --absolute-git-dir | tr '/' ' ' | awk ' {if (/main \.git$/) { print $(NF-2)} else if (/^ Users.*(\.git|\.bare)$/) {print $(NF-1)}}')
+  else
+    name=${PWD:t}
+  fi
+  [ -n "$TMUX" ] && tmux rename-window "$name"
+}
+
+# Open db rename-window
+db() {
+  if [ $(tmux list-windows -F '#W' | grep -c "db") -gt 0 ]; then 
+    tmux select-window -t ":db"  
+  else
+    tmux new-window 'nvim -c "DBUI"'
+    tmux rename-window "db"
+  fi
+}
 
 # Highlisth Commands Config
 ZSH_HIGHLIGHT_STYLES[single-hyphen-option]='fg=yellow'
