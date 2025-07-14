@@ -1,0 +1,25 @@
+## Generated
+node_modules/
+target/
+bin/
+.settings/
+.project
+.factorypath
+.classpath
+.metadata/
+
+## IntelliJ
+.idea
+*.iml
+.DS_Store
+
+## Liquibase
+liquibase.log
+example-changelog.sql
+
+## Misc
+dependency-reduced-pom.xml
+_qstyx/
+js.log
+.java-version
+.out
