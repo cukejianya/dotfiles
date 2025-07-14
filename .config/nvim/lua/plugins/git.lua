@@ -6,7 +6,15 @@ return {
   },
   {
     "akinsho/git-conflict.nvim",
-    event = "VeryLazy",
+    cmd = {
+      "GitConflictChooseBoth",
+      "GitConflictChooseTheirs",
+      "GitConflictChooseOurs",
+      "GitConflictChooseNone",
+      "GitConflictNextConflict",
+      "GitConflictPrevConflict",
+      "GitConflictListQf",
+    },
     version = "*",
     opts = {},
   },
@@ -17,7 +25,7 @@ return {
   },
   {
     "claydugo/browsher.nvim",
-    event = "VeryLazy",
+    cmd = "Browsher",
     config = function()
       -- Specify empty to use below default options
       require("browsher").setup({

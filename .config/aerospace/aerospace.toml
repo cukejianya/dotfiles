@@ -12,7 +12,7 @@ after-login-command = []
 after-startup-command = []
 
 # Start AeroSpace at login
-start-at-login = false
+start-at-login = true
 
 # Normalizations. See: https://nikitabobko.github.io/AeroSpace/guide#normalization
 enable-normalization-flatten-containers = true
@@ -21,7 +21,7 @@ enable-normalization-opposite-orientation-for-nested-containers = true
 # See: https://nikitabobko.github.io/AeroSpace/guide#layouts
 # The 'accordion-padding' specifies the size of accordion padding
 # You can set 0 to disable the padding feature
-accordion-padding = 0
+accordion-padding = 100
 
 # Possible values: tiles|accordion
 default-root-container-layout = 'tiles'
@@ -103,15 +103,20 @@ automatically-unhide-macos-hidden-apps = true
     alt-l = "focus --boundaries-action wrap-around-the-workspace right"
 
     alt-j = 'exec-and-forget open -a kitty'
+
     alt-k = 'exec-and-forget open -a Vivaldi'
     alt-s = 'exec-and-forget open -a Slack'
     alt-m = "exec-and-forget ~/.local/bin/open-google-meet" # Google Meets
-    alt-n = "exec-and-forget open -a Notes"
+    alt-n = "exec-and-forget ~/.local/bin/notes" # Open notes
 
+    alt-shift-j = 'move-node-to-workspace K --focus-follows-window'
+    alt-shift-k = 'move-node-to-workspace L --focus-follows-window'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#mode
     alt-shift-semicolon = 'mode service'
 
+    alt-comma = 'layout accordion horizontal vertical'
+    alt-slash = 'layout tiles horizontal vertical'
 # 'service' binding mode declaration.
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
 [mode.service.binding]
@@ -131,10 +136,6 @@ run = ['layout tiling', 'move-node-to-workspace K']
 [[on-window-detected]]
 if.app-id = 'com.vivaldi.Vivaldi'
 run = ['layout tiling', 'move-node-to-workspace L']
-
-[[on-window-detected]]
-if.app-id = 'com.apple.Notes'
-run = ['layout floating', 'move-node-to-workspace N']
 
 [[on-window-detected]]
 if.app-id = 'com.apple.systempreference'

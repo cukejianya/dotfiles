@@ -207,7 +207,15 @@ midpoint() {
   echo $(( ($1 + $2 ) / 2 ))
 }
 
-wt() { cd $(git worktree list | fzf | awk '{ print $1 }'); }
+wt() { 
+  local worktree_dir
+  if [ -z "$1" ]; then 
+    worktree_dir=$(git worktree list | fzf | awk '{ print $1 }') || return
+  else
+    worktree_dir=$(git worktree list | fzf --query="$1" --select-1 --exit-0 | awk '{ print $1 }') || return
+  fi
+  cd -- "$worktree_dir"
+}
 
 export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
@@ -221,15 +229,18 @@ source ~/.zprofile
 
 source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
+getProjectName() {
+  if git rev-parse --is-inside-work-tree &>/dev/null; then
+    printf $(git rev-parse --git-common-dir --absolute-git-dir | tr '/' ' ' | awk ' {if (/main \.git$/) { print $(NF-2)} else if (/^ Users.*(\.git|\.bare)$/) {print $(NF-1)}}')
+  else
+    printf ${PWD:t}
+  fi
+}
+
 # Changing Tmux window names
 cd() {
   builtin cd "$@" || return
-  local name;
-  if git rev-parse --is-inside-work-tree &>/dev/null; then
-    name=$(git rev-parse --git-common-dir --absolute-git-dir | tr '/' ' ' | awk ' {if (/main \.git$/) { print $(NF-2)} else if (/^ Users.*(\.git|\.bare)$/) {print $(NF-1)}}')
-  else
-    name=${PWD:t}
-  fi
+  local name=$(getProjectName)
   [ -n "$TMUX" ] && tmux rename-window "$name"
 }
 
@@ -238,7 +249,7 @@ db() {
   if [ $(tmux list-windows -F '#W' | grep -c "db") -gt 0 ]; then 
     tmux select-window -t ":db"  
   else
-    tmux new-window 'nvim -c "DBUI"'
+    tmux new-window 'cd ~ && nvim -c "DBUI"'
     tmux rename-window "db"
   fi
 }
@@ -253,4 +264,6 @@ ZSH_HIGHLIGHT_STYLES[alias]='fg=blue'
 ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=green'
 ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=green,bold'
 export PATH="/opt/homebrew/opt/mysql@8.4/bin:$PATH"
+
+export PATH=$PATH:/Users/chinedumu/.spicetify
 export PATH=/opt/spotify-devex/bin:$PATH

@@ -7,7 +7,6 @@ local lsp_servers = {
   "marksman",
   "ltex",
   "sqlls",
-  "spectral", -- OpenAPI
   "ts_ls",
   "lemminx",
   "yamlls",
@@ -92,10 +91,6 @@ return {
     end,
   },
   {
-    "scalameta/nvim-metals",
-    dependencies = { "nvim-lua/plenary.nvim" },
-  },
-  {
     event = "VeryLazy",
     "neovim/nvim-lspconfig", -- Configurations for Nvim LSP
     dependencies = {
@@ -124,6 +119,31 @@ return {
     end,
   },
   "mfussenegger/nvim-jdtls",
+  {
+    "scalameta/nvim-metals",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
+    ft = { "scala", "sbt", "java" },
+    opts = function()
+      local metals_config = require("metals").bare_config()
+      local lsp = require("lsp")
+      metals_config.on_attach = lsp.on_attach
+      metals_config.capabilities = lsp.capabilities()
+
+      return metals_config
+    end,
+    config = function(self, metals_config)
+      local nvim_metals_group = vim.api.nvim_create_augroup("nvim-metals", { clear = true })
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = self.ft,
+        callback = function()
+          require("metals").initialize_or_attach(metals_config)
+        end,
+        group = nvim_metals_group,
+      })
+    end,
+  },
   {
     event = "VeryLazy",
     "hrsh7th/cmp-nvim-lsp",

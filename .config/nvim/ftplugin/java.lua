@@ -2,12 +2,21 @@ local lsp = require("lsp")
 local jdtls = require("jdtls")
 local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
 local home_dir = vim.fn.expand("$HOME")
--- local workspace_dir = home_dir .. "/.local/share/nvim/workspace/java/" .. project_name
-local workspace_dir = home_dir .. "/workspace/" .. project_name
 local path_to_lombak = home_dir .. "/.dotfiles/packages/lombok.jar"
 local jdtls_path = vim.fn.expand("/opt/homebrew/Cellar/jdtls/**/libexec")
 local jar_path = vim.fn.glob(jdtls_path .. "/plugins/org.eclipse.equinox.launcher_*.jar")
 local config_path = jdtls_path .. "/config_mac_arm"
+
+local project_root_name = vim.fn.system("source ~/.zshrc; getProjectName")
+local workspace_project_name
+
+if project_root_name == project_name then
+  workspace_project_name = project_name
+else
+  workspace_project_name = project_root_name .. "-" .. project_name
+end
+
+local workspace_dir = home_dir .. "/.local/share/jdtls/" .. workspace_project_name
 
 local on_attach = function(client, bufr)
   lsp.on_attach(client, bufr)
@@ -15,14 +24,32 @@ local on_attach = function(client, bufr)
   require("jdtls.dap").setup_dap_main_class_configs()
 end
 
-local bundles = {
-  vim.fn.glob(
-    "$HOME/.dotfiles/packages/java-debug/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-*.jar",
-    true
-  ),
-}
+local get_bundles = function()
+  local all_bundles = {
+    vim.fn.glob(
+      "$HOME/.dotfiles/packages/java-debug/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-*.jar",
+      1
+    ),
+  }
+  vim.list_extend(
+    all_bundles,
+    vim.split(vim.fn.glob("$HOME/.dotfiles/packages/vscode-java-test/server/*.jar", true), "\n")
+  )
 
-vim.list_extend(bundles, vim.split(vim.fn.glob("$HOME/.dotfiles/packages/vscode-java-test/server/*.jar", true), "\n"))
+  local ignored_bundles = { "com.microsoft.java.test.runner-jar-with-dependencies.jar", "jacocoagent.jar" }
+  local find = string.find
+  local function should_ignore_bundle(bundle)
+    for _, ignored in ipairs(ignored_bundles) do
+      if find(bundle, ignored, 1, true) then
+        return true
+      end
+    end
+  end
+  local filtered_bundles = vim.tbl_filter(function(bundle)
+    return bundle ~= "" and not should_ignore_bundle(bundle)
+  end, all_bundles)
+  return filtered_bundles
+end
 
 local config = {
   on_attach = on_attach,
@@ -65,7 +92,7 @@ local config = {
   --
   -- If you don't plan on using the debugger or other eclipse.jdt.ls plugins you can remove this
   init_options = {
-    bundles = bundles,
+    bundles = get_bundles(),
   },
 }
 

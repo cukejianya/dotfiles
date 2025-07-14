@@ -29,11 +29,11 @@ require("lazy").setup({
     { import = "plugins" },
   },
   ui = {
-    show = false,
+    show = true,
   },
   -- Configure any other settings here. See the documentation for more details.
   -- colorscheme that will be used when installing plugins.
   install = { colorscheme = { "onedark" } },
   -- automatically check for plugin updates
-  checker = { enabled = true },
+  checker = { enabled = false },
 })

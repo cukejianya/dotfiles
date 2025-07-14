@@ -87,6 +87,8 @@ return {
       require("telescope").load_extension("ui-select")
       vim.g.rooter_patterns = { ".git", "Makefile", "package.json" }
 
+      require("config.telescope.git-worktrees").setup({})
+
       vim.keymap.set("n", "<leader>fr", builtin.oldfiles, {})
       vim.keymap.set("n", "<leader>ff", builtin.find_files, {})
       vim.keymap.set("n", "gr", builtin.lsp_references, {})
