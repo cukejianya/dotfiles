@@ -58,9 +58,6 @@ set wildignore+=*/venv/*
 " Toggle Relative Numberline
 nnoremap <leader>r :setlocal relativenumber!<CR>
 
-" Map enter key to esc
-inoremap jk <Esc>
-
 " Reload and edit vim config file
 nnoremap <Leader>ve :e $MYVIMRC<CR>
 nnoremap <Leader>vr :source $MYVIMRC<CR>

@@ -212,7 +212,7 @@ wt() {
   if [ -z "$1" ]; then 
     worktree_dir=$(git worktree list | fzf | awk '{ print $1 }') || return
   else
-    worktree_dir=$(git worktree list | fzf --query="$1" --select-1 --exit-0 | awk '{ print $1 }') || return
+    worktree_dir=$(git worktree list | awk '{print $0 "|" $0}' | sed 's![^[:space:]]*/\([^[:space:]]*\).*|!\1 | !' | fzf --query="$1" --select-1 --exit-0 --delimiter='\|' --nth=1 | awk '{ print $3 }')
   fi
   cd -- "$worktree_dir"
 }
