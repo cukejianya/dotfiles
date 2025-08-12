@@ -14,6 +14,7 @@ return {
     priority = 49,
     keys = {
       { "<leader>m", "<cmd>Markview toggle<cr>", desc = "NeoTree" },
+      { "<leader>x", "<cmd>s/\\[ /\\[X<cr>", desc = "NeoTree" },
     },
   },
 }

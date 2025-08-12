@@ -38,13 +38,9 @@ return {
       options = { theme = "onedark", section_separators = "", component_separators = "" },
 
       sections = {
-        lualine_b = { custom_filename, "diff", "diagnostics" },
+        lualine_b = { { "filetype", icon_only = true }, custom_filename, "diff", "diagnostics" },
         lualine_c = { "branch" },
         lualine_x = {
-          {
-            require("noice").api.status.message.get_hl,
-            cond = require("noice").api.status.message.has,
-          },
           {
             require("noice").api.status.command.get,
             cond = require("noice").api.status.command.has,
@@ -61,6 +57,23 @@ return {
             color = { fg = "#ff9e64" },
           },
         },
+        lualine_y = {
+          {
+            "lsp_status",
+            icon = "", -- f013
+            symbols = {
+              -- Standard unicode symbols to cycle through for LSP progress:
+              spinner = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" },
+              -- Standard unicode symbol for when LSP is done:
+              done = "✓",
+              -- Delimiter inserted between LSP names:
+              separator = " ",
+            },
+            -- List of LSP names to ignore (e.g., `null-ls`):
+            ignore_lsp = {},
+          },
+        },
+        lualine_z = {},
       },
     })
   end,
