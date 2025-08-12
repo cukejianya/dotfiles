@@ -23,3 +23,5 @@ _qstyx/
 js.log
 .java-version
 .out
+
+**/.claude/settings.local.json
