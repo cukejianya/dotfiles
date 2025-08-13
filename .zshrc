@@ -246,11 +246,10 @@ getProjectName() {
 
 # Open db rename-window
 db() {
-  if [ $(tmux list-windows -F '#W' | grep -c "db") -gt 0 ]; then 
-    tmux select-window -t ":db"  
+  if [ $(tmux list-sessions -F '#S' | grep -c "db") -gt 0 ]; then 
+    tmux switch-client -t "db"  
   else
-    tmux new-window 'cd ~ && nvim -c "DBUI"'
-    tmux rename-window "db"
+    tmuxinator start db
   fi
 }
 
