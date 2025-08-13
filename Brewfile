@@ -27,4 +27,4 @@ brew "eza"
 brew "gh"
 brew "kubernetes-cli"
 brew "kubectl-site"
-
+brew "tmuxinator"

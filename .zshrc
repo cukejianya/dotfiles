@@ -207,15 +207,15 @@ midpoint() {
   echo $(( ($1 + $2 ) / 2 ))
 }
 
-wt() { 
-  local worktree_dir
-  if [ -z "$1" ]; then 
-    worktree_dir=$(git worktree list | fzf | awk '{ print $1 }') || return
-  else
-    worktree_dir=$(git worktree list | awk '{print $0 "|" $0}' | sed 's![^[:space:]]*/\([^[:space:]]*\).*|!\1 | !' | fzf --query="$1" --select-1 --exit-0 --delimiter='\|' --nth=1 | awk '{ print $3 }')
-  fi
-  cd -- "$worktree_dir"
-}
+# wt() { 
+#   local worktree_dir
+#   if [ -z "$1" ]; then 
+#     worktree_dir=$(git worktree list | fzf | awk '{ print $1 }') || return
+#   else
+#     worktree_dir=$(git worktree list | awk '{print $0 "|" $0}' | sed 's![^[:space:]]*/\([^[:space:]]*\).*|!\1 | !' | fzf --query="$1" --select-1 --exit-0 --delimiter='\|' --nth=1 | awk '{ print $3 }')
+#   fi
+#   cd -- "$worktree_dir"
+# }
 
 export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
@@ -237,12 +237,12 @@ getProjectName() {
   fi
 }
 
-# Changing Tmux window names
-cd() {
-  builtin cd "$@" || return
-  local name=$(getProjectName)
-  [ -n "$TMUX" ] && tmux rename-window "$name"
-}
+# # Changing Tmux window names
+# cd() {
+#   builtin cd "$@" || return
+#   local name=$(getProjectName)
+#   [ -n "$TMUX" ] && tmux rename-window "$name"
+# }
 
 # Open db rename-window
 db() {
