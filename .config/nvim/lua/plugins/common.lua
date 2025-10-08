@@ -3,4 +3,5 @@ return {
   { "tpope/vim-surround", event = "VeryLazy" },
   { "chentoast/marks.nvim", event = "VeryLazy" },
   { "numToStr/Comment.nvim", event = "VeryLazy", opts = {} },
+  { "mbbill/undotree", keys = { { "<leader>u", "<cmd>UndotreeToggle<cr>" } }, event = "VeryLazy" },
 }

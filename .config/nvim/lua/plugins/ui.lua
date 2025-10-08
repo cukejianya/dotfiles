@@ -59,7 +59,53 @@ return {
       style = "deep",
       toggle_style_key = "<leader>sc",
       highlights = {
-        DashboardHeader = { fg = "$cyan" },
+
+        -- Java specific overrides
+        -- low-color Java
+        ["@variable.java"] = { fg = "$fg" },
+        ["@variable.builtin.java"] = { fg = "$fg", fmt = "italic" },
+        ["@variable.member.java"] = { fg = "$fg" },
+        ["@parameter.java"] = { fg = "$fg", fmt = "italic" },
+
+        ["@function.java"] = { fg = "$fg" },
+        ["@function.method.java"] = { fg = "$fg" },
+        ["@method.java"] = { fg = "$fg" },
+        ["@constructor.java"] = { fg = "$fg", fmt = "bold" },
+
+        ["@type.java"] = { fg = "$fg", fmt = "bold" },
+        ["@type.builtin.java"] = { fg = "$fg" },
+        ["@namespace.java"] = { fg = "$fg" },
+
+        ["@property.java"] = { fg = "$fg" },
+        ["@field.java"] = { fg = "$fg" },
+
+        ["@keyword.java"] = { fg = "$light_grey", fmt = "italic" },
+        ["@keyword.conditional.java"] = { fg = "$light_grey", fmt = "italic" },
+        ["@keyword.repeat.java"] = { fg = "$light_grey", fmt = "italic" },
+        ["@keyword.function.java"] = { fg = "$light_grey", fmt = "italic" },
+        ["@keyword.operator.java"] = { fg = "$light_grey", fmt = "italic" },
+        ["@operator.java"] = { fg = "$light_grey" },
+
+        ["@annotation.java"] = { fg = "$fg", fmt = "italic" },
+
+        ["@string.java"] = { fg = "$green" },
+        ["@string.escape.java"] = { fg = "$light_grey", fmt = "bold" },
+        ["@character.java"] = { fg = "$fg" },
+
+        ["@number.java"] = { fg = "$fg" },
+        ["@boolean.java"] = { fg = "$fg" },
+
+        ["@punctuation.delimiter.java"] = { fg = "$light_grey" },
+        ["@punctuation.bracket.java"] = { fg = "$light_grey" },
+
+        ["@comment.java"] = { fg = "$grey", fmt = "italic" },
+
+        -- gentle fallbacks
+        ["@method"] = { fg = "$fg" },
+        ["@type"] = { fg = "$fg", fmt = "bold" },
+        ["@keyword"] = { fg = "$light_grey", fmt = "italic" },
+        ["@string"] = { fg = "$green" },
+        ["@comment"] = { fg = "$grey", fmt = "italic" },
       },
     },
     config = function(_, opts)

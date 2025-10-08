@@ -14,7 +14,7 @@ lua <<EOF
   vim.o.foldenable = true
   vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
 
-  vim.keymap.set('n', '<leader>vr', ':source ~/.config/nvim/init.vim<CR>')
+  vim.keymap.set('n', '<leader>r', ':source ~/.config/nvim/init.vim<CR>')
   vim.keymap.set('n', '<leader>csv', 
   ":4d<CR>" ..
   ":1,2d<CR>" ..
@@ -24,6 +24,8 @@ lua <<EOF
   ":%s/|$//g<CR>" ..
   ":%s/|/,/g<CR>"
 )
+
+    vim.opt.mouse = ""
 
     local augroup = vim.api.nvim_create_augroup
     local autocmd = vim.api.nvim_create_autocmd
