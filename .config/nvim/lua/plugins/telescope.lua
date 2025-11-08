@@ -10,7 +10,33 @@ return {
     config = function()
       local builtin = require("telescope.builtin")
       local actions = require("telescope.actions")
+      local find_files_command = {
+        "rg",
+        "--files",
+        "--hidden",
+        "-g",
+        "!**/.git/*",
+        "-g",
+        "!**/node_modules/*",
+        "-g",
+        "!**/target/*",
+        "-g",
+        "!**/test/*",
+      }
 
+      local find_test_command = {
+        "rg",
+        "--files",
+        "--hidden",
+        "-g",
+        "!**/.git/*",
+        "-g",
+        "!**/node_modules/*",
+        "-g",
+        "!**/target/*",
+        "-g",
+        "**/test/**",
+      }
       require("telescope").setup({
 
         defaults = {
@@ -52,19 +78,6 @@ return {
         },
 
         pickers = {
-          find_files = {
-            find_command = {
-              "rg",
-              "--files",
-              "--hidden",
-              "-g",
-              "!**/.git/*",
-              "-g",
-              "!**/node_modules/*",
-              "-g",
-              "!**/target/*",
-            },
-          },
 
           buffers = {
             sort_lastused = true,
@@ -111,7 +124,12 @@ return {
       require("config.telescope.git-worktrees").setup({})
 
       vim.keymap.set("n", "<leader>fr", builtin.oldfiles, {})
-      vim.keymap.set("n", "<leader>ff", builtin.find_files, {})
+      vim.keymap.set("n", "<leader>ff", function()
+        builtin.find_files({ find_command = find_files_command })
+      end, {})
+      vim.keymap.set("n", "<leader>ft", function()
+        builtin.find_files({ find_command = find_test_command })
+      end, {})
       vim.keymap.set("n", "gr", builtin.lsp_references, {})
       vim.keymap.set("n", "<leader>fg", builtin.live_grep, {})
       vim.keymap.set("n", "<leader>fs", builtin.grep_string, {})

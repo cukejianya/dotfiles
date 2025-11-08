@@ -1,21 +1,8 @@
 return {
+  "akinsho/git-conflict.nvim",
   {
     "lewis6991/gitsigns.nvim",
     event = "VeryLazy",
-    opts = {},
-  },
-  {
-    "akinsho/git-conflict.nvim",
-    cmd = {
-      "GitConflictChooseBoth",
-      "GitConflictChooseTheirs",
-      "GitConflictChooseOurs",
-      "GitConflictChooseNone",
-      "GitConflictNextConflict",
-      "GitConflictPrevConflict",
-      "GitConflictListQf",
-    },
-    version = "*",
     opts = {},
   },
   {
