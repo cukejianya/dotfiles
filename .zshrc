@@ -1,84 +1,40 @@
+export ZSH_CONFIG=$HOME/.config/zsh
+
+source <(fzf --zsh)
+source "$ZSH_CONFIG/themes/robbyrussell.zsh"
+source "$ZSH_CONFIG/plugins/wd/wd.plugin.zsh"
+
+sdk() {
+  unset -f sdk
+  [ -s "$HOME/.sdkman/bin/sdkman-init.sh" ] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+  sdk "$@"
+}
+
+# ---  Completion ---
+fpath=($ZSH_CONFIG/plugins/zsh-completions/src $fpath)
+fpath=($ZSH_CONFIG/plugins/wd $fpath)
+autoload -U compinit && compinit -C
+
+source <(kubectl completion zsh)
+source <(kubectl-site completion zsh)
+
+source "$ZSH_CONFIG/plugins/fzf-tab/fzf-tab.plugin.zsh"
+
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 export FZF_BASE=$(brew --prefix)/opt/fzf
-
-# Path to your oh-my-zsh installation.
-export ZSH=$HOME/.oh-my-zsh
-# Set name of the theme to load. Optionally, if you set this to "random"
-# it'll load a random theme each time that oh-my-zsh is loaded.
-# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="robbyrussell"
-
-# Set list of themes to load
-# Setting this variable when ZSH_THEME=random
-# cause zsh load theme from this variable instead of
-# looking in ~/.oh-my-zsh/themes/
-# An empty array have no effect
-# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
-
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
 
 # Uncomment the following line to use hyphen-insensitive completion. Case
 # sensitive completion must be off. _ and - will be interchangeable.
 HYPHEN_INSENSITIVE="true"
 
-# Uncomment the following line to disable bi-weekly auto-update checks.
-# DISABLE_AUTO_UPDATE="true"
-
-# Uncomment the following line to change how often to auto-update (in days).
-# export UPDATE_ZSH_DAYS=13
-
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
-
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
 # Uncomment the following line to enable command auto-correction.
 ENABLE_CORRECTION="true"
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-# COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
 
 # Uncomment the following line if you want to change the command execution time
 # stamp shown in the history command output.
 # The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
 HIST_STAMPS="mm/dd/yyyy"
-
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
-
-# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(
-  fzf
-  fzf-tab
-  gcloud
-  git
-  git-escape-magic
-  jsontools
-  kubectl
-  mvn
-  tmux
-  wd
-)
-
-source $ZSH/oh-my-zsh.sh
-
-# User configuration
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
 
 # Preferred editor for local and remote sessions
 if [[ -n $SSH_CONNECTION ]]; then
@@ -93,20 +49,11 @@ fi
 # ssh
 export SSH_KEY_PATH="~/.ssh/rsa_id"
 
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-
 #Set zsh to vi mode
 bindkey -v
 
 #Set bash to vi mode
 set -o vi
-
-# Bind jk to <esc> key
-bindkey jk vi-cmd-mode
 
 # Bind vv to command line editor
 bindkey vv edit-command-line
@@ -124,6 +71,51 @@ alias tmuxconfig="nvim ~/.tmux.conf"
 alias vimconfig="nvim ~/.config/nvim/init.vim"
 alias zshconfig="nvim ~/.zshrc"
 alias git-commit-msg="git --no-pager diff HEAD~1 | ollama run tavernari/git-commit-message | awk 'NR==2'"
+alias nvm="fnm"
+
+alias gw="git worktree"
+alias gpu="git push -u origin HEAD"
+alias gp="git push"
+# Changing/making/removing directory
+setopt auto_cd
+setopt auto_pushd
+setopt pushd_ignore_dups
+setopt pushdminus
+
+
+alias -g ...='../..'
+alias -g ....='../../..'
+alias -g .....='../../../..'
+alias -g ......='../../../../..'
+
+alias -- -='cd -'
+alias 1='cd -1'
+alias 2='cd -2'
+alias 3='cd -3'
+alias 4='cd -4'
+alias 5='cd -5'
+alias 6='cd -6'
+alias 7='cd -7'
+alias 8='cd -8'
+alias 9='cd -9'
+
+alias md='mkdir -p'
+alias rd=rmdir
+
+function d () {
+  if [[ -n $1 ]]; then
+    dirs "$@"
+  else
+    dirs -v | head -n 10
+  fi
+}
+compdef _dirs d
+
+# List directory contents
+alias lsa='ls -lah'
+alias l='ls -lah'
+alias ll='ls -lh'
+alias la='ls -lAh'
 
 # Config to Cpp build
 alias cpp="clang++ -std=c++11 -stdlib=libc++"
@@ -136,32 +128,6 @@ export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 
 # Config FZF
 export FZF_DEFAULT_COMMAND="rg --hidden --no-ignore --files"
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-# Automate node switch
-# place this after nvm initialization!
-autoload -U add-zsh-hook
-load-nvmrc() {
-  local node_version="$(nvm version)"
-  local nvmrc_path="$(nvm_find_nvmrc)"
-
-  if [ -n "$nvmrc_path"  ]; then
-    local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
-
-    if [ "$nvmrc_node_version" = "N/A"  ]; then
-      nvm install
-    elif [ "$nvmrc_node_version" != "$node_version"  ];
-    then
-      nvm use
-    fi
-  elif [ "$node_version" != "$(nvm version default)" ]; then
-    echo "Reverting to nvm default
-    version"
-    nvm use default
-  fi
-}
 
 # For compilers to find zlib you may need to set:
 export LDFLAGS="${LDFLAGS} -L/usr/local/opt/zlib/lib"
@@ -221,8 +187,6 @@ export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 
-source "$HOME/.sdkman/bin/sdkman-init.sh"
-
 [ -f "/Users/chinedumu/.ghcup/env" ] && source "/Users/chinedumu/.ghcup/env" # ghcup-env
 
 source ~/.zprofile
@@ -238,11 +202,11 @@ getProjectName() {
 }
 
 # # Changing Tmux window names
-# cd() {
-#   builtin cd "$@" || return
-#   local name=$(getProjectName)
-#   [ -n "$TMUX" ] && tmux rename-window "$name"
-# }
+cd() {
+  builtin cd "$@" || return
+  local name=$(getProjectName)
+  [ -n "$TMUX" ] && tmux rename-window "$name"
+}
 
 # Open db rename-window
 db() {
@@ -250,6 +214,25 @@ db() {
     tmux switch-client -t "db"  
   else
     tmuxinator start db
+  fi
+}
+
+# Name tmux pane 
+vim() {
+  [ -n "$TMUX" ] && tmux select-pane -T "vim"
+  nvim "$@" || return
+}
+
+ai() {
+  [ -n "$TMUX" ] && tmux select-pane -T "✳"
+  claude "$@" || return
+}
+
+mark() {
+  if [ -n "$1" ]; then
+    [ -n "$TMUX" ] && tmux select-pane -T "$1"
+  else
+    [ -n "$TMUX" ] && tmux select-pane -T "basic"
   fi
 }
 
