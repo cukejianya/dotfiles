@@ -188,7 +188,6 @@ linux* | *bsd*)
 darwin*)
   export PATH="/opt/homebrew/opt/mysql@8.4/bin:$PATH"
   export PATH=$PATH:$HOME/.spicetify
-  export PATH=/opt/spotify-devex/bin:$PATH
   export PATH="/opt/homebrew/opt/mysql@8.4/bin:$PATH"
 
   source <(kubectl completion zsh)
@@ -273,3 +272,4 @@ ZSH_HIGHLIGHT_STYLES[builtin]='fg=blue'
 ZSH_HIGHLIGHT_STYLES[alias]='fg=blue'
 ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=green'
 ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=green,bold'
+export PATH=/opt/spotify-devex/bin:$PATH
