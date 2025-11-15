@@ -184,7 +184,8 @@ source ~/.zprofile
 
 case "$OSTYPE" in
 linux* | *bsd*)
-
+  echo "working"
+  ;;
 darwin*)
   export PATH="/opt/homebrew/opt/mysql@8.4/bin:$PATH"
   export PATH=$PATH:$HOME/.spicetify
@@ -217,7 +218,7 @@ darwin*)
     [ -s "$HOME/.sdkman/bin/sdkman-init.sh" ] && source "$HOME/.sdkman/bin/sdkman-init.sh"
     sdk "$@"
   }
-
+  ;;
 esac
 
 getProjectName() {
