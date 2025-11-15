@@ -104,9 +104,9 @@ automatically-unhide-macos-hidden-apps = true
 
     alt-j = 'exec-and-forget open -a kitty'
 
-    alt-k = 'exec-and-forget open -a Vivaldi'
+    alt-k = 'exec-and-forget open -a qutebrowser'
     alt-s = 'exec-and-forget open -a Slack'
-    alt-m = "exec-and-forget ~/.local/bin/open-google-meet" # Google Meets
+    alt-m = "exec-and-forget qutebrowser ':tab-select meet'" # Google Meets
     alt-n = "exec-and-forget ~/.local/bin/notes" # Open notes
 
     alt-shift-j = 'move-node-to-workspace K --focus-follows-window'
@@ -134,7 +134,7 @@ if.app-id = 'net.kovidgoyal.kitty'
 run = ['layout tiling', 'move-node-to-workspace K']
 
 [[on-window-detected]]
-if.app-id = 'com.vivaldi.Vivaldi'
+if.app-id = 'org.qutebrowser.qutebrowser'
 run = ['layout tiling', 'move-node-to-workspace L']
 
 [[on-window-detected]]
