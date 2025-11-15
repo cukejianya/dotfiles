@@ -4,42 +4,15 @@ source <(fzf --zsh)
 source "$ZSH_CONFIG/themes/robbyrussell.zsh"
 source "$ZSH_CONFIG/plugins/wd/wd.plugin.zsh"
 
-# Calls mvnw if found in the current project, otherwise execute the original mvn
-mvn-or-mvnw() {
-  [ -s "$HOME/.sdkman/bin/sdkman-init.sh" ] && unset -f sdk && source "$HOME/.sdkman/bin/sdkman-init.sh"
-  local dir="$PWD"
-  while [[ ! -x "$dir/mvnw" && "$dir" != / ]]; do
-    dir="${dir:h}"
-  done
-
-  if [[ -x "$dir/mvnw" ]]; then
-    echo "Running \`$dir/mvnw\`..." >&2
-    "$dir/mvnw" "$@"
-    return $?
-  fi
-
-  command mvn "$@"
-}
-
-sdk() {
-  unset -f sdk
-  [ -s "$HOME/.sdkman/bin/sdkman-init.sh" ] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-  sdk "$@"
-}
-
 # ---  Completion ---
 fpath=($ZSH_CONFIG/plugins/zsh-completions/src $fpath)
 fpath=($ZSH_CONFIG/plugins/wd $fpath)
 autoload -U compinit && compinit -C
 
-source <(kubectl completion zsh)
-source <(kubectl-site completion zsh)
-
 source "$ZSH_CONFIG/plugins/fzf-tab/fzf-tab.plugin.zsh"
 
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:/usr/local/bin:$PATH
-export FZF_BASE=$(brew --prefix)/opt/fzf
 
 # Uncomment the following line to use hyphen-insensitive completion. Case
 # sensitive completion must be off. _ and - will be interchangeable.
@@ -205,11 +178,48 @@ export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 
-[ -f "/Users/chinedumu/.ghcup/env" ] && source "/Users/chinedumu/.ghcup/env" # ghcup-env
+[ -f "$HOME/.ghcup/env" ] && source "$HOME/.ghcup/env" # ghcup-env
 
 source ~/.zprofile
 
-source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+case "$OSTYPE" in
+linux* | *bsd*)
+
+darwin*)
+  export PATH="/opt/homebrew/opt/mysql@8.4/bin:$PATH"
+  export PATH=$PATH:$HOME/.spicetify
+  export PATH=/opt/spotify-devex/bin:$PATH
+  export PATH="/opt/homebrew/opt/mysql@8.4/bin:$PATH"
+
+  source <(kubectl completion zsh)
+  source <(kubectl-site completion zsh)
+  source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+  export FZF_BASE=$(brew --prefix)/opt/fzf
+
+  # Calls mvnw if found in the current project, otherwise execute the original mvn
+  mvn-or-mvnw() {
+    [ -s "$HOME/.sdkman/bin/sdkman-init.sh" ] && unset -f sdk && source "$HOME/.sdkman/bin/sdkman-init.sh"
+    local dir="$PWD"
+    while [[ ! -x "$dir/mvnw" && "$dir" != / ]]; do
+      dir="${dir:h}"
+    done
+ 
+    if [[ -x "$dir/mvnw" ]]; then
+      echo "Running \`$dir/mvnw\`..." >&2
+      "$dir/mvnw" "$@"
+      return $?
+    fi
+
+    command mvn "$@"
+  }
+
+  sdk() {
+    unset -f sdk
+    [ -s "$HOME/.sdkman/bin/sdkman-init.sh" ] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+    sdk "$@"
+  }
+
+esac
 
 getProjectName() {
   if git rev-parse --is-inside-work-tree &>/dev/null; then
@@ -263,7 +273,3 @@ ZSH_HIGHLIGHT_STYLES[builtin]='fg=blue'
 ZSH_HIGHLIGHT_STYLES[alias]='fg=blue'
 ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=green'
 ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=green,bold'
-export PATH="/opt/homebrew/opt/mysql@8.4/bin:$PATH"
-
-export PATH=$PATH:/Users/chinedumu/.spicetify
-export PATH=/opt/spotify-devex/bin:$PATH
