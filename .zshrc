@@ -234,6 +234,7 @@ ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=green,bold'
 case "$OSTYPE" 
 linux* | *bsd*)
   echo "working"
+  export TERMINAL=kitty
   ;;
 darwin*)
   export PATH="/opt/homebrew/opt/mysql@8.4/bin:$PATH"
