@@ -4,6 +4,23 @@ source <(fzf --zsh)
 source "$ZSH_CONFIG/themes/robbyrussell.zsh"
 source "$ZSH_CONFIG/plugins/wd/wd.plugin.zsh"
 
+# Calls mvnw if found in the current project, otherwise execute the original mvn
+mvn-or-mvnw() {
+  [ -s "$HOME/.sdkman/bin/sdkman-init.sh" ] && unset -f sdk && source "$HOME/.sdkman/bin/sdkman-init.sh"
+  local dir="$PWD"
+  while [[ ! -x "$dir/mvnw" && "$dir" != / ]]; do
+    dir="${dir:h}"
+  done
+
+  if [[ -x "$dir/mvnw" ]]; then
+    echo "Running \`$dir/mvnw\`..." >&2
+    "$dir/mvnw" "$@"
+    return $?
+  fi
+
+  command mvn "$@"
+}
+
 sdk() {
   unset -f sdk
   [ -s "$HOME/.sdkman/bin/sdkman-init.sh" ] && source "$HOME/.sdkman/bin/sdkman-init.sh"
@@ -73,9 +90,10 @@ alias zshconfig="nvim ~/.zshrc"
 alias git-commit-msg="git --no-pager diff HEAD~1 | ollama run tavernari/git-commit-message | awk 'NR==2'"
 alias nvm="fnm"
 
-alias gw="git worktree"
+alias gwt="git worktree"
 alias gpu="git push -u origin HEAD"
 alias gp="git push"
+alias mvn="mvn-or-mvnw"
 # Changing/making/removing directory
 setopt auto_cd
 setopt auto_pushd
