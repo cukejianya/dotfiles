@@ -14,6 +14,21 @@ source "$ZSH_CONFIG/plugins/fzf-tab/fzf-tab.plugin.zsh"
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 
+## History file configuration
+[ -z "$HISTFILE" ] && HISTFILE="$HOME/.zsh_history"
+[ "$HISTSIZE" -lt 50000 ] && HISTSIZE=50000
+[ "$SAVEHIST" -lt 10000 ] && SAVEHIST=10000
+
+## History command configuration
+setopt extended_history       # record timestamp of command in HISTFILE
+setopt hist_expire_dups_first # delete duplicates first when HISTFILE size exceeds HISTSIZE
+setopt hist_ignore_dups       # ignore duplicated commands history list
+setopt hist_ignore_space      # ignore commands that start with space
+setopt hist_verify            # show command with history expansion to user before running it
+setopt share_history          # share command history data
+setopt inc_append_history
+setopt append_history
+
 # Uncomment the following line to use hyphen-insensitive completion. Case
 # sensitive completion must be off. _ and - will be interchangeable.
 HYPHEN_INSENSITIVE="true"
@@ -48,6 +63,48 @@ set -o vi
 # Bind vv to command line editor
 bindkey vv edit-command-line
 
+case "$OSTYPE" in
+linux* | *bsd*)
+  ;;
+darwin*)
+  export PATH="/opt/homebrew/opt/mysql@8.4/bin:$PATH"
+  export PATH=$PATH:$HOME/.spicetify
+  export PATH="/opt/homebrew/opt/mysql@8.4/bin:$PATH"
+
+  source <(kubectl completion zsh)
+  source <(kubectl-site completion zsh)
+  source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+  export FZF_BASE=$(brew --prefix)/opt/fzf
+
+  # Calls mvnw if found in the current project, otherwise execute the original mvn
+  mvn-or-mvnw() {
+    [ -s "$HOME/.sdkman/bin/sdkman-init.sh" ] && unset -f sdk && source "$HOME/.sdkman/bin/sdkman-init.sh"
+    local dir="$PWD"
+    while [[ ! -x "$dir/mvnw" && "$dir" != / ]]; do
+      dir="${dir:h}"
+    done
+ 
+    if [[ -x "$dir/mvnw" ]]; then
+      echo "Running \`$dir/mvnw\`..." >&2
+      "$dir/mvnw" "$@"
+      return $?
+    fi
+
+    command mvn "$@"
+  }
+
+  sdk() {
+    unset -f sdk
+    [ -s "$HOME/.sdkman/bin/sdkman-init.sh" ] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+    sdk "$@"
+  }
+  export PYENV_ROOT="$HOME/.pyenv"
+  command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+  eval "$(pyenv init -)"
+  source ~/.zprofile
+  ;;
+esac
+
 # Reload alias
 alias zshreload="source ~/.zshrc"
 alias tmuxreload="tmux source-file ~/.tmux.conf"
@@ -58,7 +115,7 @@ alias cat="bat -pp"
 alias ls="eza --icons --color=always"
 alias fzf-preview="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
 alias tmuxconfig="nvim ~/.tmux.conf"
-alias vimconfig="nvim ~/.config/nvim/init.vim"
+alias vimconfig="nvim ~/.config/nvim/init.lua"
 alias zshconfig="nvim ~/.zshrc"
 alias git-commit-msg="git --no-pager diff HEAD~1 | ollama run tavernari/git-commit-message | awk 'NR==2'"
 alias nvm="fnm"
@@ -231,45 +288,4 @@ ZSH_HIGHLIGHT_STYLES[alias]='fg=blue'
 ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=green'
 ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=green,bold'
 
-case "$OSTYPE" 
-linux* | *bsd*)
-  ;;
-darwin*)
-  export PATH="/opt/homebrew/opt/mysql@8.4/bin:$PATH"
-  export PATH=$PATH:$HOME/.spicetify
-  export PATH="/opt/homebrew/opt/mysql@8.4/bin:$PATH"
-
-  source <(kubectl completion zsh)
-  source <(kubectl-site completion zsh)
-  source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-  export FZF_BASE=$(brew --prefix)/opt/fzf
-
-  # Calls mvnw if found in the current project, otherwise execute the original mvn
-  mvn-or-mvnw() {
-    [ -s "$HOME/.sdkman/bin/sdkman-init.sh" ] && unset -f sdk && source "$HOME/.sdkman/bin/sdkman-init.sh"
-    local dir="$PWD"
-    while [[ ! -x "$dir/mvnw" && "$dir" != / ]]; do
-      dir="${dir:h}"
-    done
- 
-    if [[ -x "$dir/mvnw" ]]; then
-      echo "Running \`$dir/mvnw\`..." >&2
-      "$dir/mvnw" "$@"
-      return $?
-    fi
-
-    command mvn "$@"
-  }
-
-  sdk() {
-    unset -f sdk
-    [ -s "$HOME/.sdkman/bin/sdkman-init.sh" ] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-    sdk "$@"
-  }
-  export PYENV_ROOT="$HOME/.pyenv"
-  command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-  eval "$(pyenv init -)"
-  source ~/.zprofile
-  ;;
-esac
 export PATH=/opt/spotify-devex/bin:$PATH
