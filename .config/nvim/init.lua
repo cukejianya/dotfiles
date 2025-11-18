@@ -1,55 +1,54 @@
 -- 1) Options (the 'set' stuff)
-local o, wo, bo = vim.o, vim.wo, vim.bo
 --[[
-o  = vim.o   → Global options
+vim.o   → Global options
     • Applies to all buffers and windows
     • Example: o.termguicolors = true
 
-wo = vim.wo  → Window-local options
+vim.wo  → Window-local options
     • Applies to the current window only
     • Example: wo.number = true
 
-bo = vim.bo  → Buffer-local options
+= vim.bo  → Buffer-local options
     • Applies to the current buffer (file) only
     • Example: bo.expandtab = true
 ]]
 
-o.compatible = false
+vim.o.compatible = false
 vim.cmd("filetype on")
 
 -- Tab-completion for file paths
-o.path = o.path .. ",**"
-o.wildmenu = true
+vim.o.path = vim.o.path .. ",**"
+vim.o.wildmenu = true
 
 -- Encoding and formatting
-o.encoding = "UTF-8"
-o.textwidth = 79
-bo.tabstop = 2
-bo.shiftwidth = 2
-bo.expandtab = true
-bo.autoindent = true
-bo.smartindent = true
-o.backspace = "2"
-o.list = true
-o.hidden = true
-o.colorcolumn = "81"
+vim.o.encoding = "UTF-8"
+vim.o.textwidth = 79
+vim.o.tabstop = 2
+vim.o.shiftwidth = 2
+vim.o.expandtab = true
+vim.o.autoindent = true
+vim.o.smartindent = true
+vim.o.backspace = "2"
+vim.o.list = true
+vim.o.hidden = true
+vim.o.colorcolumn = "81"
 
 -- UI
-wo.number = true
-wo.relativenumber = true
-wo.cursorline = true
-o.hlsearch = true
-o.splitbelow = true
-o.splitright = true
-o.wrap = false
+vim.o.number = true
+vim.o.relativenumber = true
+vim.o.cursorline = true
+vim.o.hlsearch = true
+vim.o.splitbelow = true
+vim.o.splitright = true
+vim.o.wrap = false
 
 -- Search behavior
-o.ignorecase = true
-o.smartcase = true
-o.incsearch = true
+vim.o.ignorecase = true
+vim.o.smartcase = true
+vim.o.incsearch = true
 
 -- Undo and formatting
-o.undofile = true
+vim.o.undofile = true
 vim.opt.formatoptions:remove("c")
 vim.opt.formatoptions:remove("r")
 vim.opt.formatoptions:remove("o")
@@ -98,8 +97,8 @@ map("n", "<C-K>", "<C-W><C-K>", opts)
 map("n", "<C-L>", "<C-W><C-L>", opts)
 map("n", "<C-H>", "<C-W><C-H>", opts)
 
--- Use Clipboard 
-map({ "n", "v" }, "<leader>y", [["+y]], opts)    -- yank to system clipboard
+-- Use Clipboard
+map({ "n", "v" }, "<leader>y", [["+y]], opts) -- yank to system clipboard
 map("n", "<leader>p", [["+p]], opts)
 
 ----------------
@@ -108,21 +107,23 @@ map("n", "<leader>p", [["+p]], opts)
 vim.g.loaded_netrw = 1
 require("config.lazy")
 
-vim.o.foldcolumn = '0' -- '0' is not bad
+vim.o.foldcolumn = "0" -- '0' is not bad
 vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
 vim.o.foldlevelstart = 99
 vim.o.foldenable = true
 vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
 
-vim.keymap.set('n', '<leader>r', ':source ~/.config/nvim/init.vim<CR>')
-vim.keymap.set('n', '<leader>csv', 
-":4d<CR>" ..
-":1,2d<CR>" ..
-":$d<CR>" ..
-":%s/\\s*|\\s*/|/g<CR>" ..
-":%s/^|//g<CR>" ..
-":%s/|$//g<CR>" ..
-":%s/|/,/g<CR>"
+vim.keymap.set("n", "<leader>r", ":source ~/.config/nvim/init.vim<CR>")
+vim.keymap.set(
+  "n",
+  "<leader>csv",
+  ":4d<CR>"
+    .. ":1,2d<CR>"
+    .. ":$d<CR>"
+    .. ":%s/\\s*|\\s*/|/g<CR>"
+    .. ":%s/^|//g<CR>"
+    .. ":%s/|$//g<CR>"
+    .. ":%s/|/,/g<CR>"
 )
 
 vim.opt.mouse = ""
@@ -131,12 +132,12 @@ local augroup = vim.api.nvim_create_augroup
 local autocmd = vim.api.nvim_create_autocmd
 augroup("__autosave__", { clear = true })
 autocmd("VimLeavePre", {
-	group = "__autosave__",
-	command = ":mksession!",
+  group = "__autosave__",
+  command = ":mksession!",
 })
 
-local answer = vim.fn.confirm( "Open saved session?",  "&Yes\n&No",    2)
+local answer = vim.fn.confirm("Open saved session?", "&Yes\n&No", 2)
 
 if answer == 1 then
-	vim.cmd("source Session.vim")
-	end
+  vim.cmd("source Session.vim")
+end
