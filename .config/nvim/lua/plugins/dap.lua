@@ -97,7 +97,7 @@ return {
       }
 
       map("n", "<leader>dd", ":JdtRefreshDebugConfigs<CR>")
-      map("n", "<leader>dc", ":lua require'dap'.continue()<CR>")
+      map("n", "<leader>dC", ":lua require'dap'.continue()<CR>")
       map("n", "<leader>dn", ":lua require'dap'.step_over()<CR>")
       map("n", "<leader>di", ":lua require'dap'.step_into()<CR>")
       map("n", "<leader>dt", ":lua require'jdtls'.test_nearest_method()<CR>")
@@ -122,7 +122,7 @@ return {
       map("n", "<leader>ds", function()
         toggle_debug_ui("scopes")
       end)
-      map("n", "<leader>dC", function()
+      map("n", "<leader>dc", function()
         toggle_debug_ui("console")
       end)
 

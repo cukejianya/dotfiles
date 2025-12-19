@@ -15,7 +15,7 @@ return {
           -- Define the formatter for Java files
           function()
             return {
-              exe = "$HOME/.sdkman/candidates/java/17.0.7-amzn/bin/java",
+              exe = "$HOME/.sdkman/candidates/java/21.0.2-amzn/bin/java",
               args = {
                 "-jar",
                 "$HOME/.dotfiles/misc/google-java-format-1.21.0-all-deps.jar",
