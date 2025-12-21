@@ -1,13 +1,27 @@
+local formatters = {
+  "stylua",
+  "sql-formatter",
+}
+
 return {
+  dependencies = {
+    "williamboman/mason.nvim",
+  },
   "mhartington/formatter.nvim",
   event = "VeryLazy",
   cmd = {
     "Format",
     "FormatWrite",
   },
-
   config = function()
     local util = require("formatter.util")
+    local registry = require("mason-registry")
+
+    for __, formatter in ipairs(formatters) do
+      if not registry.is_installed(formatter) then
+        vim.cmd("MasonInstall " .. formatter)
+      end
+    end
 
     require("formatter").setup({
       filetype = {
@@ -65,4 +79,3 @@ return {
     })
   end,
 }
--- "formatter.filetypes.lua" defines default configurations for the

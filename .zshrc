@@ -65,6 +65,7 @@ bindkey vv edit-command-line
 
 case "$OSTYPE" in
 linux* | *bsd*)
+  source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
   ;;
 darwin*)
   source $HOME/.dotfiles/.zsh_mac
@@ -138,7 +139,7 @@ export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacad
 
 # Colorize man pages
-export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+export MANPAGER="bat -l=man -p"
 
 # Config FZF
 export FZF_DEFAULT_COMMAND="rg --hidden --no-ignore --files"
@@ -198,7 +199,6 @@ midpoint() {
 # }
 
 
-[ -f "$HOME/.ghcup/env" ] && source "$HOME/.ghcup/env" # ghcup-env
 
 
 getProjectName() {
@@ -254,4 +254,7 @@ ZSH_HIGHLIGHT_STYLES[alias]='fg=blue'
 ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=green'
 ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=green,bold'
 
+source ~/.zprofile
 export PATH=/opt/spotify-devex/bin:$PATH
+
+[ -f "/home/cukejianya/.ghcup/env" ] && . "/home/cukejianya/.ghcup/env" # ghcup-env

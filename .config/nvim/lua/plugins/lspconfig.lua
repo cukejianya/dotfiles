@@ -1,7 +1,6 @@
 local lsp_servers = {
   "bashls",
   "cssls",
-  "hls",
   "jsonls",
   "lua_ls",
   "marksman",
@@ -11,6 +10,7 @@ local lsp_servers = {
   "lemminx",
   "yamlls",
   "pyright",
+  "arduino_language_server",
 }
 
 local lsp_kind_icons = {
