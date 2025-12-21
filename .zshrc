@@ -67,7 +67,7 @@ case "$OSTYPE" in
 linux* | *bsd*)
   ;;
 darwin*)
-  source $HOME/.dotfiles/.mac_zshrc.zsh
+  source $HOME/.dotfiles/.zsh_mac
   ;;
 esac
 
