@@ -2,6 +2,7 @@ local lsp = require("lsp")
 local jdtls = require("jdtls")
 local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
 local home_dir = vim.fn.expand("$HOME")
+local java_home_dir = vim.fn.expand("$JAVA_HOME")
 local path_to_lombak = home_dir .. "/.dotfiles/packages/lombok.jar"
 local jdtls_path = vim.fn.expand("/opt/homebrew/Cellar/jdtls/**/libexec")
 local jar_path = vim.fn.glob(jdtls_path .. "/plugins/org.eclipse.equinox.launcher_*.jar")
@@ -56,7 +57,7 @@ local config = {
   capabilities = lsp.capabilities(),
 
   cmd = {
-    home_dir .. "/.sdkman/candidates/java/21.0.2-amzn/bin/java",
+    java_home_dir .. "/bin/java",
 
     --- Uncomment below to debug eclipse.jdt.ls
     -- '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044',
