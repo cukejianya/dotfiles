@@ -9,7 +9,7 @@ fpath=($ZSH_CONFIG/plugins/zsh-completions/src $fpath)
 fpath=($ZSH_CONFIG/plugins/wd $fpath)
 autoload -U compinit && compinit -C
 
-source "$ZSH_CONFIG/plugins/fzf-tab/fzf-tab.plugin.zsh"
+source "$ZSH_CONFIG/plugins/fzf-tab.plugin.zsh"
 
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:/usr/local/bin:$PATH
@@ -77,7 +77,6 @@ alias zshreload="source ~/.zshrc"
 alias tmuxreload="tmux source-file ~/.tmux.conf"
 
 # Config aliases
-
 alias cat="bat -pp"
 alias ls="eza --icons --color=always"
 alias fzf-preview="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
@@ -86,11 +85,11 @@ alias vimconfig="nvim ~/.config/nvim/init.lua"
 alias zshconfig="nvim ~/.zshrc"
 alias git-commit-msg="git --no-pager diff HEAD~1 | ollama run tavernari/git-commit-message | awk 'NR==2'"
 alias nvm="fnm"
-
 alias gwt="git worktree"
 alias gpu="git push -u origin HEAD"
 alias gp="git push"
 alias mvn="mvn-or-mvnw"
+
 # Changing/making/removing directory
 setopt auto_cd
 setopt auto_pushd
@@ -115,7 +114,7 @@ alias 8='cd -8'
 alias 9='cd -9'
 
 alias md='mkdir -p'
-alias rd=rmdir
+alias rd='rmdir'
 
 function d () {
   if [[ -n $1 ]]; then
@@ -177,36 +176,26 @@ alias lg="lg1"
 alias lg2="lg1-specific --all"
 alias lg2="lg2-specific --all"
 alias lg3="lg3-specific --all"
+
 # functions
 decodeURL() { printf "%b\n" "$(sed 's/+/ /g; s/%\([0-9a-f][0-9a-f]\)/\\x\1/g;')"; }
-
-getPastCommand() {
-  history | fzf | sed -E 's/^ *([0-9]+).*/\!\1/g' | pbcopy
-}
 
 midpoint() {
   echo $(( ($1 + $2 ) / 2 ))
 }
 
-# wt() { 
-#   local worktree_dir
-#   if [ -z "$1" ]; then 
-#     worktree_dir=$(git worktree list | fzf | awk '{ print $1 }') || return
-#   else
-#     worktree_dir=$(git worktree list | awk '{print $0 "|" $0}' | sed 's![^[:space:]]*/\([^[:space:]]*\).*|!\1 | !' | fzf --query="$1" --select-1 --exit-0 --delimiter='\|' --nth=1 | awk '{ print $3 }')
-#   fi
-#   cd -- "$worktree_dir"
-# }
-
-
-
-
 getProjectName() {
   if git rev-parse --is-inside-work-tree &>/dev/null; then
-    printf $(git rev-parse --git-common-dir --absolute-git-dir | tr '/' ' ' | awk ' {if (/main \.git$/) { print $(NF-2)} else if (/^ Users.*(\.git|\.bare)$/) {print $(NF-1)}}')
+    echo $(git rev-parse --git-common-dir --absolute-git-dir | sed -e "s@$HOME@home@" | tr '/' ' ' | awk ' {if (/main \.git$/) { print $(NF-2)} else if (/^home.*(\.git|\.bare)$/) {print $(NF-1)}}')
+  elif [[ $PWD == $HOME ]]; then
+    echo "home"
   else
-    printf ${PWD:t}
+    echo ${PWD:t}
   fi
+}
+
+h() {
+  "$@" --help | bat -l=help -p
 }
 
 # # Changing Tmux window names
@@ -258,3 +247,7 @@ source ~/.zprofile
 export PATH=/opt/spotify-devex/bin:$PATH
 
 [ -f "/home/cukejianya/.ghcup/env" ] && . "/home/cukejianya/.ghcup/env" # ghcup-env
+
+if [[ -z "$TMUX" ]]; then
+  tmux attach -t main || tmux new -s main
+fi
