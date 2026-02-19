@@ -105,7 +105,7 @@ automatically-unhide-macos-hidden-apps = true
     alt-j = 'exec-and-forget open -a kitty'
 
     alt-k = 'exec-and-forget open -a qutebrowser'
-    alt-s = 'exec-and-forget open -a Slack'
+    # alt-s = 'exec-and-forget open -a Slack'
     alt-m = "exec-and-forget qutebrowser ':tab-select meet'" # Google Meets
     alt-n = "exec-and-forget ~/.local/bin/notes" # Open notes
 
