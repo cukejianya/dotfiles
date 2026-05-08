@@ -1,5 +1,6 @@
 brew "colordiff"
 brew "nvim"
+brew "pandoc"
 brew "tmux"
 brew "tree"
 brew "gotop"
