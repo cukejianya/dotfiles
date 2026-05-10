@@ -1,4 +1,4 @@
-local lsp = require("lsp")
+local lsp = require("lsp.handlers")
 local jdtls = require("jdtls")
 local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
 local home_dir = vim.fn.expand("$HOME")

@@ -1,0 +1,1 @@
+/home/cukejianya/.zsh-plugins/fzf-tab/fzf-tab.plugin.zsh

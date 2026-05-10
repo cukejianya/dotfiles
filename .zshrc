@@ -137,9 +137,6 @@ alias cpp="clang++ -std=c++11 -stdlib=libc++"
 export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacad
 
-# Colorize man pages
-export MANPAGER="bat -l=man -p"
-
 # Config FZF
 export FZF_DEFAULT_COMMAND="rg --hidden --no-ignore --files"
 
@@ -196,6 +193,10 @@ getProjectName() {
 
 h() {
   "$@" --help | bat -l=help -p
+}
+
+boy() {
+  man "$@" | bat -l=man -p
 }
 
 # # Changing Tmux window names
