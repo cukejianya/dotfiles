@@ -21,7 +21,7 @@ return {
           -- signcolumn = "no", -- disable signcolumn
           -- number = false, -- disable number column
           -- relativenumber = false, -- disable relative numbers
-          -- cursorline = false, -- disable cursorline
+          cursorline = false, -- disable cursorline
           cursorcolumn = false, -- disable cursor column
           -- foldcolumn = "0", -- disable fold column
           -- list = false, -- disable whitespace characters
@@ -38,7 +38,7 @@ return {
           -- statusline will be shown only if 'laststatus' == 3
           laststatus = 0, -- turn off the statusline in zen mode
         },
-        twilight = { enabled = true },
+        twilight = { enabled = false },
         gitsigns = { enabled = true }, -- disables git signs
         tmux = { enabled = true }, -- disables the tmux statusline
         -- this will change the font size on kitty when in zen mode
@@ -46,8 +46,8 @@ return {
         -- - allow_remote_control socket-only
         -- - listen_on unix:/tmp/kitty
         kitty = {
-          enabled = true,
-          font = "+4", -- font size increment
+          enabled = false,
+          font = "20", -- font size increment
         },
       },
     },
@@ -55,6 +55,7 @@ return {
   {
     "navarasu/onedark.nvim",
     lazy = false,
+    enabled = true,
     opts = {
       style = "deep",
       toggle_style_key = "<leader>sc",
@@ -108,9 +109,123 @@ return {
         ["@comment"] = { fg = "$grey", fmt = "italic" },
       },
     },
-    config = function(_, opts)
-      require("onedark").setup(opts)
+    -- config = function(_, opts)
+    --   require("onedark").setup(opts)
+    --   require("onedark").load()
+    -- end,
+    -- ~/.config/nvim/lua/plugins/colorscheme.lua
+    config = function()
+      require("onedark").setup({
+        style = "deep",
+      })
+
       require("onedark").load()
+
+      local code_fg = "#abb2bf" -- normal OneDark foreground
+      local comment_fg = "#5c6370" -- OneDark comment color
+
+      -- Make ALL syntax look like normal text
+      local groups = {
+        -- Vim syntax
+        "Constant",
+        "String",
+        "Character",
+        "Number",
+        "Boolean",
+        "Float",
+        "Identifier",
+        "Function",
+        "Statement",
+        "Conditional",
+        "Repeat",
+        "Label",
+        "Operator",
+        "Keyword",
+        "Exception",
+        "PreProc",
+        "Include",
+        "Define",
+        "Macro",
+        "PreCondit",
+        "Type",
+        "StorageClass",
+        "Structure",
+        "Typedef",
+        "Special",
+        "SpecialChar",
+        "Tag",
+        "Delimiter",
+        "Debug",
+
+        -- Treesitter
+        "@variable",
+        "@variable.builtin",
+        "@variable.parameter",
+        "@constant",
+        "@constant.builtin",
+        "@constant.macro",
+        "@module",
+        "@label",
+        "@string",
+        "@string.regex",
+        "@string.escape",
+        "@character",
+        "@number",
+        "@boolean",
+        "@float",
+        "@function",
+        "@function.builtin",
+        "@function.call",
+        "@function.macro",
+        "@constructor",
+        "@method",
+        "@method.call",
+        "@keyword",
+        "@keyword.function",
+        "@keyword.operator",
+        "@keyword.return",
+        "@keyword.conditional",
+        "@keyword.repeat",
+        "@operator",
+        "@type",
+        "@type.builtin",
+        "@property",
+        "@field",
+        "@attribute",
+        "@punctuation.delimiter",
+        "@punctuation.bracket",
+        "@punctuation.special",
+      }
+
+      for _, group in ipairs(groups) do
+        vim.api.nvim_set_hl(0, group, {
+          fg = code_fg,
+          bg = "NONE",
+          bold = false,
+          italic = false,
+        })
+      end
+
+      -- Disable semantic token rainbowing from LSPs
+      for _, group in ipairs(vim.fn.getcompletion("@lsp", "highlight")) do
+        vim.api.nvim_set_hl(0, group, {
+          fg = code_fg,
+          bg = "NONE",
+          bold = false,
+          italic = false,
+        })
+      end
+
+      -- Comments ONLY
+      vim.api.nvim_set_hl(0, "Comment", {
+        fg = comment_fg,
+        italic = true,
+      })
+
+      vim.api.nvim_set_hl(0, "@comment", {
+        fg = comment_fg,
+        italic = true,
+      })
     end,
   },
   {

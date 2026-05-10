@@ -6,11 +6,12 @@ local lsp_servers = {
   "marksman",
   "ltex",
   "sqlls",
-  "ts_ls",
   "lemminx",
   "yamlls",
   "pyright",
   "arduino_language_server",
+  "vtsls",
+  "volar",
 }
 
 local lsp_kind_icons = {
@@ -52,6 +53,16 @@ local lsp_kind_icons = {
 
 return {
   {
+    event = "VeryLazy",
+    "neovim/nvim-lspconfig", -- Configurations for Nvim LSP
+    dependencies = {
+      "nvim-telescope/telescope.nvim",
+      "hrsh7th/cmp-nvim-lsp",
+      "folke/lazydev.nvim",
+      "barreiroleo/ltex-extra.nvim",
+    },
+  },
+  {
     "folke/lazydev.nvim",
     ft = "lua", -- only load on lua files
     opts = {
@@ -88,34 +99,6 @@ return {
         automatic_installation = true,
         ensure_installed = lsp_servers,
       })
-    end,
-  },
-  {
-    event = "VeryLazy",
-    "neovim/nvim-lspconfig", -- Configurations for Nvim LSP
-    dependencies = {
-      "nvim-telescope/telescope.nvim",
-      "hrsh7th/cmp-nvim-lsp",
-      "folke/lazydev.nvim",
-      "barreiroleo/ltex-extra.nvim",
-    },
-    config = function()
-      local lspconfig = require("lspconfig")
-      local lsp = require("lsp")
-      local lsp_conf = {
-        on_attach = lsp.on_attach,
-        capabilities = lsp.capabilities(),
-      }
-      for _, server in ipairs(lsp_servers) do
-        lspconfig[server].setup(lsp_conf)
-      end
-
-      lspconfig.ltex.on_attach = function(client, buffer)
-        require("ltex_extra").setup({})
-        lsp.on_attach(client, buffer)
-      end
-
-      lspconfig.ts_ls.filetypes = { "javascript", "typescript", "typescriptreact", "typescript.tsx" }
     end,
   },
   "mfussenegger/nvim-jdtls",

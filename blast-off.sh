@@ -8,7 +8,7 @@ export HOMEBREW_INSTALL_FROM_API=1
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 
 #Install bundler
- sudo gem install bundler
+sudo gem install bundler
 
 # Install brew and casks
 brew bundle
@@ -25,26 +25,11 @@ ln -sf $PWD/.ssh_config ~/.ssh/config
 ln -sf $PWD/.gitconfig ~/.gitconfig
 
 # Install NVM
-sh -c "$(curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh)"
+curl -fsSL https://fnm.vercel.app/install | bash
 source ~/.zshrc
-nvm install --lts
-nvm use --lts
 
 # Install NPM modules
 npm install -g tldr
-
-# Install SDK
-curl -s "https://get.sdkman.io" | bash
-source "$HOME/.sdkman/bin/sdkman-init.sh"
-
-# Install LSP Servers
-yarn global add yaml-language-server
-
-# Install Java
-sdk install maven
-sdk install java 17.0.4-amzn
-sdk install java 11.0.17-amzn
-sdk default java 17.0.4-amzn
 
 cd ./packages
 
@@ -60,10 +45,6 @@ cd ../vscode-java-test
 npm install
 cd ../../
 
-# Install Vundle
-git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-vim +PluginInstall +qall
-
 # Remove Unnecessary folder
 sudo rm -rf ~/Documents ~/Movies ~/Music
 
@@ -71,14 +52,7 @@ sudo rm -rf ~/Documents ~/Movies ~/Music
 mkdir ~/Development ~/Screenshots
 ln -s ~/Screenshots ~/Desktop/Screenshots
 
-# Create ssh key
-ssh-keygen -t ed25519 -C "cukejianya@gmail.com"
-ssh-add
-
-# Install Nvim Plugins
-vim +PackerInstall +qall
-
-# Install Tmux Manager
+# Install Tmux Plugin Manager
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 # Install Spicetify

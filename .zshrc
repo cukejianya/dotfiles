@@ -195,6 +195,10 @@ h() {
   "$@" --help | bat -l=help -p
 }
 
+boy() {
+  man "$@" | bat -l=man -p
+}
+
 # # Changing Tmux window names
 cd() {
   builtin cd "$@" || return
