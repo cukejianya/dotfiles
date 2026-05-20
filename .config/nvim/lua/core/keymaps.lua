@@ -33,7 +33,7 @@ map({ "n", "v" }, "<leader>y", [["+y]], opts) -- yank to system clipboard
 map("n", "<leader>p", [["+p]], opts)
 
 -- Reload config
-map("n", "<leader>r", ":source ~/.config/nvim/init.vim<CR>")
+map("n", "<leader>r", ":source ~/.config/nvim/init.lua<CR>")
 
 -- Costum csv formatter
 map(
@@ -47,3 +47,17 @@ map(
     .. ":%s/|$//g<CR>"
     .. ":%s/|/,/g<CR>"
 )
+
+map("n", "<leader>hh", function()
+  local project_path = vim.fs.relpath(vim.fs.root(0, ".git"), vim.api.nvim_buf_get_name(0))
+  print("Copy path " .. project_path)
+  vim.fn.setreg("+", project_path)
+end, opts)
+
+map("v", "<leader>hh", function()
+  local startline = vim.fn.line("[")
+  local endline = vim.fn.line("]")
+  local project_path = vim.fs.relpath(vim.fs.root(0, ".git"), vim.api.nvim_buf_get_name(0))
+  print("Copy path @" .. project_path)
+  vim.fn.setreg("+", "@" .. project_path)
+end, opts)
