@@ -13,10 +13,12 @@ c.fonts.default_size = '14pt'
 
 c.url.searchengines = {
     'DEFAULT': 'https://duckduckgo.com/?q={}',
-    'y': 'https://youtube.com/results?search_query={}',
     'cs': 'https://codesearch.spotify.net/search?q={}',
+    'gc': 'https://calendar.google.com/calendar/u/0/r/search?q={}'
+    'git': 'https://github.com/search?q={}',
     'gm': 'https://www.google.com/maps?q={}',
-    'j': 'https://spotify.atlassian.net/browse/{}'
+    'j': 'https://spotify.atlassian.net/browse/{}',
+    'y': 'https://youtube.com/results?search_query={}',
 }
 
 config.bind('<Alt-Shift-u>', 'spawn --userscript qute-keepassxc --key 177C5800F00A9FAB', mode='insert')

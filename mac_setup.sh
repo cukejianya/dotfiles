@@ -2,9 +2,6 @@
 # General macOS Setup                                                         #
 ###############################################################################
 
-# Disable 2 finger swipe for Brave Browser
-defaults write com.brave.Browser AppleEnableSwipeNavigateWithScrolls -bool false
-
 # Disable the “Are you sure you want to open this application?” dialog
 defaults write com.apple.LaunchServices LSQuarantine -bool false
 
@@ -22,7 +19,7 @@ launchctl unload -w
 defaults write com.apple.BluetoothAudioAgent "Apple Bitpool Min (editable)" -int 40
 
 # Save screenshots to the desktop
-defaults write com.apple.screencapture location -string "${HOME}/Screenshots"
+defaults write com.apple.screencapture location -string "${HOME}/screenshots"
 
 # Finder: show hidden files by default
 defaults write com.apple.finder AppleShowAllFiles -bool true
@@ -47,4 +44,8 @@ sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.locate.plist
 for app in "Address Book" "Dock" "Finder" "Mail" "SystemUIServer"; do
   killall "${app}" &> /dev/null
 done
+
+# Install Fira Code Retina Font 
+curl -L -O https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/FiraCode/Retina/complete/Fira%20Code%20Retina%20Nerd%20Font%20Complete.ttf
+mv Fira%20Code%20Retina%20Nerd%20Font%20Complete.ttf ~/Library/Fonts/FiraCode-Retina-NerdFont-Complete.ttf
 
