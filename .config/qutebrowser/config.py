@@ -14,7 +14,7 @@ c.fonts.default_size = '14pt'
 c.url.searchengines = {
     'DEFAULT': 'https://duckduckgo.com/?q={}',
     'cs': 'https://codesearch.spotify.net/search?q={}',
-    'gc': 'https://calendar.google.com/calendar/u/0/r/search?q={}'
+    'gc': 'https://calendar.google.com/calendar/u/0/r/search?q={}',
     'git': 'https://github.com/search?q={}',
     'gm': 'https://www.google.com/maps?q={}',
     'j': 'https://spotify.atlassian.net/browse/{}',

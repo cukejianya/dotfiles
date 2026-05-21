@@ -55,9 +55,13 @@ map("n", "<leader>hh", function()
 end, opts)
 
 map("v", "<leader>hh", function()
-  local startline = vim.fn.line("[")
-  local endline = vim.fn.line("]")
+  local startline = vim.fn.line("v")
+  local endline = vim.fn.line(".")
+  if startline > endline then
+    endline, startline = startline, endline
+  end
   local project_path = vim.fs.relpath(vim.fs.root(0, ".git"), vim.api.nvim_buf_get_name(0))
-  print("Copy path @" .. project_path)
-  vim.fn.setreg("+", "@" .. project_path)
+  local project_path_with_lines = project_path .. "#L" .. startline .. "-" .. endline
+  print("Copy path " .. project_path_with_lines)
+  vim.fn.setreg("+", project_path_with_lines)
 end, opts)
