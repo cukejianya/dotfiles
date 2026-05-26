@@ -9,7 +9,7 @@ fpath=($ZSH_CONFIG/plugins/zsh-completions/src $fpath)
 fpath=($ZSH_CONFIG/plugins/wd $fpath)
 autoload -U compinit && compinit -C
 
-source "$ZSH_CONFIG/plugins/fzf-tab.plugin.zsh"
+# source "$ZSH_CONFIG/plugins/fzf-tab.plugin.zsh"
 
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:/usr/local/bin:$PATH
