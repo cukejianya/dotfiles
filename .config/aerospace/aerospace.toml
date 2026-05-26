@@ -99,12 +99,12 @@ automatically-unhide-macos-hidden-apps = true
     # '''
 
     alt-d = '''exec-and-forget osascript -e 'tell application "System Events" to key code 103''''
-    alt-semicolon = "exec-and-forget ~/.local/bin/cycle-through-windows"
-    alt-h = "focus --boundaries-action wrap-around-the-workspace right"
+    alt-h = "exec-and-forget ~/.local/bin/cycle-through-windows"
+    alt-l = "exec-and-forget aerospace focus --window-id $(aerospace list-windows --all | grep mpv | awk '{ print $1 }' | head -1)"
 
     alt-j = 'exec-and-forget open -a kitty'
     alt-k = 'exec-and-forget open -a qutebrowser'
-    alt-l = 'exec-and-forget open -a keepassxc'
+    alt-semicolon = 'exec-and-forget open -a keepassxc'
     # alt-s = 'exec-and-forget open -a Slack'
     alt-m = "exec-and-forget qutebrowser ':tab-select meet'" # Google Meets
     alt-n = "exec-and-forget ~/.local/bin/notes" # Open notes
@@ -140,6 +140,10 @@ run = ['layout tiling', 'move-node-to-workspace L']
 [[on-window-detected]]
 if.app-id = 'org.keepassxc.keepassxc'
 run = ['layout tiling', 'move-node-to-workspace P']
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'mpv'
+run = ['layout tiling', 'move-node-to-workspace M']
 
 [[on-window-detected]]
 if.app-id = 'com.apple.systempreference'

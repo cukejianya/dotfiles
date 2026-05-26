@@ -39,3 +39,4 @@ source ~/.zprofile
 alias gpo="gh repo view -w"
 alias gpr="gh pr view -w"
 alias close="aerospace list-apps | awk '{ print $5 }' | fzf | xargs killall"
+alias vivaldi="vivaldi-cli open"

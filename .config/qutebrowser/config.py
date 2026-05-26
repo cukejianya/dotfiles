@@ -28,3 +28,6 @@ config.bind('x', 'tab-close')
 
 config.bind('<Ctrl-O>', 'tab-focus stack-prev')
 config.bind('<Ctrl-I>', 'tab-focus stack-next')
+
+config.bind('yo', 'spawn open -a "Vivaldi" {url}')
+config.bind(';v', 'hint links spawn mpv {hint-url}')
