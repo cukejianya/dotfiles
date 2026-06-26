@@ -78,3 +78,6 @@ vim.o.foldenable = true
 vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
 
 vim.opt.mouse = ""
+
+vim.opt.spell = true
+vim.opt.spelllang = "en_us"

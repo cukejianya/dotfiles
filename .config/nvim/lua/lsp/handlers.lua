@@ -6,7 +6,7 @@ function M.on_attach(client, buffer)
 end
 
 function M.capabilities()
-  require("cmp_nvim_lsp").default_capabilities()
+  return require("cmp_nvim_lsp").default_capabilities()
 end
 
 return M

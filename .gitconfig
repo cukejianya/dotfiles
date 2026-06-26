@@ -2,7 +2,7 @@
 [user]
 # Please adapt and uncomment the following lines:
 	name = Chinedum Ukejianya
-	email = cukejianya@gmail.com
+	email = chinedumu@spotify.com
   
 [core]
   editor = nvim
@@ -14,3 +14,5 @@
 	clean = git-lfs clean -- %f
 [init]
 	defaultBranch = main
+[maintenance]
+	repo = /Users/chinedumu/monorepo/main

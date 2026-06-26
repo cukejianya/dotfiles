@@ -24,14 +24,6 @@ end
 
 lsp.enable(lsp_servers)
 
-lsp.config("ltex", {
-  on_attach = function(client, buffer)
-    require("ltex_extra").setup({})
-    handlers.on_attach(client, buffer)
-  end,
-  capabilities = handlers.capabilities(),
-})
-
 vim.lsp.config("vtsls", {
   on_attach = handlers.on_attach,
   capabilities = handlers.capabilities(),
@@ -78,6 +70,13 @@ vim.lsp.config("vue_ls", {
       end)
     end
   end,
+})
+
+vim.lsp.config("ltex", {
+  cmd = { "ltex-ls" },
+  cmd_env = {
+    JAVA_OPTS = "-Djdk.xml.totalEntitySizeLimit=0",
+  },
 })
 
 lsp.enable({ "ltex", "vtsls", "vue_ls" })

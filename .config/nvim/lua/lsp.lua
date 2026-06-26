@@ -1,14 +1,18 @@
 vim.opt.completeopt = { "menu", "menuone", "noselect" }
 
-local symbols = { Error = "󰅙", Info = "󰋼", Hint = "󰌵", Warn = "" }
-
-for name, icon in pairs(symbols) do
-  local hl = "DiagnosticSign" .. name
-  vim.fn.sign_define(hl, { text = icon, numhl = hl, texthl = hl })
-end
+vim.diagnostic.config({
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = "󰅙",
+      [vim.diagnostic.severity.WARN] = "",
+      [vim.diagnostic.severity.HINT] = "󰌵",
+      [vim.diagnostic.severity.INFO] = "󰋼",
+    },
+  },
+})
 
 local capabilities = function()
-  require("cmp_nvim_lsp").default_capabilities()
+  return require("cmp_nvim_lsp").default_capabilities()
 end
 
 local common_on_attach = function(client, bufr)

@@ -1,6 +1,5 @@
 local lsp = require("lsp.handlers")
 local jdtls = require("jdtls")
-local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
 local home_dir = vim.fn.expand("$HOME")
 local java_home_dir = vim.fn.expand("$JAVA_HOME")
 local path_to_lombak = home_dir .. "/.dotfiles/packages/lombok.jar"
@@ -8,16 +7,9 @@ local jdtls_path = vim.fn.expand("/opt/homebrew/Cellar/jdtls/**/libexec")
 local jar_path = vim.fn.glob(jdtls_path .. "/plugins/org.eclipse.equinox.launcher_*.jar")
 local config_path = jdtls_path .. "/config_mac_arm"
 
-local project_root_name = vim.fn.system("source ~/.zshrc; getProjectName")
-local workspace_project_name
-
-if project_root_name == project_name then
-  workspace_project_name = project_name
-else
-  workspace_project_name = project_root_name .. "-" .. project_name
-end
-
-local workspace_dir = home_dir .. "/.local/share/jdtls/" .. workspace_project_name
+local root_dir = jdtls.setup.find_root({ ".project", "BUILD.bazel" })
+local project_name = root_dir:gsub(home_dir .. "/", ""):gsub(".", "")
+local workspace_dir = home_dir .. "/.local/share/jdtls/" .. project_name:gsub("/", "-")
 
 local on_attach = function(client, bufr)
   lsp.on_attach(client, bufr)
@@ -83,7 +75,7 @@ local config = {
     "-data",
     workspace_dir,
   },
-  root_dir = jdtls.setup.find_root({ ".git", "mvnw", "gradlew" }),
+  root_dir = jdtls.setup.find_root({ ".project", "BUILD.bazel" }),
 
   -- Language server `initializationOptions`
   -- You need to extend the `bundles` with paths to jar files

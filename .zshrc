@@ -11,8 +11,30 @@ autoload -U compinit && compinit -C
 
 # source "$ZSH_CONFIG/plugins/fzf-tab.plugin.zsh"
 
-# If you come from bash you might have to change your $PATH.
-export PATH=$HOME/bin:/usr/local/bin:$PATH
+## --- Path configuration ---
+export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+
+# For pkg-config to find zlib you may need to set:
+export PKG_CONFIG_PATH="${PKG_CONFIG_PATH} /usr/local/opt/zlib/lib/pkgconfig"
+export PATH="$PATH/usr/local/sbin"
+export PATH="$PATH:/usr/local/opt/php@7.2/bin"
+export PATH=":$PATH:/usr/local/opt/php@7.2/sbin"
+
+# Add RUST bin to PATH
+export PATH="$PATH:$HOME/.cargo/bin"
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"
+
+## --- Constants ---
+# Add Java HOME environment 
+export JAVA_HOME="/Users/chinedumu/.sdkman/candidates/java/current"
+
+# ssh
+export SSH_HOME="~/.ssh/rsa_id"
+
+# workscript
+export WORKSCRIPTS="$HOME/development/work-scripts"
 
 ## History file configuration
 [ -z "$HISTFILE" ] && HISTFILE="$HOME/.zsh_history"
@@ -50,9 +72,6 @@ fi
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
-
-# ssh
-export SSH_KEY_PATH="~/.ssh/rsa_id"
 
 #Set zsh to vi mode
 bindkey -v
@@ -144,23 +163,6 @@ export FZF_DEFAULT_COMMAND="rg --hidden --no-ignore --files"
 export LDFLAGS="${LDFLAGS} -L/usr/local/opt/zlib/lib"
 export CPPFLAGS="${CPPFLAGS} -I/usr/local/opt/zlib/include"
 
-# For pkg-config to find zlib you may need to set:
-export PKG_CONFIG_PATH="${PKG_CONFIG_PATH} /usr/local/opt/zlib/lib/pkgconfig"
-export PATH="/usr/local/sbin:$PATH"
-export PATH="/usr/local/opt/php@7.2/bin:$PATH"
-export PATH="/usr/local/opt/php@7.2/sbin:$PATH"
-
-# Add Java HOME environment 
-export JAVA_HOME="/Users/chinedumu/.sdkman/candidates/java/current"
-
-# Add RUST bin to PATH
-export PATH="$PATH:$HOME/.cargo/bin"
-
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"
-
-# Add .local/bin to PATH
-export PATH="$HOME/.local/bin:$PATH"
 
 # Enable developer mode in Slack
 export SLACK_DEVELOPER_MENU=true
@@ -183,7 +185,7 @@ midpoint() {
 
 getProjectName() {
   if git rev-parse --is-inside-work-tree &>/dev/null; then
-    echo $(git rev-parse --git-common-dir --absolute-git-dir | sed -e "s@$HOME@home@" | tr '/' ' ' | awk ' {if (/main \.git$/) { print $(NF-2)} else if (/^home.*(\.git|\.bare)$/) {print $(NF-1)}}')
+    echo $(basename "$(git rev-parse --show-toplevel)" | tr '_' '-')
   elif [[ $PWD == $HOME ]]; then
     echo "home"
   else
@@ -245,10 +247,12 @@ ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=green'
 ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=green,bold'
 
 source ~/.zprofile
-export PATH=/opt/spotify-devex/bin:$PATH
 
 [ -f "/home/cukejianya/.ghcup/env" ] && . "/home/cukejianya/.ghcup/env" # ghcup-env
 
 if [[ -z "$TMUX" ]]; then
   tmux attach -t main || tmux new -s main
 fi
+
+
+export PATH=/opt/spotify-devex/bin:$PATH

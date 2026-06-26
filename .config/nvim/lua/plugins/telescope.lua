@@ -43,6 +43,7 @@ return {
           path_display = function(opts, path)
             local parts = vim.split(path, "/")
             local filename = parts[#parts]
+            local parent = parts[#parts - 1]
             local module = parts[1]
 
             -- If the path is already short, just return it
@@ -50,15 +51,8 @@ return {
               return path
             end
 
-            -- Default: module/…/filename
-            local display = string.format("%s/…/%s", module, filename)
-
-            -- If there are likely duplicates (common in Java),
-            -- add the parent dir for disambiguation
-            if opts.tail_only == false then
-              local parent = parts[#parts - 1]
-              display = string.format("%s/…/%s/%s", module, parent, filename)
-            end
+            -- Default: module/…/parent/filename
+            local display = string.format("%s/…/%s/%s", module, parent, filename)
 
             return display
           end,

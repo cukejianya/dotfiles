@@ -32,8 +32,6 @@ map("n", "<C-H>", "<C-W><C-H>", opts)
 map({ "n", "v" }, "<leader>y", [["+y]], opts) -- yank to system clipboard
 map("n", "<leader>p", [["+p]], opts)
 
--- Reload config
-map("n", "<leader>r", ":source ~/.config/nvim/init.lua<CR>")
 
 -- Costum csv formatter
 map(

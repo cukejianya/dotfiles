@@ -8,7 +8,7 @@ return {
         progess = { enabled = false },
       },
     },
-    config = function(opts)
+    config = function(_, opts)
       local notify = require("notify")
       notify.setup(opts)
       vim.keymap.set("n", "<leader>q", function()

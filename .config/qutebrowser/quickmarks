@@ -26,7 +26,6 @@ ply https://polyjuice.spotify.net/accounts/history
 pm https://mail.google.com/mail/u/1/#inbox
 wc https://calendar.google.com/calendar/u/0/r
 wm https://mail.google.com/mail/u/0/?pli=1#all
-
 bofa https://www.bankofamerica.com/
 byte https://bytebytego.com
 con https://projects.opilo.net/ynab/
@@ -40,3 +39,7 @@ key https://www.keybr.com/account
 qutecht https://raw.githubusercontent.com/qutebrowser/qutebrowser/main/doc/img/cheatsheet-big.png
 y https://youtube.com
 ynab https://app.ynab.com/9a8b58ff-8efc-4a00-ba52-eb0814699131/budget
+jira https://spotify.atlassian.net/jira/software/c/projects/ADSD/boards/14255
+sk https://app.slack.com/client/E01JHFK2BF0/C08UYC6NADD
+mono https://ghe.spotify.net/spotify/services-pilot
+gpr https://ghe.spotify.net/spotify/services-pilot/pulls/chinedumu

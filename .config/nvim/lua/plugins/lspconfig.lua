@@ -53,8 +53,8 @@ local lsp_kind_icons = {
 
 return {
   {
-    event = "VeryLazy",
     "neovim/nvim-lspconfig", -- Configurations for Nvim LSP
+    lazy = false,
     dependencies = {
       "nvim-telescope/telescope.nvim",
       "hrsh7th/cmp-nvim-lsp",

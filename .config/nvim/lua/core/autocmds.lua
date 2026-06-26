@@ -13,3 +13,11 @@ local answer = vim.fn.confirm("Open saved session?", "&Yes\n&No", 2)
 if answer == 1 then
   vim.cmd("source Session.vim")
 end
+
+vim.api.nvim_create_user_command("LspInfo", function()
+  vim.print(vim.lsp.get_clients())
+end, {})
+
+vim.api.nvim_create_user_command("LspLog", function()
+  vim.cmd("edit " .. vim.lsp.get_log_path())
+end, {})

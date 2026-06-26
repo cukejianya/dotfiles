@@ -1,3 +1,6 @@
+## Neovim
+Session.vim
+
 ## Generated
 node_modules/
 target/
@@ -18,10 +21,6 @@ liquibase.log
 example-changelog.sql
 
 ## Misc
-dependency-reduced-pom.xml
-_qstyx/
-js.log
-.java-version
 .out
 
 **/.claude/settings.local.json

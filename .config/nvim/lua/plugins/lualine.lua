@@ -35,7 +35,7 @@ return {
     end
 
     require("lualine").setup({
-      options = { theme = "onedark", section_separators = "", component_separators = "" },
+      options = { theme = "onedark_custom", section_separators = "", component_separators = "" },
 
       sections = {
         lualine_b = { { "filetype", icon_only = true }, custom_filename, "diff", "diagnostics" },

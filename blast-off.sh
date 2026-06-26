@@ -59,3 +59,12 @@ git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 # Install Spicetify
 curl -fsSL https://raw.githubusercontent.com/spicetify/cli/main/install.sh | sh
 
+# Install Qutebrowser theme
+case "$OSTYPE" in
+linux* | *bsd*)
+  git clone https://github.com/catppuccin/qutebrowser.git ~/.config/qutebrowser/catppuccin
+  ;;
+darwin*)
+  git clone https://github.com/catppuccin/qutebrowser.git ~/.qutebrowser/catppuccin
+  ;;
+esac
