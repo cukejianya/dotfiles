@@ -103,7 +103,7 @@ automatically-unhide-macos-hidden-apps = true
     alt-l = "exec-and-forget aerospace focus --window-id $(aerospace list-windows --all | grep mpv | awk '{ print $1 }' | head -1)"
 
     alt-j = 'exec-and-forget open -a kitty'
-    alt-k = 'exec-and-forget open -a qutebrowser'
+    alt-k = "exec-and-forget zsh -lc 'open -a qutebrowser'"
     alt-semicolon = 'exec-and-forget open -a keepassxc'
     alt-s = "exec-and-forget ~/.local/bin/skw" # Open slack web client
     alt-m = "exec-and-forget ~/.local/bin/mt" # Google Meets

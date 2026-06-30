@@ -45,8 +45,8 @@ config.bind('<Ctrl-O>', 'tab-focus last')
 config.bind('yo', 'spawn open -a "Vivaldi" {url}')
 config.bind('ys', 'spawn ~/.local/bin/skd {url}')
 
-config.bind(',v', 'spawn ~/.local/bin/umpv {url}')
-config.bind(';v', 'hint links spawn ~/.local/bin/umpv {hint-url}')
+config.bind('gv', 'spawn umpv {url}')
+config.bind(';v', 'hint links spawn umpv {hint-url}')
 config.bind(';s', 'hint links spawn ~/.local/bin/skd {hint-url}')
 
 config.bind('<Ctrl-J>','completion-item-focus next',  mode='command')

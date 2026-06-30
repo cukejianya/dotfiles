@@ -11,31 +11,6 @@ autoload -U compinit && compinit -C
 
 # source "$ZSH_CONFIG/plugins/fzf-tab.plugin.zsh"
 
-## --- Path configuration ---
-export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
-
-# For pkg-config to find zlib you may need to set:
-export PKG_CONFIG_PATH="${PKG_CONFIG_PATH} /usr/local/opt/zlib/lib/pkgconfig"
-export PATH="$PATH/usr/local/sbin"
-export PATH="$PATH:/usr/local/opt/php@7.2/bin"
-export PATH=":$PATH:/usr/local/opt/php@7.2/sbin"
-
-# Add RUST bin to PATH
-export PATH="$PATH:$HOME/.cargo/bin"
-
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"
-
-## --- Constants ---
-# Add Java HOME environment 
-export JAVA_HOME="/Users/chinedumu/.sdkman/candidates/java/current"
-
-# ssh
-export SSH_HOME="~/.ssh/rsa_id"
-
-# workscript
-export WORKSCRIPTS="$HOME/development/work-scripts"
-
 ## History file configuration
 [ -z "$HISTFILE" ] && HISTFILE="$HOME/.zsh_history"
 [ "$HISTSIZE" -lt 50000 ] && HISTSIZE=50000

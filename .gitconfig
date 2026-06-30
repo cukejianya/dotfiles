@@ -6,13 +6,23 @@
   
 [core]
   editor = nvim
-	pager = less -R
 [filter "lfs"]
-	smudge = git-lfs smudge -- %f
+  smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
 	clean = git-lfs clean -- %f
+[pager]
+  diff = delta
+  log = less -R
+  show = delta
 [init]
 	defaultBranch = main
 [maintenance]
 	repo = /Users/chinedumu/monorepo/main
+[include]
+  path = ~/.config/delta/themes.gitconfig
+[delta]
+  features = mantis-shrimp
+  hyperlinks = true
+  side-by-side = false
+  hyperlinks-file-link-format = nvim-popup://{path}:{line}
