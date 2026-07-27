@@ -1,0 +1,19 @@
+{
+  "lastChangelogVersion": "0.80.6",
+  "theme": "one-dark",
+  "defaultProvider": "anthropic",
+  "defaultModel": "claude-opus-4-8",
+  "defaultThinkingLevel": "minimal",
+  "quietStartup": true,
+  "hideThinkingBlock": true,
+  "editorPaddingX": 2,
+  "packages": [
+    {
+      "source": "npm:pi-vim@0.12.1",
+      "extensions": [
+        "+index.ts"
+      ]
+    },
+    "git:github.com/nicobailon/pi-mcp-adapter@v2.11.0"
+  ]
+}

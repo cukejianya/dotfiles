@@ -8,10 +8,7 @@ packages/
 .config/pip/
 
 .config/pi/agent/auth.json
-.config/pi/agent/mcp.json
-.config/pi/agent/mcp-oauth/
-.config/pi/agent/mcp-cache.json
-.config/pi/agent/mcp-npx-cache.json
+.config/pi/agent/mcp*
 .config/pi/agent/sessions/
 .config/pi/agent/bin/
 .config/pi/agent/npm/
