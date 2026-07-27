@@ -1,5 +1,8 @@
 export ZSH_CONFIG=$HOME/.config/zsh
 
+source ~/.zprofile
+source ~/.zshenv
+
 source <(fzf --zsh)
 source "$ZSH_CONFIG/themes/robbyrussell.zsh"
 source "$ZSH_CONFIG/plugins/wd/wd.plugin.zsh"
@@ -134,6 +137,9 @@ export LSCOLORS=ExFxBxDxCxegedabagacad
 # Config FZF
 export FZF_DEFAULT_COMMAND="rg --hidden --no-ignore --files"
 
+# Use alternate screen in less (drop -X that git injects by default)
+export LESS=FR
+
 # For compilers to find zlib you may need to set:
 export LDFLAGS="${LDFLAGS} -L/usr/local/opt/zlib/lib"
 export CPPFLAGS="${CPPFLAGS} -I/usr/local/opt/zlib/include"
@@ -159,13 +165,16 @@ midpoint() {
 }
 
 getProjectName() {
-  if git rev-parse --is-inside-work-tree &>/dev/null; then
-    echo $(basename "$(git rev-parse --show-toplevel)" | tr '_' '-')
-  elif [[ $PWD == $HOME ]]; then
-    echo "home"
+  local dir="${1:-$PWD}"
+  local window_name
+  if git -C "$dir" rev-parse --is-inside-work-tree &>/dev/null; then
+    window_name=$(basename "$(git -C "$dir" rev-parse --show-toplevel)" | tr '_' '-')
+  elif [[ $dir == $HOME ]]; then
+    window_name="home"
   else
-    echo ${PWD:t}
+    window_name="${dir:t}"
   fi
+  echo "$window_name" | tr -d '.'
 }
 
 h() {
@@ -176,12 +185,25 @@ boy() {
   man "$@" | bat -l=man -p
 }
 
+autoload -U add-zsh-hook
+
 # # Changing Tmux window names
-cd() {
-  builtin cd "$@" || return
-  local name=$(getProjectName)
-  [ -n "$TMUX" ] && tmux rename-window "$name"
+_tmux_rename() {
+  [ -n "$TMUX" ] || return
+  command -v tmux >/dev/null 2>&1 || return
+
+  # path of the first pane in the current window
+  local first_path=$(tmux list-panes -F '#{pane_current_path}' | head -n1)
+  local name=$(getProjectName "$first_path")
+
+  local cur=$(tmux display-message -p '#W')
+  [ "$name" = "$cur" ] && return
+
+  tmux rename-window "$name"
 }
+add-zsh-hook chpwd _tmux_rename
+
+add-zsh-hook zshexit _tmux_rename
 
 # Open db rename-window
 db() {
@@ -220,8 +242,6 @@ ZSH_HIGHLIGHT_STYLES[builtin]='fg=blue'
 ZSH_HIGHLIGHT_STYLES[alias]='fg=blue'
 ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=green'
 ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=green,bold'
-
-source ~/.zprofile
 
 [ -f "/home/cukejianya/.ghcup/env" ] && . "/home/cukejianya/.ghcup/env" # ghcup-env
 

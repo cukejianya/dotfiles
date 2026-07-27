@@ -12,9 +12,7 @@
 	required = true
 	clean = git-lfs clean -- %f
 [pager]
-  diff = delta
-  log = less -R
-  show = delta
+  diff = delta --paging "always"
 [init]
 	defaultBranch = main
 [maintenance]
@@ -22,7 +20,7 @@
 [include]
   path = ~/.config/delta/themes.gitconfig
 [delta]
-  features = mantis-shrimp
+  features = weeping-willow
   hyperlinks = true
   side-by-side = false
   hyperlinks-file-link-format = nvim-popup://{path}:{line}

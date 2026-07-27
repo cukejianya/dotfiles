@@ -9,7 +9,7 @@ local config_path = jdtls_path .. "/config_mac_arm"
 
 local root_dir = jdtls.setup.find_root({ ".project", "BUILD.bazel" })
 local project_name = root_dir:gsub(home_dir .. "/", ""):gsub(".", "")
-local workspace_dir = home_dir .. "/.local/share/jdtls/" .. project_name:gsub("/", "-")
+local workspace_dir = vim.fn.stdpat("share") .. project_name:gsub("/", "-")
 
 local on_attach = function(client, bufr)
   lsp.on_attach(client, bufr)

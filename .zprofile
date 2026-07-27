@@ -26,6 +26,13 @@ export SSH_HOME="~/.ssh"
 # workscript
 export WORKSCRIPTS="$HOME/development/work-scripts"
 
+# pi
+export PI_CODING_AGENT_DIR="$HOME/.config/pi/agent"
+
 if [ -f ~/.zprofile.local ]; then
   source ~/.zprofile.local
+fi
+
+if [ -f ~/.zshenv ]; then
+  source ~/.zshenv
 fi

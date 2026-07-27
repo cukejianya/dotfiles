@@ -1,3 +1,7 @@
+
+config-version = 2
+auto-reload-config = true
+
 # Place a copy of this config to ~/.aerospace.toml
 # After that, you can edit ~/.aerospace.toml to your liking
 
@@ -11,6 +15,36 @@ after-login-command = []
 # Available commands : https://nikitabobko.github.io/AeroSpace/commands
 after-startup-command = []
 
+on-window-detected = [ 
+  {
+    if = 'test %{app-bundle-id} = com.tinyspeck.slackmacgap',
+    run = ['layout tiling', 'move-node-to-workspace S']
+  },
+  {
+    if = 'test %{app-bundle-id} = net.kovidgoyal.kitty',
+    run = ['layout tiling', 'move-node-to-workspace K']
+  },
+  {
+    if = 'test %{app-bundle-id} = org.qutebrowser.qutebrowser',
+    run = ['layout tiling', 'move-node-to-workspace J']
+  },
+  {
+    if = 'test %{app-bundle-id} = org.keepassxc.keepassxc',
+    run = ['layout tiling', 'move-node-to-workspace P']
+  },
+  {
+    if = 'test %{app-bundle-id} = mpv',
+    run = ['layout tiling', 'move-node-to-workspace L']
+  },
+  {
+    if = 'test %{app-bundle-id} = com.apple.systempreference',
+    run = ['layout floating']
+  },
+  {
+    if = 'true',
+    run = ['layout tiling', 'move-node-to-workspace H']
+  }
+]
 # Start AeroSpace at login
 start-at-login = true
 
@@ -21,7 +55,7 @@ enable-normalization-opposite-orientation-for-nested-containers = true
 # See: https://nikitabobko.github.io/AeroSpace/guide#layouts
 # The 'accordion-padding' specifies the size of accordion padding
 # You can set 0 to disable the padding feature
-accordion-padding = 100
+accordion-padding = 90
 
 # Possible values: tiles|accordion
 default-root-container-layout = 'tiles'
@@ -57,12 +91,12 @@ automatically-unhide-macos-hidden-apps = true
 #                 See:
 #                 https://nikitabobko.github.io/AeroSpace/guide#assign-workspaces-to-monitors
 [gaps]
-    inner.horizontal = 30
-    inner.vertical =   30
-    outer.top =        50
-    outer.bottom =     150
-    outer.left =       100
-    outer.right =      100
+    inner.horizontal = 15
+    inner.vertical =   15
+    outer.top =        15
+    outer.bottom =     185
+    outer.left =       50
+    outer.right =      50
 
 
 # 'main' binding mode declaration
@@ -71,7 +105,6 @@ automatically-unhide-macos-hidden-apps = true
 # Fallback value (if you omit the key): mode.main.binding = {}
 [mode.main.binding]
 
-    alt-f = 'fullscreen'
     # All possible keys:
     # - Letters.        a, b, c, ..., z
     # - Numbers.        0, 1, 2, ..., 9
@@ -98,19 +131,23 @@ automatically-unhide-macos-hidden-apps = true
     # end tell'
     # '''
 
+    alt-f = 'fullscreen'
     alt-d = '''exec-and-forget osascript -e 'tell application "System Events" to key code 103''''
     alt-h = "exec-and-forget ~/.local/bin/cycle-through-windows"
     alt-l = "exec-and-forget aerospace focus --window-id $(aerospace list-windows --all | grep mpv | awk '{ print $1 }' | head -1)"
 
-    alt-j = 'exec-and-forget open -a kitty'
-    alt-k = "exec-and-forget zsh -lc 'open -a qutebrowser'"
+    alt-k = "exec-and-forget open -a kitty"
+    alt-j = "exec-and-forget zsh -lc 'open -a qutebrowser'"
     alt-semicolon = 'exec-and-forget open -a keepassxc'
     alt-s = "exec-and-forget ~/.local/bin/skw" # Open slack web client
     alt-m = "exec-and-forget ~/.local/bin/mt" # Google Meets
     alt-n = "exec-and-forget ~/.local/bin/notes" # Open notes
 
-    alt-shift-j = 'move-node-to-workspace K --focus-follows-window'
-    alt-shift-k = 'move-node-to-workspace L --focus-follows-window'
+    alt-shift-h = 'move-node-to-workspace H --focus-follows-window'
+    alt-shift-j = 'move-node-to-workspace J --focus-follows-window'
+    alt-shift-k = 'move-node-to-workspace K --focus-follows-window'
+    alt-shift-l = 'move-node-to-workspace L --focus-follows-window'
+    alt-shift-p = 'move-node-to-workspace P --focus-follows-window'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#mode
     alt-shift-semicolon = 'mode service'
@@ -125,30 +162,4 @@ automatically-unhide-macos-hidden-apps = true
     f = ['layout floating tiling', 'mode main'] # Toggle between floating and tiling layout
     backspace = ['close-all-windows-but-current', 'mode main']
 
-[[on-window-detected]]
-if.app-id = 'com.tinyspeck.slackmacgap'
-run = ['layout tiling', 'move-node-to-workspace S']
-
-[[on-window-detected]]
-if.app-id = 'net.kovidgoyal.kitty'
-run = ['layout tiling', 'move-node-to-workspace K']
-
-[[on-window-detected]]
-if.app-id = 'org.qutebrowser.qutebrowser'
-run = ['layout tiling', 'move-node-to-workspace L']
-
-[[on-window-detected]]
-if.app-id = 'org.keepassxc.keepassxc'
-run = ['layout tiling', 'move-node-to-workspace P']
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'mpv'
-run = ['layout tiling', 'move-node-to-workspace M']
-
-[[on-window-detected]]
-if.app-id = 'com.apple.systempreference'
-run = ['layout floating']
-
-[[on-window-detected]]
-run = ['layout tiling', 'move-node-to-workspace 1']
 
