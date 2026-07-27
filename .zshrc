@@ -1,5 +1,3 @@
-export ZSH_CONFIG=$HOME/.config/zsh
-
 source ~/.zprofile
 source ~/.zshenv
 
