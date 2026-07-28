@@ -8,8 +8,8 @@ local jar_path = vim.fn.glob(jdtls_path .. "/plugins/org.eclipse.equinox.launche
 local config_path = jdtls_path .. "/config_mac_arm"
 
 local root_dir = jdtls.setup.find_root({ ".project", "BUILD.bazel" })
-local project_name = root_dir:gsub(home_dir .. "/", ""):gsub(".", "")
-local workspace_dir = vim.fn.stdpat("share") .. project_name:gsub("/", "-")
+local project_name = root_dir:gsub(home_dir .. "/", ""):gsub("%.", "")
+local workspace_dir = vim.fn.stdpath("data") .. project_name:gsub("/", "-")
 
 local on_attach = function(client, bufr)
   lsp.on_attach(client, bufr)

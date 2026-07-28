@@ -22,7 +22,7 @@ augroup("__autosave__", { clear = true })
 autocmd("VimLeavePre", {
   group = "__autosave__",
   callback = function()
-    vim.cmd.mksession({ args = { get_session_file() } })
+    vim.cmd.mksession({ args = { get_session_file() }, bang = true })
   end,
 })
 
@@ -35,7 +35,7 @@ autocmd("VimEnter", {
       local answer = vim.fn.confirm("Open saved session?", "&Yes\n&No", 2)
 
       if answer == 1 then
-        vim.cmd.source({ args = { get_session_file() } })
+        vim.cmd.source({ args = { session_file } })
       end
     end
   end,

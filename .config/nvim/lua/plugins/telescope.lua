@@ -40,6 +40,15 @@ return {
       require("telescope").setup({
 
         defaults = {
+          layout_strategy = "horizontal",
+          width = 0.9,
+          layout_config = {
+            horizontal = {
+              width = 0.99,
+              preview_cutoff = 80,
+              preview_width = 0.5,
+            },
+          },
           path_display = function(opts, path)
             local parts = vim.split(path, "/")
             local filename = parts[#parts]
