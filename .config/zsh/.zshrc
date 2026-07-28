@@ -1,16 +1,15 @@
-source ~/.zprofile
-source ~/.zshenv
+source $ZDOTDIR/.zprofile
 
 source <(fzf --zsh)
-source "$ZSH_CONFIG/themes/robbyrussell.zsh"
-source "$ZSH_CONFIG/plugins/wd/wd.plugin.zsh"
+source "$ZDOTDIR/themes/robbyrussell.zsh"
+source "$ZDOTDIR/plugins/wd/wd.plugin.zsh"
 
 # ---  Completion ---
-fpath=($ZSH_CONFIG/plugins/zsh-completions/src $fpath)
-fpath=($ZSH_CONFIG/plugins/wd $fpath)
+fpath=($ZDOTDIR/plugins/zsh-completions/src $fpath)
+fpath=($ZDOTDIR/plugins/wd $fpath)
 autoload -U compinit && compinit -C
 
-# source "$ZSH_CONFIG/plugins/fzf-tab.plugin.zsh"
+# source "$ZDOTDIR/plugins/fzf-tab.plugin.zsh"
 
 ## History file configuration
 [ -z "$HISTFILE" ] && HISTFILE="$HOME/.zsh_history"
@@ -63,21 +62,21 @@ linux* | *bsd*)
   source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
   ;;
 darwin*)
-  source $HOME/.dotfiles/.zsh_mac
+  source $ZDOTDIR/.zsh_mac
   ;;
 esac
 
 # Reload alias
-alias zshreload="source ~/.zshrc"
-alias tmuxreload="tmux source-file ~/.tmux.conf"
+alias zshreload="source $ZDOTDIR/.zshrc"
+alias tmuxreload="tmux source-file $XDG_CONFIG_HOME/tmux/tmux.conf"
 
 # Config aliases
 alias cat="bat -pp"
-alias ls="eza --icons --color=always"
+alias ls="eza --icons --color=always --sort=type"
 alias fzf-preview="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
-alias tmuxconfig="nvim ~/.tmux.conf"
-alias vimconfig="nvim ~/.config/nvim/init.lua"
-alias zshconfig="nvim ~/.zshrc"
+alias tmuxconfig="nvim $XDG_CONFIG_HOME/tmux/.tmux.conf"
+alias vimconfig="nvim $XDG_CONFIG_HOME/nvim/init.lua"
+alias zshconfig="nvim $ZDOTDIR/.zshrc"
 alias git-commit-msg="git --no-pager diff HEAD~1 | ollama run tavernari/git-commit-message | awk 'NR==2'"
 alias nvm="fnm"
 alias gwt="git worktree"
@@ -122,8 +121,8 @@ compdef _dirs d
 
 # List directory contents
 alias lsa='ls -lah'
-alias l='ls -lah'
-alias ll='ls -lh'
+alias l='ls -a'
+alias ll='ls -lah'
 alias la='ls -lAh'
 
 # Config to Cpp build

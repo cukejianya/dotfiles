@@ -1,5 +1,4 @@
 export XDG_CONFIG_HOME="$HOME/.config"
-export ZSH_CONFIG="$XDG_CONFIG_HOME/zsh"
 export DEV_HOME="$HOME/dev"
 
 addToPath() {
@@ -34,7 +33,7 @@ addToPath "$HOME/.rvm/bin"
 
 ## --- Constants ---
 # Add Java HOME environment 
-export JAVA_HOME="/Users/chinedumu/.sdkman/candidates/java/current"
+export JAVA_HOME="$HOME/.sdkman/candidates/java/current"
 
 # ssh
 export SSH_HOME="~/.ssh"
@@ -43,12 +42,12 @@ export SSH_HOME="~/.ssh"
 export WORKSCRIPTS="$HOME/development/work-scripts"
 
 # pi
-export PI_CODING_AGENT_DIR="$HOME/.config/pi/agent"
+export PI_CODING_AGENT_DIR="$XDG_CONFIG_HOME/pi/agent"
 
 if [ -f ~/.zprofile.local ]; then
-  source ~/.zprofile.local
+  source $ZDOTDIR/.zprofile.local
 fi
 
 if [ -f ~/.zshenv ]; then
-  source ~/.zshenv
+  source $ZDOTDIR/.zshenv
 fi
