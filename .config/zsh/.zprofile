@@ -13,6 +13,12 @@ addToPathFront() {
     fi
 }
 
+sourceIfAvailable() {
+  if [ -f $1 ]; then
+    source $1
+  fi
+}
+
 # Set PATH, MANPATH, etc., for Homebrew.
 eval "$(/opt/homebrew/bin/brew shellenv)"
 #
@@ -44,10 +50,6 @@ export WORKSCRIPTS="$HOME/development/work-scripts"
 # pi
 export PI_CODING_AGENT_DIR="$XDG_CONFIG_HOME/pi/agent"
 
-if [ -f ~/.zprofile.local ]; then
-  source $ZDOTDIR/.zprofile.local
-fi
+sourceIfAvailable $ZDOTDIR/.zprofile.local
 
-if [ -f ~/.zshenv ]; then
-  source $ZDOTDIR/.zshenv
-fi
+sourceIfAvailable $ZDOTDIR/.zshenv

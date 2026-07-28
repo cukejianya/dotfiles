@@ -1,8 +1,8 @@
 source $ZDOTDIR/.zprofile
 
 source <(fzf --zsh)
-source "$ZDOTDIR/themes/robbyrussell.zsh"
-source "$ZDOTDIR/plugins/wd/wd.plugin.zsh"
+sourceIfAvailable "$ZDOTDIR/themes/robbyrussell.zsh"
+sourceIfAvailable "$ZDOTDIR/plugins/wd/wd.plugin.zsh"
 
 # ---  Completion ---
 fpath=($ZDOTDIR/plugins/zsh-completions/src $fpath)
@@ -228,6 +228,23 @@ mark() {
   else
     [ -n "$TMUX" ] && tmux select-pane -T "basic"
   fi
+}
+
+# --- Secrets (KeePassXC) ---
+# DB password is cached in the macOS keychain (see mac_setup.sh) so we never
+# type it interactively. All lookups are lazy — nothing is unlocked at startup.
+KPDB="$HOME/.local/share/keepassxc/secrets.kdbx"
+
+kpdb-pass() { security find-generic-password -a "$USER" -s keepassxc-db -w; }
+
+# secret <entry-path>  ->  prints the Password attribute of the entry
+secret() {
+  kpdb-pass | keepassxc-cli show -a Password -q "$KPDB" "$1"
+}
+
+# load-secret <VAR>  ->  export VAR from entry env/<VAR>
+load-secret() {
+  export "$1"="$(secret "env/$1")"
 }
 
 # Highlisth Commands Config

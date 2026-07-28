@@ -18,6 +18,12 @@ brew bundle
 sh -c \
   "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 
+# Bootstrap ZDOTDIR so zsh finds the XDG-compliant config under ~/.config/zsh.
+# ~/.zshenv is the first file zsh reads for every shell.
+cat > ~/.zshenv <<'EOF'
+export ZDOTDIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
+EOF
+
 # Symbolic Links                                                              #
 ln -s $PWD/.vimrc ~/.vimrc
 ln -sf $PWD/.zshrc ~/.zshrc

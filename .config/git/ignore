@@ -20,6 +20,10 @@ bin/
 liquibase.log
 example-changelog.sql
 
+## Secrets
+*.kdbx
+.local/share/keepassxc/
+
 ## Misc
 .out
 

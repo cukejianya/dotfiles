@@ -46,6 +46,11 @@ for app in "Address Book" "Dock" "Finder" "Mail" "SystemUIServer"; do
   killall "${app}" &> /dev/null
 done
 
+# Cache the KeePassXC database password in the macOS keychain so the shell
+# can unlock secrets without an interactive prompt (see .zshrc `secret`).
+# Prompts once for the DB password; stored under service "keepassxc-db".
+security add-generic-password -a "$USER" -s keepassxc-db -w
+
 # Install Fira Code Retina Font 
 curl -L -O https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/FiraCode/Retina/complete/Fira%20Code%20Retina%20Nerd%20Font%20Complete.ttf
 mv Fira%20Code%20Retina%20Nerd%20Font%20Complete.ttf ~/Library/Fonts/FiraCode-Retina-NerdFont-Complete.ttf
