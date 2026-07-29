@@ -1,16 +1,21 @@
 packages/
 
-.config/jgit/
-.config/ghc/
-.config/gcloud/
-.config/configstore/
-.config/yarn/
-.config/pip/
+config/jgit/
+config/ghc/
+config/gcloud/
+config/configstore/
+config/yarn/
+config/pip/
 
-.config/pi/agent/auth.json
-.config/pi/agent/mcp*
-.config/pi/agent/sessions/
-.config/pi/agent/bin/
-.config/pi/agent/npm/
+config/pi/agent/auth.json
+config/pi/agent/mcp*
+config/pi/agent/sessions/
+config/pi/agent/bin/
+config/pi/agent/npm/
+
+config/zsh/.zcompcache/
+config/zsh/.zcompdump*
+config/zsh/.zprofile.local
+config/zsh/.zsh_history
 
 .zshrc-e

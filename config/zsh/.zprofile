@@ -48,5 +48,3 @@ export WORKSCRIPTS="$HOME/development/work-scripts"
 export PI_CODING_AGENT_DIR="$XDG_CONFIG_HOME/pi/agent"
 
 sourceIfAvailable $ZDOTDIR/.zprofile.local
-
-sourceIfAvailable $ZDOTDIR/.zshenv

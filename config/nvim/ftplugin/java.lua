@@ -2,14 +2,16 @@ local lsp = require("lsp.handlers")
 local jdtls = require("jdtls")
 local home_dir = vim.fn.expand("$HOME")
 local java_home_dir = vim.fn.expand("$JAVA_HOME")
-local path_to_lombak = home_dir .. "/.dotfiles/packages/lombok.jar"
+local dot_dir = vim.fn.expand("$DOT_HOME")
+local path_to_lombak = dot_dir .. "/packages/lombok.jar"
 local jdtls_path = vim.fn.expand("/opt/homebrew/Cellar/jdtls/**/libexec")
+local jdtls_data_dir = vim.fn.expand("$XDG_DATA_HOME") .. "/jdtls"
 local jar_path = vim.fn.glob(jdtls_path .. "/plugins/org.eclipse.equinox.launcher_*.jar")
 local config_path = jdtls_path .. "/config_mac_arm"
 
 local root_dir = jdtls.setup.find_root({ ".project", "BUILD.bazel" })
 local project_name = root_dir:gsub(home_dir .. "/", ""):gsub("%.", "")
-local workspace_dir = vim.fn.stdpath("data") .. project_name:gsub("/", "-")
+local workspace_dir = jdtls_data_dir .. "/nvim-" .. project_name:gsub("/", "-")
 
 local on_attach = function(client, bufr)
   lsp.on_attach(client, bufr)
@@ -20,14 +22,11 @@ end
 local get_bundles = function()
   local all_bundles = {
     vim.fn.glob(
-      "$HOME/.dotfiles/packages/java-debug/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-*.jar",
+      "$DOT_HOME/packages/java-debug/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-*.jar",
       1
     ),
   }
-  vim.list_extend(
-    all_bundles,
-    vim.split(vim.fn.glob("$HOME/.dotfiles/packages/vscode-java-test/server/*.jar", true), "\n")
-  )
+  vim.list_extend(all_bundles, vim.split(vim.fn.glob("$DOT_HOME/packages/vscode-java-test/server/*.jar", true), "\n"))
 
   local ignored_bundles = { "com.microsoft.java.test.runner-jar-with-dependencies.jar", "jacocoagent.jar" }
   local find = string.find

@@ -1,5 +1,3 @@
-source $ZDOTDIR/.zprofile
-
 source <(fzf --zsh)
 sourceIfAvailable "$ZDOTDIR/themes/robbyrussell.zsh"
 sourceIfAvailable "$ZDOTDIR/plugins/wd/wd.plugin.zsh"
