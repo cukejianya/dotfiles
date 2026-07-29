@@ -14,26 +14,16 @@ sudo gem install bundler
 # Install brew and casks
 brew bundle
 
-# Install OhMyZSH
-sh -c \
-  "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-
-# Bootstrap ZDOTDIR so zsh finds the XDG-compliant config under ~/.config/zsh.
-# ~/.zshenv is the first file zsh reads for every shell.
-cat > ~/.zshenv <<'EOF'
-export ZDOTDIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
-EOF
+# Source env vars
+source $PWD/config/zsh/.zshenv
 
 # Symbolic Links                                                              #
 ln -s $PWD/.vimrc ~/.vimrc
-ln -sf $PWD/.zshrc ~/.zshrc
-ln -sf $PWD/.config ~/.config
-ln -s $PWD/.tmux.conf ~/.tmux.conf
-ln -sf $PWD/.gitconfig ~/.gitconfig
+ln -sf $ZDOTDIR/.zshenv ~/.zshenv
+ln -sf $PWD/config ~/.config
 
-# Install NVM
+# Install FNM 
 curl -fsSL https://fnm.vercel.app/install | bash
-source ~/.zshrc
 
 # Install NPM modules
 npm install -g tldr
@@ -56,11 +46,11 @@ cd ../../
 sudo rm -rf ~/Documents ~/Movies ~/Music
 
 # Make Development and Screenshot folder
-mkdir ~/dev ~/screenshot
+mkdir ~/dev ~/screenshot ~/src
 ln -s ~/screenshots ~/Desktop/screenshots
 
 # Install Tmux Plugin Manager
-git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+git clone https://github.com/tmux-plugins/tpm $XDG_CONFIG_DIR/tmux/plugins/tpm
 
 # Install Spicetify
 curl -fsSL https://raw.githubusercontent.com/spicetify/cli/main/install.sh | sh

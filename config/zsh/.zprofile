@@ -1,6 +1,3 @@
-export XDG_CONFIG_HOME="$HOME/.config"
-export DEV_HOME="$HOME/dev"
-
 addToPath() {
     if [[ "$PATH" != *"$1"* ]]; then
         export PATH=$PATH:$1

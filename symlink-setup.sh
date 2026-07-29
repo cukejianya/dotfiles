@@ -6,8 +6,10 @@
 
 set -euo pipefail
 
+source 
 BIN_DIR="$HOME/.local/bin"
-WORK_DIR="$HOME/development/work-scripts"
+WORK_DIR="$DEV_HOME/work-scripts"
+
 
 mkdir -p "$BIN_DIR"
 
@@ -15,28 +17,29 @@ mkdir -p "$BIN_DIR"
 declare -A LINKS=(
 
   # Work Scripts
-  [cm]="$WORK_DIR/generate-commit-message.sh"
-  [cpr]="$WORK_DIR/generate-pr.sh"
   [cycle-through-windows]="$WORK_DIR/cycle-through-windows.sh"
-  [end-the-day.sh]="$WORK_DIR/end-the-day"
-  [notes]="$WORK_DIR/notes"
-  [ns]="$WORK_DIR/create_session"
   [open-google-meet]="$WORK_DIR/open-google-meets"
-  [sp]="$WORK_DIR/switch-pane"
-  [ss]="$WORK_DIR/switch_session"
-  [start-the-day.sh]="$WORK_DIR/start-the-day"
-  [sw]="$WORK_DIR/switch_session"
-  [wt]="$WORK_DIR/wt"
-  [claude-sessions]="$WORK_DIR/claude-sessions"
   [gcal-events]="$WORK_DIR/gcal-events"
-  [git-stack]="$WORK_DIR/git-stack"
-  [refresh-ads-api]="$WORK_DIR/refresh-ads-api"
 
   # Dev
   [uuid-to-bits]="$HOME/development/uuid-to-bits/uuid-to-bits.sh"
-  [greet]="$HOME/development/greet/greet"
+  [greet]="$DEV_HOME/greet/greet"
 
-  #
+  # Dotfiles
+  [claude-sessions]="$DOT_DIR/claude-sessions"
+  [cm]="$DOT_DIR/generate-commit-message.sh"
+  [cpr]="$DOT_DIR/generate-pr.sh"
+  [end-the-day.sh]="$DOT_DIR/end-the-day"
+  [git-stack]="$DOT_DIR/git-stack"
+  [notes]="$DOT_DIR/notes"
+  [ns]="$DOT_DIR/create_session"
+  [refresh-ads-api]="$DOT_DIR/refresh-ads-api"
+  [secret]="$DOT_DIR/bin/secret"
+  [sp]="$DOT_DIR/switch-pane"
+  [ss]="$DOT_DIR/switch_session"
+  [start-the-day.sh]="$DOT_DIR/start-the-day"
+  [sw]="$DOT_DIR/switch_session"
+  [wt]="$DOT_DIR/wt"
 )
 
 echo "🔗 Creating symlinks in $BIN_DIR ..."

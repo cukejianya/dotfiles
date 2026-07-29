@@ -68,13 +68,13 @@ esac
 
 # Reload alias
 alias zshreload="source $ZDOTDIR/.zshrc"
-alias tmuxreload="tmux source-file $XDG_CONFIG_HOME/tmux/tmux.conf"
+alias tmuxreload="tmux source-file $TMUX_HOME/tmux.conf"
 
 # Config aliases
 alias cat="bat -pp"
 alias ls="eza --icons --color=always --sort=type"
 alias fzf-preview="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
-alias tmuxconfig="nvim $XDG_CONFIG_HOME/tmux/.tmux.conf"
+alias tmuxconfig="nvim $TMUX_HOME/tmux.conf"
 alias vimconfig="nvim $XDG_CONFIG_HOME/nvim/init.lua"
 alias zshconfig="nvim $ZDOTDIR/.zshrc"
 alias git-commit-msg="git --no-pager diff HEAD~1 | ollama run tavernari/git-commit-message | awk 'NR==2'"
@@ -230,21 +230,49 @@ mark() {
   fi
 }
 
+pi() {
+     TASKFORCE_API_KEY="$(secret env/TASKFORCE_API_KEY)" command pi "$@"
+}
+
 # --- Secrets (KeePassXC) ---
 # DB password is cached in the macOS keychain (see mac_setup.sh) so we never
 # type it interactively. All lookups are lazy — nothing is unlocked at startup.
-KPDB="$HOME/.local/share/keepassxc/secrets.kdbx"
+KPDB="$XDG_DATA_HOME/keepassxc/secrets.kdbx"
 
 kpdb-pass() { security find-generic-password -a "$USER" -s keepassxc-db -w; }
 
-# secret <entry-path>  ->  prints the Password attribute of the entry
-secret() {
-  kpdb-pass | keepassxc-cli show -a Password -q "$KPDB" "$1"
-}
+# secret <entry-path>  ->  prints the Password attribute of the entry.
+# Delegates to ~/.local/bin/secret so pi's `!command` config syntax and the
+# shell share one implementation.
+secret() { command secret "$@"; }
 
 # load-secret <VAR>  ->  export VAR from entry env/<VAR>
 load-secret() {
   export "$1"="$(secret "env/$1")"
+}
+
+# add-secret <VAR> [value]  ->  create OR replace the secret at entry env/<VAR>.
+# If value is omitted, prompts silently (nothing hits shell history).
+add-secret() {
+  local name="$1" value="$2"
+  if [[ -z "$name" ]]; then
+    echo "usage: add-secret <VAR> [value]" >&2
+    return 1
+  fi
+  if [[ -z "$value" ]]; then
+    read -rs "value?Value for env/$name: "
+    echo
+  fi
+  # Use `add` if the entry is new, otherwise `edit` to replace the value.
+  # keepassxc-cli reads the DB unlock password from the first stdin line and
+  # the entry password (via --password-prompt) from the second.
+  local sub=add
+  if kpdb-pass | keepassxc-cli show -q "$KPDB" "env/$name" &>/dev/null; then
+    sub=edit
+  fi
+  printf '%s\n%s\n' "$(kpdb-pass)" "$value" | \
+    keepassxc-cli "$sub" -q --username "$name" --password-prompt \
+      "$KPDB" "env/$name"
 }
 
 # Highlisth Commands Config
@@ -257,7 +285,7 @@ ZSH_HIGHLIGHT_STYLES[alias]='fg=blue'
 ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=green'
 ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=green,bold'
 
-[ -f "/home/cukejianya/.ghcup/env" ] && . "/home/cukejianya/.ghcup/env" # ghcup-env
+[ -f "$HOME/.ghcup/env" ] && . "$HOME/.ghcup/env" # ghcup-env
 
 if [[ -z "$TMUX" ]]; then
   tmux attach -t main || tmux new -s main
