@@ -16,24 +16,6 @@ sourceIfAvailable() {
   fi
 }
 
-# Set PATH, MANPATH, etc., for Homebrew.
-eval "$(/opt/homebrew/bin/brew shellenv)"
-#
-## --- Path configuration ---
-export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
-
-# For pkg-config to find zlib you may need to set:
-export PKG_CONFIG_PATH="${PKG_CONFIG_PATH} /usr/local/opt/zlib/lib/pkgconfig"
-addToPath "/usr/local/sbin"
-addToPath "/usr/local/opt/php@7.2/bin"
-addToPath "/usr/local/opt/php@7.2/sbin"
-
-# Add RUST bin to PATH
-addToPath "$HOME/.cargo/bin"
-
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-addToPath "$HOME/.rvm/bin"
-
 ## --- Constants ---
 # Add Java HOME environment 
 export JAVA_HOME="$HOME/.sdkman/candidates/java/current"
@@ -47,4 +29,31 @@ export WORKSCRIPTS="$HOME/development/work-scripts"
 # pi
 export PI_CODING_AGENT_DIR="$XDG_CONFIG_HOME/pi/agent"
 
+# bun
+export BUN_INSTALL="$XDG_CONFIG_HOME/bun"
+
+# Set PATH, MANPATH, etc., for Homebrew.
+eval "$(/opt/homebrew/bin/brew shellenv)"
+#
+
+# For pkg-config to find zlib you may need to set:
+export PKG_CONFIG_PATH="${PKG_CONFIG_PATH} /usr/local/opt/zlib/lib/pkgconfig"
+
+## --- Path configuration ---
+addToPathFront "/opt/spotify-devex/bin"
+addToPathFront "$BUN_INSTALL/bin"
+addToPathFront "$XDG_BIN_HOME:/usr/local/bin"
+
+addToPath "/usr/local/sbin"
+addToPath "/usr/local/opt/php@7.2/bin"
+addToPath "/usr/local/opt/php@7.2/sbin"
+
+# Add RUST bin to PATH
+addToPath "$HOME/.cargo/bin"
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+addToPath "$HOME/.rvm/bin"
+
+
 sourceIfAvailable $ZDOTDIR/.zprofile.local
+

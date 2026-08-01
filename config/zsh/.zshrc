@@ -65,7 +65,6 @@ darwin*)
 esac
 
 # Reload alias
-alias zshreload="source $ZDOTDIR/.zshrc"
 alias tmuxreload="tmux source-file $TMUX_HOME/tmux.conf"
 
 # Config aliases
@@ -180,6 +179,20 @@ boy() {
   man "$@" | bat -l=man -p
 }
 
+zshreload() {
+  local f err=0
+  for f in $ZDOTDIR/.zshenv $ZDOTDIR/.zprofile $ZDOTDIR/.zshrc; do
+    [[ -r $f ]] || continue
+    if ! zsh -n "$f" 2>/tmp/zsh-reload-err; then
+      print -P "%F{red}zsh syntax error in $f — not reloading:%f"
+      cat /tmp/zsh-reload-err
+      err=1
+    fi
+  done
+  (( err )) && return 1
+  exec zsh -l
+}
+
 autoload -U add-zsh-hook
 
 # # Changing Tmux window names
@@ -291,3 +304,6 @@ fi
 
 
 export PATH=/opt/spotify-devex/bin:$PATH
+
+# bun completions
+[ -s "/Users/chinedumu/.bun/_bun" ] && source "/Users/chinedumu/.bun/_bun"
