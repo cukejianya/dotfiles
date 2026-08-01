@@ -1,4 +1,4 @@
-// ccmux-extension v1.2.0
+// ccmux-extension v1.2.2
 // pi extension shipped by ccmux. Writes marker files into the ccmux
 // session-pids dir so the daemon can correlate pi sessions to tmux panes.
 // Installed + uninstalled via `ccmux setup --agent pi`.
@@ -18,6 +18,7 @@ import { join } from "node:path";
  * @property {string} [directory]
  * @property {string} [transcript_path]
  * @property {string} [last_prompt]
+ * @property {string} [session_name]
  */
 
 /**
@@ -121,6 +122,22 @@ export function makeExtension({ markersDir, version, now = Date.now }) {
     }
   }
 
+  /**
+   * The user-set session display name (`/name`, Ctrl+R, or the rename tool),
+   * or "" when unset/cleared. "" is written verbatim so a cleared name
+   * propagates as a clear (ccmux hides an empty name); undefined is never
+   * written, leaving any prior value untouched.
+   * @param {any} pi
+   */
+  function sessionNameOf(pi) {
+    try {
+      const name = pi?.getSessionName?.();
+      return typeof name === "string" ? name.trim() : "";
+    } catch {
+      return "";
+    }
+  }
+
   function transcriptOf(ctx) {
     try {
       const file = ctx?.sessionManager?.getSessionFile();
@@ -140,13 +157,27 @@ export function makeExtension({ markersDir, version, now = Date.now }) {
       const sessionId = sessionIdOf(ctx);
       if (!sessionId) return;
       await mkdir(markersDir, { recursive: true });
+      const name = sessionNameOf(pi);
       return queue(() =>
         writeMerged(sessionId, {
           state: "idle",
           directory: ctx.cwd,
           transcript_path: transcriptOf(ctx),
+          // Only stamp a name at start when one is already set (resume/fork);
+          // omit it otherwise so an unnamed session shows nothing.
+          ...(name ? { session_name: name } : {}),
         }),
       );
+    });
+
+    // Fired when the user sets/clears the display name (`/name`, Ctrl+R,
+    // RPC, or pi.setSessionName). `event.name` is the normalized name, or
+    // undefined when cleared; write "" on clear so ccmux drops the subtitle.
+    pi.on("session_info_changed", async (event, ctx) => {
+      const sessionId = sessionIdOf(ctx);
+      if (!sessionId) return;
+      const name = typeof event?.name === "string" ? event.name.trim() : "";
+      return queue(() => writeMerged(sessionId, { session_name: name }));
     });
 
     // Fires after the user submits, before the agent loop. Carries the
@@ -193,7 +224,7 @@ export function makeExtension({ markersDir, version, now = Date.now }) {
 
 const ccmuxExtension = makeExtension({
   markersDir: "/Users/chinedumu/.config/ccmux/session-pids",
-  version: "1.2.0",
+  version: "1.2.2",
 });
 
 export default ccmuxExtension;

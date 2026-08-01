@@ -38,7 +38,7 @@ import {
 	type Theme,
 	type ToolDefinition,
 } from "@earendil-works/pi-coding-agent";
-import { type Component, Text } from "@earendil-works/pi-tui";
+import { type Component, Text, truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 import type { Static, TSchema } from "typebox";
 
 // Continuation glyph for the result row (Claude-style corner).
@@ -158,15 +158,26 @@ function splitPipeline(command: string): CmdSegment[] {
 	return segs;
 }
 
-/** Greedy word-wrap to `maxWidth` columns, hard-breaking over-long tokens. */
+/**
+ * Greedy word-wrap to `maxWidth` visible columns, hard-breaking over-long
+ * tokens. Width is measured with `visibleWidth`/`truncateToWidth` so wide
+ * glyphs (emoji, CJK) that occupy two terminal cells are counted correctly —
+ * a plain `.length` count would under-measure and overflow the terminal,
+ * which crashes pi's render-time width assertion.
+ */
 function wrapText(text: string, maxWidth: number): string[] {
 	if (maxWidth <= 0) return [text];
 	const out: string[] = [];
 	for (const raw of text.split("\n")) {
 		let line = raw;
-		while (line.length > maxWidth) {
-			let br = line.lastIndexOf(" ", maxWidth);
-			if (br <= 0) br = maxWidth; // no space → hard break
+		while (visibleWidth(line) > maxWidth) {
+			// Largest prefix (in code units) that fits within maxWidth columns.
+			const fitted = truncateToWidth(line, maxWidth, "");
+			let br = fitted.length;
+			// Prefer a soft break at the last space inside the fitted prefix.
+			const sp = line.lastIndexOf(" ", br - 1);
+			if (sp > 0) br = sp;
+			if (br <= 0) br = fitted.length || 1; // guarantee forward progress
 			out.push(line.slice(0, br));
 			line = line.slice(br).replace(/^\s+/, "");
 		}
@@ -208,7 +219,12 @@ class BashTreeComponent implements Component {
 				out.push(gutter + t.fg("dim", wrapped[k]));
 			}
 		});
-		return out;
+		// Final defensive guard: never emit a line wider than the terminal. The
+		// unwrapped `header`, the `avail` min-clamp on very narrow terminals, and
+		// resize races between wrap-time and paint-time can each otherwise produce
+		// an over-width line, which trips pi's render-time width assertion and
+		// crashes the TUI. truncateToWidth is ANSI/width aware.
+		return out.map((l) => truncateToWidth(l, width, "…"));
 	}
 }
 

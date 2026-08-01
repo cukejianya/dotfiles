@@ -5,7 +5,12 @@
  * discovered across your config sources. Check/uncheck servers, press Enter to
  * save. The enabled set is written to your pi-global MCP config:
  *
- *   ~/.config/pi/agent/mcp.json   (honors PI_CODING_AGENT_DIR)
+ *   ~/.config/pi/agent/mcp.json        (enabled servers; honors PI_CODING_AGENT_DIR)
+ *   ~/.config/pi/agent/mcp-safe.json   (parked/disabled servers, so they're never lost)
+ *
+ * Enabling a server moves its definition into mcp.json; disabling it moves the
+ * definition into mcp-safe.json. Both files are read when building the list, so
+ * a server you turned off still shows up (unchecked) and can be turned back on.
  *
  * Controls:
  *   ↑/↓ or j/k   move
@@ -32,6 +37,7 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 const HOME = process.env.HOME ?? "";
 const AGENT_DIR = process.env.PI_CODING_AGENT_DIR || join(HOME, ".pi/agent");
 const PI_GLOBAL_CONFIG = join(AGENT_DIR, "mcp.json");
+const PI_SAFE_CONFIG = join(AGENT_DIR, "mcp-safe.json");
 
 type ServerDef = Record<string, unknown>;
 
@@ -91,8 +97,9 @@ function discover(cwd: string): Candidate[] {
 		}
 	};
 
-	// pi-global first so enabled defs are authoritative.
+	// pi-global first so enabled defs are authoritative, then parked defs.
 	addFrom(PI_GLOBAL_CONFIG, "pi-global");
+	addFrom(PI_SAFE_CONFIG, "safe (off)");
 	for (const p of ancestorProjectConfigs(cwd)) addFrom(p, "project");
 	addFrom(join(HOME, ".config/mcp/mcp.json"), "shared-global");
 
@@ -106,18 +113,25 @@ function discover(cwd: string): Candidate[] {
 	return candidates;
 }
 
-/** Write the enabled set into pi-global config, preserving other keys. */
-function save(candidates: Candidate[]): number {
-	const config = readJson(PI_GLOBAL_CONFIG);
-	const servers: Record<string, ServerDef> = {};
-	for (const c of candidates) {
-		if (c.enabled) servers[c.name] = c.def;
-	}
-	config.mcpServers = servers;
+/** Split candidates: enabled -> mcp.json, disabled -> mcp-safe.json. */
+function writeServers(path: string, defs: Record<string, ServerDef>): void {
+	const config = readJson(path);
+	config.mcpServers = defs;
 	delete (config as Record<string, unknown>)["mcp-servers"];
-	mkdirSync(dirname(PI_GLOBAL_CONFIG), { recursive: true });
-	writeFileSync(PI_GLOBAL_CONFIG, `${JSON.stringify(config, null, 2)}\n`, "utf8");
-	return Object.keys(servers).length;
+	mkdirSync(dirname(path), { recursive: true });
+	writeFileSync(path, `${JSON.stringify(config, null, 2)}\n`, "utf8");
+}
+
+function save(candidates: Candidate[]): { enabled: number; parked: number } {
+	const enabledDefs: Record<string, ServerDef> = {};
+	const parkedDefs: Record<string, ServerDef> = {};
+	for (const c of candidates) {
+		if (c.enabled) enabledDefs[c.name] = c.def;
+		else parkedDefs[c.name] = c.def;
+	}
+	writeServers(PI_GLOBAL_CONFIG, enabledDefs);
+	writeServers(PI_SAFE_CONFIG, parkedDefs);
+	return { enabled: Object.keys(enabledDefs).length, parked: Object.keys(parkedDefs).length };
 }
 
 export default function (pi: ExtensionAPI) {
@@ -201,9 +215,9 @@ export default function (pi: ExtensionAPI) {
 				return;
 			}
 
-			const count = save(candidates);
+			const { enabled, parked } = save(candidates);
 			ctx.ui.notify(
-				`Saved ${count} MCP server${count === 1 ? "" : "s"} to pi-global config. Reconnect MCP to apply.`,
+				`Saved: ${enabled} on (mcp.json), ${parked} parked (mcp-safe.json). Reconnect MCP to apply.`,
 				"info",
 			);
 		},

@@ -12,7 +12,6 @@
  * Placement: ~/.pi/agent/extensions/statusline.ts (auto-discovered, /reload-able)
  */
 
-import type { AssistantMessage } from "@earendil-works/pi-ai";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 
@@ -79,6 +78,26 @@ export default function (pi: ExtensionAPI) {
 	let busy = false;
 	// Captured from the footer factory so turn events can force a re-render.
 	let activeTui: { requestRender(): void } | undefined;
+	// Cached branch cost, recomputed only on branch updates + turn end.
+	let cachedCost = 0;
+	// Latest session context so turn events can refresh cached cost.
+	let activeCtx:
+		| {
+				sessionManager: { getBranch: () => Array<{ type: string; message: { role: string; usage?: { cost?: { total?: number } } } }> };
+		  }
+		| undefined;
+
+	function recomputeCost(
+		branch: Array<{ type: string; message: { role: string; usage?: { cost?: { total?: number } } } }>,
+	): void {
+		let total = 0;
+		for (const e of branch) {
+			if (e.type === "message" && e.message.role === "assistant") {
+				total += e.message.usage?.cost?.total ?? 0;
+			}
+		}
+		cachedCost = total;
+	}
 
 	// Spinner animation for the busy state. Braille dots cycle while pi works;
 	// a timer ticks the frame and requests re-renders independent of events.
@@ -123,13 +142,20 @@ export default function (pi: ExtensionAPI) {
 	pi.on("turn_end", async () => {
 		busy = false;
 		stopSpinner();
+		if (activeCtx) recomputeCost(activeCtx.sessionManager.getBranch());
 		activeTui?.requestRender();
 	});
 
 	pi.on("session_start", async (_event, ctx) => {
+		activeCtx = ctx as typeof activeCtx;
+		recomputeCost(ctx.sessionManager.getBranch() as Parameters<typeof recomputeCost>[0]);
 		ctx.ui.setFooter((tui, theme, footerData) => {
+			const refreshCost = () => {
+				recomputeCost(ctx.sessionManager.getBranch() as Parameters<typeof recomputeCost>[0]);
+				tui.requestRender();
+			};
+			const unsub = footerData.onBranchChange(refreshCost);
 			activeTui = tui;
-			const unsub = footerData.onBranchChange(() => tui.requestRender());
 
 			return {
 				dispose: () => {
@@ -176,15 +202,9 @@ export default function (pi: ExtensionAPI) {
 						leftParts.push(theme.fg(color, `${bar} ${pct}%`));
 					}
 
-					// — Cost (summed over assistant messages on the branch) —
-					let cost = 0;
-					for (const e of ctx.sessionManager.getBranch()) {
-						if (e.type === "message" && e.message.role === "assistant") {
-							cost += (e.message as AssistantMessage).usage.cost.total;
-						}
-					}
-					if (cost > 0) {
-						leftParts.push(theme.fg("dim", `$${cost.toFixed(2)}`));
+					// — Cost (cached; recomputed on branch change + turn end) —
+					if (cachedCost > 0) {
+						leftParts.push(theme.fg("dim", `$${cachedCost.toFixed(2)}`));
 					}
 
 					const left = leftParts.join(sep);
