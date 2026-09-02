@@ -54,6 +54,9 @@ const PHASE_SGR: Record<string, string> = {
 	pr: `\x1b[${COLOR_CODES.green}m`,
 	review: `\x1b[${COLOR_CODES.green}m`,
 	merge: `\x1b[${COLOR_CODES.green}m`,
+	merged: `\x1b[${COLOR_CODES.green}m`,
+	// closed without merge -> gray
+	close: `\x1b[${COLOR_CODES.gray}m`,
 };
 
 // Shared, mutable UI state (single extension instance).

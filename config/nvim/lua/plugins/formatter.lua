@@ -29,10 +29,10 @@ return {
           -- Define the formatter for Java files
           function()
             return {
-              exe = "$HOME/.sdkman/candidates/java/21.0.2-amzn/bin/java",
+              exe = "$JAVA_HOME/bin/java",
               args = {
                 "-jar",
-                "$HOME/.dotfiles/misc/google-java-format-1.21.0-all-deps.jar",
+                "$HOME/.dotfiles/misc/google-java-format-1.36.1-all-deps.jar",
                 "--replace",
               },
               stdin = false,

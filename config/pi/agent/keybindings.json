@@ -1,4 +1,6 @@
 {
+  "_comment": "app.tools.expand is unbound so compact.ts can own ctrl+o. pi reserves that id against extension shortcuts, so the built-in must release the key first. compact.ts drives expansion through ui.setToolsExpanded().",
+  "app.tools.expand": [],
   "tui.editor.cursorUp": ["up", "alt+k"],
   "tui.editor.cursorDown": ["down", "alt+j"],
   "tui.editor.cursorLeft": ["left", "alt+h"],

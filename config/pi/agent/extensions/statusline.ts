@@ -80,23 +80,35 @@ export default function (pi: ExtensionAPI) {
 	let activeTui: { requestRender(): void } | undefined;
 	// Cached branch cost, recomputed only on branch updates + turn end.
 	let cachedCost = 0;
+	type BranchEntry = {
+		type: string;
+		message: {
+			role: string;
+			toolName?: string;
+			usage?: { cost?: { total?: number } };
+			details?: { runId?: string; asyncId?: string; totalCost?: { costUsd?: number } };
+		};
+	};
 	// Latest session context so turn events can refresh cached cost.
 	let activeCtx:
-		| {
-				sessionManager: { getBranch: () => Array<{ type: string; message: { role: string; usage?: { cost?: { total?: number } } } }> };
-		  }
+		| { sessionManager: { getBranch: () => BranchEntry[] } }
 		| undefined;
 
-	function recomputeCost(
-		branch: Array<{ type: string; message: { role: string; usage?: { cost?: { total?: number } } } }>,
-	): void {
+	function recomputeCost(branch: BranchEntry[]): void {
 		let total = 0;
-		for (const e of branch) {
-			if (e.type === "message" && e.message.role === "assistant") {
+		const subagentCosts = new Map<string, number>();
+		for (const [index, e] of branch.entries()) {
+			if (e.type !== "message") continue;
+			if (e.message.role === "assistant") {
 				total += e.message.usage?.cost?.total ?? 0;
+			} else if (e.message.role === "toolResult" && e.message.toolName === "subagent") {
+				const details = e.message.details;
+				const cost = details?.totalCost?.costUsd ?? 0;
+				const runId = details?.runId ?? details?.asyncId ?? String(index);
+				subagentCosts.set(runId, Math.max(subagentCosts.get(runId) ?? 0, cost));
 			}
 		}
-		cachedCost = total;
+		cachedCost = total + [...subagentCosts.values()].reduce((sum, cost) => sum + cost, 0);
 	}
 
 	// Spinner animation for the busy state. Braille dots cycle while pi works;

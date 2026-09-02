@@ -17,6 +17,10 @@ after-startup-command = []
 
 on-window-detected = [ 
   {
+    if = 'test %{app-bundle-id} = net.kovidgoyal.kitty && test "%{window-title}" = quick-notes',
+    run = ['layout floating', 'move-node-to-workspace N']
+  },
+  {
     if = 'test %{app-bundle-id} = com.tinyspeck.slackmacgap',
     run = ['layout tiling', 'move-node-to-workspace S']
   },
@@ -141,7 +145,7 @@ automatically-unhide-macos-hidden-apps = true
     alt-semicolon = 'exec-and-forget open -a keepassxc'
     alt-s = "exec-and-forget ~/.local/bin/skw" # Open slack web client
     alt-m = "exec-and-forget ~/.local/bin/mt" # Google Meets
-    alt-n = "exec-and-forget ~/.local/bin/notes" # Open notes
+    alt-n = "exec-and-forget ~/.dotfiles/bin/quick-notes" # Toggle quick notes
 
     alt-shift-h = 'move-node-to-workspace H --focus-follows-window'
     alt-shift-j = 'move-node-to-workspace J --focus-follows-window'

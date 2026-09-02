@@ -41,10 +41,15 @@ import {
 import { type Component, Text, truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 import type { Static, TSchema } from "typebox";
 
+/** Renders zero lines. Used by `hidden` mode to drop a tool row entirely. */
+const EMPTY: Component = { render: () => [] };
+
 // Continuation glyph for the result row (Claude-style corner).
 const RESULT_GLYPH = "⎿";
-// Call-row bullet.
-const CALL_GLYPH = "●";
+// Call-row bullet, per outcome. All are width 1, so rows stay aligned.
+const CALL_GLYPH = "●"; // running / pending
+const FAIL_GLYPH = "✗";
+const OK_GLYPH = "✓";
 // How many lines of full output to show when a row is expanded.
 const EXPANDED_MAX_LINES = 400;
 // Max consecutive unchanged context lines to keep in a compact diff.
@@ -80,6 +85,10 @@ interface CmdSegment {
  * are redirections like `&>` / `>&`. Each segment records the operator that
  * precedes it so the UI can show how the step was joined. Pipelines keep each
  * stage on its own segment.
+ *
+ * A heredoc body is raw data, not shell syntax, so it is copied verbatim into
+ * its segment. Without this a `python3 - <<'EOF'` block would shred into one
+ * junk branch per body line, because every newline reads as a `;` operator.
  */
 function splitPipeline(command: string): CmdSegment[] {
 	const segs: CmdSegment[] = [];
@@ -88,6 +97,8 @@ function splitPipeline(command: string): CmdSegment[] {
 	let quote: string | null = null;
 	let paren = 0;
 	let brace = 0;
+	// Heredocs opened on the current line; their bodies start at the next newline.
+	let pending: { word: string; indent: boolean }[] = [];
 	const push = () => {
 		const t = buf.trim();
 		if (t.length) segs.push({ delim, cmd: t });
@@ -135,6 +146,30 @@ function splitPipeline(command: string): CmdSegment[] {
 		if (ch === "|") {
 			push();
 			delim = "|";
+			continue;
+		}
+		// `<<WORD` / `<<-WORD` / `<<'WORD'` opens a heredoc. `<<<` is a herestring.
+		if (ch === "<" && nx === "<" && command[i + 2] !== "<") {
+			const open = /^<<(-?)\s*(['"]?)([A-Za-z_][A-Za-z0-9_]*)\2/.exec(command.slice(i));
+			if (open) {
+				pending.push({ word: open[3], indent: open[1] === "-" });
+				buf += open[0];
+				i += open[0].length - 1;
+				continue;
+			}
+		}
+		if (ch === "\n" && pending.length) {
+			// Swallow every open body, in order, through its terminator line.
+			let j = i + 1;
+			for (const hd of pending) {
+				const end = new RegExp(`^${hd.indent ? "[ \\t]*" : ""}${hd.word}[ \\t]*$`, "m").exec(
+					command.slice(j),
+				);
+				j = end ? j + end.index + end[0].length : command.length;
+			}
+			buf += command.slice(i, j);
+			i = j - 1;
+			pending = [];
 			continue;
 		}
 		if (ch === ";" || ch === "\n") {
@@ -187,16 +222,60 @@ function wrapText(text: string, maxWidth: number): string[] {
 }
 
 /**
+ * Match a segment that ends in a heredoc. Groups: [1] command before the
+ * opener, [2] opener token, [4] delimiter word, [5] rest of the opening line,
+ * [6] body, [7] terminator line. The opener is captured on its own so the
+ * collapsed row can swap `<<'EOF'` for a `<< python(12)` label.
+ */
+const HEREDOC_RE =
+	/^([\s\S]*?)(<<-?\s*(['"]?)([A-Za-z_][A-Za-z0-9_]*)\3)([^\n]*)\n([\s\S]*?)\n?([ \t]*\4[ \t]*)$/;
+
+// Delimiter word -> language, for the `<<'PY'` / `<<SQL` convention.
+const HEREDOC_WORD_LANGS: Record<string, string> = {
+	py: "python", python: "python", js: "javascript", ts: "typescript",
+	sql: "sql", json: "json", yaml: "yaml", yml: "yaml", toml: "toml",
+	sh: "bash", bash: "bash", html: "html", css: "css", md: "markdown",
+	rb: "ruby", ruby: "ruby", go: "go", rs: "rust",
+};
+
+// Interpreter -> language, for the plain `<<'EOF'` case.
+const INTERPRETER_LANGS: Record<string, string> = {
+	python: "python", python3: "python", node: "javascript", bun: "typescript",
+	deno: "typescript", jq: "json", sh: "bash", bash: "bash", zsh: "bash",
+	psql: "sql", sqlite3: "sql", mysql: "sql", perl: "perl", ruby: "ruby",
+	awk: "awk", gawk: "awk",
+};
+
+/**
+ * Language for a heredoc body. The delimiter word wins when it names a language
+ * (`<<'PY'`), otherwise the interpreter that opens the heredoc decides. Returns
+ * undefined for an opaque body (`cat <<'EOF' > file`), which renders unstyled.
+ */
+function heredocLang(head: string, word: string): string | undefined {
+	const byWord = HEREDOC_WORD_LANGS[word.toLowerCase()];
+	if (byWord) return byWord;
+	for (const token of head.split(/[\s|;()]+/)) {
+		const base = token.split("/").pop();
+		if (base && INTERPRETER_LANGS[base]) return INTERPRETER_LANGS[base];
+	}
+	return undefined;
+}
+
+/**
  * Width-aware tree renderer for an `&&`/`|`/`;`/`||`/`&` command chain. Each
- * segment is one branch: `├─`/`└─` + delimiter + full command, soft-wrapped
+ * segment is one branch: `├─`/`└─` + delimiter (not `;`) + command, soft-wrapped
  * with a hanging indent. Wrapped continuation lines keep the tree connected
  * with a `│` guide for non-last items (blank for the last). No truncation.
+ *
+ * A heredoc collapses to a `<< python(12)` label on the opening line. The body
+ * appears, highlighted in its own language, only when the row is expanded.
  */
 class BashTreeComponent implements Component {
 	constructor(
 		private readonly header: string,
 		private readonly segs: CmdSegment[],
 		private readonly theme: Theme,
+		private readonly expanded: boolean,
 	) {}
 
 	render(width: number): string[] {
@@ -206,18 +285,41 @@ class BashTreeComponent implements Component {
 		this.segs.forEach((seg, i) => {
 			const isLast = i === n - 1;
 			const branch = isLast ? "  └─ " : "  ├─ "; // 5 visible cols
-			const delimText = seg.delim ? seg.delim + " " : "";
+			// `;` carries no meaning once the chain is one branch per line, so the
+			// branch starts at the command. `&&`/`||`/`|`/`&` still show.
+			const delimText = seg.delim && seg.delim !== ";" ? seg.delim + " " : "";
 			const cmdCol = 5 + delimText.length;
 			const avail = Math.max(8, width - cmdCol);
-			const wrapped = wrapText(seg.cmd, avail);
+			const gutter = isLast
+				? " ".repeat(cmdCol)
+				: t.fg("dim", "  │") + " ".repeat(cmdCol - 3);
+			// Only the command text wraps. A heredoc body is data: it is never
+			// wrapped, and it is hidden until the row is expanded.
+			const hd = HEREDOC_RE.exec(seg.cmd);
+			const wrapped = wrapText(hd ? hd[1].trimEnd() : seg.cmd, avail);
 			const firstPrefix = t.fg("dim", branch) + (delimText ? t.fg("muted", delimText) : "");
 			out.push(firstPrefix + t.fg("dim", wrapped[0] ?? ""));
 			for (let k = 1; k < wrapped.length; k++) {
-				const gutter = isLast
-					? " ".repeat(cmdCol)
-					: t.fg("dim", "  │") + " ".repeat(cmdCol - 3);
 				out.push(gutter + t.fg("dim", wrapped[k]));
 			}
+			if (!hd) return;
+
+			const lang = heredocLang(hd[1], hd[4]);
+			const body = hd[6] === "" ? [] : hd[6].split("\n");
+			// `<< python(12)`: the language reads as text, the line count is dim.
+			out[out.length - 1] +=
+				t.fg("muted", " << ") +
+				t.fg("text", lang ?? hd[4].toLowerCase()) +
+				t.fg("dim", `(${body.length})`) +
+				t.fg("dim", hd[5]);
+			if (!this.expanded) return;
+
+			// Highlighted lines carry ANSI, so they are never re-wrapped (slicing
+			// would cut an escape in half). The width guard below truncates them.
+			if (body.length) {
+				for (const line of highlightCode(hd[6], lang)) out.push(gutter + line);
+			}
+			out.push(gutter + t.fg("dim", hd[7].trim()));
 		});
 		// Final defensive guard: never emit a line wider than the terminal. The
 		// unwrapped `header`, the `avail` min-clamp on very narrow terminals, and
@@ -288,7 +390,8 @@ function callGlyph(
 	removePulse(id);
 	// Not live: pending (no result yet) is neutral; completed rows carry status.
 	if (context.isPartial) return theme.fg("accent", CALL_GLYPH) + " ";
-	return theme.fg(context.isError ? "error" : "success", CALL_GLYPH) + " ";
+	if (context.isError) return theme.fg("error", FAIL_GLYPH) + " ";
+	return theme.fg("success", OK_GLYPH) + " ";
 }
 
 /** Extract plain text from a tool result's content array. */
@@ -402,7 +505,13 @@ interface CompactConfig<P extends TSchema, D> {
 	callRow?: (ctx: {
 		args: Static<P>;
 		theme: Theme;
-		context: { executionStarted?: boolean; isPartial?: boolean; isError?: boolean };
+		context: {
+			executionStarted?: boolean;
+			isPartial?: boolean;
+			isError?: boolean;
+			/** Whether the row is expanded. Also drives the result view. */
+			expanded?: boolean;
+		};
 		glyph: string;
 	}) => Component | undefined;
 }
@@ -414,6 +523,9 @@ export default function (pi: ExtensionAPI) {
 	// renderers (captured from the tool factory), restoring full syntax
 	// highlighting / diffs rather than a degraded fallback.
 	let enabled = true;
+	// Third view state, reachable only while enabled: tool rows render nothing.
+	// ctrl+o cycles collapsed → expanded → hidden.
+	let hidden = false;
 
 	function applyThinkingLabel(
 		ui: { setHiddenThinkingLabel(label?: string): void; theme: Theme },
@@ -442,6 +554,7 @@ export default function (pi: ExtensionAPI) {
 			renderShell: "self",
 			renderCall(args: Static<P>, theme: Theme, context): Component {
 				if (!enabled && baseRenderCall) return baseRenderCall(args, theme, context);
+				if (enabled && hidden) return EMPTY;
 				const glyph = callGlyph(theme, context);
 				if (cfg.callRow) {
 					const custom = cfg.callRow({ args, theme, context, glyph });
@@ -462,6 +575,7 @@ export default function (pi: ExtensionAPI) {
 				if (!enabled && baseRenderResult) {
 					return baseRenderResult(result, options, theme, context as never);
 				}
+				if (enabled && hidden) return EMPTY;
 				const glyph = theme.fg("dim", `  ${RESULT_GLYPH} `);
 
 				if (options.isPartial) {
@@ -520,8 +634,8 @@ export default function (pi: ExtensionAPI) {
 		// Always render `bash (N)` + a tree (even for N=1). Each command is a branch
 		// with its joining delimiter in front and the FULL command soft-wrapped (no
 		// truncation); wrapped lines stay connected via a `│` guide. Status shows via
-		// the `●` color (blue running / green success / red fail); command text dim.
-		callRow: ({ args, theme, glyph }) => {
+		// the glyph (blue `●` running / green `✓` success / red `✗` fail); text dim.
+		callRow: ({ args, theme, glyph, context }) => {
 			const command = (args as { command?: string }).command ?? "";
 			const segs = splitPipeline(command);
 			if (segs.length === 0) segs.push({ delim: null, cmd: command });
@@ -530,7 +644,7 @@ export default function (pi: ExtensionAPI) {
 				theme.fg("toolTitle", theme.bold("bash")) +
 				" " +
 				theme.fg("muted", `(${segs.length})`);
-			return new BashTreeComponent(header, segs, theme);
+			return new BashTreeComponent(header, segs, theme, context.expanded === true);
 		},
 		summary: ({ text, isError, theme }) => {
 			if (isError) {
@@ -636,6 +750,37 @@ export default function (pi: ExtensionAPI) {
 		}
 	});
 
+	// ── ctrl+o: cycle the view ──────────────────────────────────────────────
+	// pi binds ctrl+o to `app.tools.expand` and reserves that id against
+	// extension shortcuts, so `keybindings.json` unbinds it and this handler owns
+	// the key. Expansion itself still goes through pi, via setToolsExpanded().
+	pi.registerShortcut("ctrl+o", {
+		description: "Cycle tool rows: collapsed → expanded → hidden",
+		handler: async (ctx) => {
+			const ui = ctx.ui;
+			if (!enabled) {
+				// Compact off: behave exactly like the built-in toggle.
+				ui.setToolsExpanded(!ui.getToolsExpanded());
+				return;
+			}
+			// Every branch calls setToolsExpanded, because that is what repaints the
+			// existing rows. Without it a `hidden` flip would only affect new rows.
+			if (hidden) {
+				hidden = false;
+				ui.setToolsExpanded(false);
+			} else if (!ui.getToolsExpanded()) {
+				ui.setToolsExpanded(true);
+			} else {
+				hidden = true;
+				ui.setToolsExpanded(false);
+				// setToolsExpanded already announced "Tool output: collapsed". notify()
+				// writes to that same status line and reuses the node when it is still
+				// last, so this corrects the word in place instead of adding a line.
+				ui.notify("Tool output: hidden", "info");
+			}
+		},
+	});
+
 	// ── toggle command ──────────────────────────────────────────────────────
 	pi.registerCommand("compact-view", {
 		description: "Toggle compact rendering of tools, diffs, and thinking (on|off, default on)",
@@ -644,6 +789,7 @@ export default function (pi: ExtensionAPI) {
 			if (arg === "on") enabled = true;
 			else if (arg === "off") enabled = false;
 			else enabled = !enabled; // no arg → toggle
+			if (!enabled) hidden = false; // pi's own rows are never hidden
 			applyThinkingLabel(ctx.ui);
 			ctx.ui.notify(
 				`Compact rendering ${enabled ? "on" : "off"} (applies to new rows)`,
@@ -651,4 +797,49 @@ export default function (pi: ExtensionAPI) {
 			);
 		},
 	});
+}
+
+// ── self-check ────────────────────────────────────────────────────────────
+// Runs only when this file is executed directly, never when pi imports it:
+//   cd /opt/homebrew/lib/node_modules && bun ~/.config/pi/agent/extensions/compact.ts
+if (import.meta.main) {
+	const { strictEqual: eq, deepStrictEqual: deq } = await import("node:assert");
+
+	// A heredoc body stays inside one segment; its newlines are not operators.
+	const hd = splitPipeline("cd /tmp\npython3 - <<'EOF'\nx = 1; y = 2\nprint(x)\nEOF\necho done");
+	deq(hd.map((s) => s.delim), [null, ";", ";"]);
+	eq(hd[1].cmd.split("\n").length, 4); // head + 2 body + terminator
+	eq(hd[2].cmd, "echo done");
+
+	// `<<-` allows an indented terminator; `<<<` is a herestring, not a heredoc.
+	eq(splitPipeline("cat <<-END\n\tbody\n\tEND\nls").length, 2);
+	deq(splitPipeline("grep x <<< $var").map((s) => s.cmd), ["grep x <<< $var"]);
+
+	// Ordinary splitting is unchanged.
+	deq(splitPipeline("a && b | c ; d").map((s) => s.delim), [null, "&&", "|", ";"]);
+
+	// The renderer's head / opener / body / terminator split.
+	const m = HEREDOC_RE.exec(hd[1].cmd);
+	eq(m?.[1], "python3 - ");
+	eq(m?.[2], "<<'EOF'");
+	eq(m?.[4], "EOF");
+	eq(m?.[6], "x = 1; y = 2\nprint(x)");
+	eq(m?.[7], "EOF");
+
+	// The opener is captured apart from the tail, so the tail survives the swap
+	// to a `<< lang(n)` label.
+	eq(HEREDOC_RE.exec("cat <<'TS' > out.ts\nlet a = 1\nTS")?.[5], " > out.ts");
+
+	// Language detection: delimiter word first, then interpreter, else unstyled.
+	eq(heredocLang("python3 - ", "EOF"), "python");
+	eq(heredocLang("cat ", "SQL"), "sql");
+	eq(heredocLang("cat ", "EOF"), undefined);
+
+
+	// Collapsed row: the body is hidden behind a `<< lang(n)` label.
+	const plain = { fg: (_k: string, v: string) => v, bold: (v: string) => v } as unknown as Theme;
+	const rows = new BashTreeComponent("bash (1)", [{ delim: null, cmd: "cat <<'TS' > out.ts\nlet a = 1\nlet b = 2\nTS" }], plain, false).render(80);
+	deq(rows, ["bash (1)", "  \u2514\u2500 cat << typescript(2) > out.ts"]);
+
+	console.log("compact.ts self-check: ok");
 }

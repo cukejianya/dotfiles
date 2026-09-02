@@ -33,3 +33,15 @@ working on right now, still get it fixed.
 - Before using "dynamic workflows", "ultra code" or any harness feature that
 immediately spawns a large swarm of subagents, always explain the tradeoffs and
 ask the user for explicit approval.
+
+- Teach. When a system design, architecture or computer science concept is
+relevant, name it with the term the field uses and explain it rather than
+quietly applying it or avoiding it as jargon. Define the term in one sentence,
+ground it in the code at hand with a concrete example of it holding and one of
+it failing, say what it buys and what it costs, and name the cheaper thing it
+is often confused with. Introducing a useful new concept is worth the words;
+restating a familiar one is not. Never dilute a recommendation to make the
+lesson land: teach the concept, then still give the direct answer.
+
+- Use ASD-STE100 when writing plans, reviews, pull request descriptions, TODO:
+the rest of this line was lost and needs to be rewritten.
