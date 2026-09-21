@@ -1,10 +1,8 @@
 /**
  * Markdown pager for pi.
  *
- * Opens the latest assistant reply in a scrollable, full-screen overlay so you
- * can page through long markdown answers without scrolling the whole terminal.
- * Only assistant *markdown* is paged — tool calls, diffs, and thinking are left
- * alone.
+ * Opens the latest user prompt and assistant reply in a scrollable, full-screen
+ * overlay. Tool calls, diffs, and thinking are left alone.
  *
  * Trigger: `/pager` command, or Ctrl+H.
  *
@@ -13,7 +11,7 @@
  *   space / b          page down / up
  *   d / u              half page down / up
  *   g / G              top / bottom
- *   h / l              previous / next assistant reply in the session
+ *   h / l              previous / next prompt-response pair in the session
  *   v                  start visual line selection (j/k extend it)
  *   y                  yank: in visual mode copy the selection, else the current line
  *   /                  search (INSERT); Enter jumps to match
@@ -31,23 +29,53 @@ import {
 } from "@earendil-works/pi-coding-agent";
 import { Markdown, truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 
-const stripAnsi = (s: string): string => s.replace(/\x1b\[[0-9;]*m/g, "");
+const TERMINAL_SEQUENCE_RE = /\x1b(?:\[[0-?]*[ -/]*[@-~]|\](?:[^\x07\x1b]|\x1b(?!\\))*(?:\x07|\x1b\\))/g;
+const stripAnsi = (s: string): string => s.replace(TERMINAL_SEQUENCE_RE, "");
 
-/** Collect every assistant message's markdown text from the branch, in order. */
-function assistantMarkdowns(ctx: ExtensionContext): string[] {
-	const branch = ctx.sessionManager.getBranch();
-	const out: string[] = [];
+interface Page {
+	prompt: string;
+	response: string;
+}
+
+function messageText(content: unknown): string {
+	if (typeof content === "string") return content.trim();
+	if (!Array.isArray(content)) return "";
+	return content
+		.map((block) => {
+			const item = block as { type?: string; text?: string };
+			if (item.type === "text") return item.text?.trim() ?? "";
+			if (item.type === "image") return "[Image attached]";
+			return "";
+		})
+		.filter(Boolean)
+		.join("\n\n");
+}
+
+/** Pair each assistant reply with the nearest prior user prompt. */
+export function collectPages(branch: readonly unknown[]): Page[] {
+	const pages: Page[] = [];
+	let prompt = "";
 	for (const raw of branch) {
-		const entry = raw as { type?: string; message?: { role?: string; content?: unknown[] } };
-		if (entry.type !== "message" || entry.message?.role !== "assistant") continue;
-		const parts: string[] = [];
-		for (const block of entry.message.content ?? []) {
-			const b = block as { type?: string; text?: string };
-			if (b.type === "text" && b.text?.trim()) parts.push(b.text.trim());
+		const entry = raw as { type?: string; message?: { role?: string; content?: unknown } };
+		if (entry.type !== "message" || !entry.message) continue;
+		if (entry.message.role === "user") {
+			prompt = messageText(entry.message.content);
+			continue;
 		}
-		if (parts.length > 0) out.push(parts.join("\n\n"));
+		if (entry.message.role !== "assistant") continue;
+		const response = messageText(entry.message.content);
+		if (response) pages.push({ prompt, response });
 	}
-	return out;
+	return pages;
+}
+
+export function pageMarkdown(page: Page): string {
+	const prompt = page.prompt || "_Prompt unavailable_";
+	const quotedPrompt = prompt
+		.split("\n")
+		.map((line) => `> ${line}`)
+		.join("\n");
+	return `> [!PROMPT]\n${quotedPrompt}\n\n## Response\n\n${page.response}`;
 }
 
 async function openPager(ctx: ExtensionContext): Promise<void> {
@@ -55,16 +83,16 @@ async function openPager(ctx: ExtensionContext): Promise<void> {
 		ctx.ui.notify("Pager needs the interactive TUI", "warning");
 		return;
 	}
-	const texts = assistantMarkdowns(ctx);
-	if (texts.length === 0) {
+	const pages = collectPages(ctx.sessionManager.getBranch());
+	if (pages.length === 0) {
 		ctx.ui.notify("No assistant reply to page yet", "info");
 		return;
 	}
 
 	await ctx.ui.custom<boolean>(
 		(tui, theme, keybindings, done) => {
-			let current = texts.length - 1; // start on the latest reply
-			let md = new Markdown(texts[current], 0, 0, getMarkdownTheme());
+			let current = pages.length - 1; // start on the latest reply
+			let md = new Markdown(pageMarkdown(pages[current]), 0, 0, getMarkdownTheme());
 
 			let top = 0;
 			let mode: "normal" | "search" | "visual" = "normal";
@@ -95,10 +123,10 @@ async function openPager(ctx: ExtensionContext): Promise<void> {
 
 			// Switch to another reply, resetting scroll/search state.
 			const loadReply = (idx: number) => {
-				const next = Math.max(0, Math.min(texts.length - 1, idx));
+				const next = Math.max(0, Math.min(pages.length - 1, idx));
 				if (next === current) return;
 				current = next;
-				md = new Markdown(texts[current], 0, 0, getMarkdownTheme());
+				md = new Markdown(pageMarkdown(pages[current]), 0, 0, getMarkdownTheme());
 				cachedWidth = -1;
 				lines = [];
 				plain = [];
@@ -160,7 +188,8 @@ async function openPager(ctx: ExtensionContext): Promise<void> {
 			};
 
 			function render(width: number): string[] {
-				const boxW = Math.max(10, width);
+				if (width < 6) return [truncateToWidth("Pager", Math.max(1, width), "")];
+				const boxW = width;
 				const innerW = boxW - 4; // borders + 1 space padding each side
 				ensureLines(innerW);
 				clampTop();
@@ -183,7 +212,7 @@ async function openPager(ctx: ExtensionContext): Promise<void> {
 				out.push(
 					boxRow(
 						theme.fg("accent", theme.bold("✻ Pager ")) +
-							theme.fg("muted", `— reply ${current + 1}/${texts.length} · lines ${pos}`),
+							theme.fg("muted", `reply ${current + 1}/${pages.length} · lines ${pos}`),
 					),
 				);
 				out.push(border("├" + "─".repeat(boxW - 2) + "┤"));
@@ -312,9 +341,30 @@ export default function (pi: ExtensionAPI) {
 	});
 
 	pi.registerShortcut("ctrl+h", {
-		description: "Open the markdown pager for the latest assistant reply",
+		description: "Open the markdown pager for the latest prompt and reply",
 		handler: async (ctx) => {
 			await openPager(ctx);
 		},
 	});
+}
+
+if (import.meta.main) {
+	const { deepStrictEqual: equal } = await import("node:assert");
+	const pages = collectPages([
+		{ type: "message", message: { role: "user", content: "First prompt" } },
+		{ type: "message", message: { role: "assistant", content: [{ type: "text", text: "First reply" }] } },
+		{ type: "message", message: { role: "toolResult", content: "ignored" } },
+		{ type: "message", message: { role: "user", content: [{ type: "image" }, { type: "text", text: "Second prompt" }] } },
+		{ type: "message", message: { role: "assistant", content: [{ type: "text", text: "Second reply" }] } },
+	]);
+	equal(pages, [
+		{ prompt: "First prompt", response: "First reply" },
+		{ prompt: "[Image attached]\n\nSecond prompt", response: "Second reply" },
+	]);
+	equal(
+		pageMarkdown({ prompt: "First line\n\nSecond line", response: "Reply" }),
+		"> [!PROMPT]\n> First line\n> \n> Second line\n\n## Response\n\nReply",
+	);
+	equal(stripAnsi("\x1b]8;;https://example.com\x1b\\label\x1b]8;;\x1b\\"), "label");
+	console.log("pager.ts self-check: ok");
 }

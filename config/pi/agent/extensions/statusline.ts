@@ -1,5 +1,5 @@
 /**
- * Statusline footer for pi — model agnostic.
+ * Statusline footer for pi, model agnostic.
  *
  * A port of the Claude Code `statusline-command.sh` single-line, left/right
  * split status line. Renders:
@@ -78,7 +78,7 @@ export default function (pi: ExtensionAPI) {
 	let busy = false;
 	// Captured from the footer factory so turn events can force a re-render.
 	let activeTui: { requestRender(): void } | undefined;
-	// Cached branch cost, recomputed only on branch updates + turn end.
+	// Cached branch cost, recomputed only on branch updates and agent settlement.
 	let cachedCost = 0;
 	type BranchEntry = {
 		type: string;
@@ -138,7 +138,7 @@ export default function (pi: ExtensionAPI) {
 	// Vim mode, sourced from the pi-vim extension's mode-change events.
 	// pi-vim's editor starts in insert mode, so mirror that default.
 	let vimMode = "INSERT";
-	pi.events.on("pi-vim:mode-change", (data) => {
+	const unsubscribeVimMode = pi.events.on("pi-vim:mode-change", (data) => {
 		const mode = (data as { mode?: string })?.mode;
 		if (typeof mode === "string") {
 			vimMode = mode.toUpperCase();
@@ -146,12 +146,12 @@ export default function (pi: ExtensionAPI) {
 		}
 	});
 
-	pi.on("turn_start", async () => {
+	pi.on("agent_start", async () => {
 		busy = true;
 		startSpinner();
 		activeTui?.requestRender();
 	});
-	pi.on("turn_end", async () => {
+	pi.on("agent_settled", async () => {
 		busy = false;
 		stopSpinner();
 		if (activeCtx) recomputeCost(activeCtx.sessionManager.getBranch());
@@ -180,7 +180,7 @@ export default function (pi: ExtensionAPI) {
 					const sep = theme.fg("dim", "  ");
 					const leftParts: string[] = [];
 
-					// — Vim mode (always shown) —
+					// Vim mode, always shown.
 					let modeColor: "accent" | "warning" | "success";
 					switch (vimMode) {
 						case "INSERT":
@@ -194,13 +194,13 @@ export default function (pi: ExtensionAPI) {
 					}
 					leftParts.push(theme.fg(modeColor, vimMode));
 
-					// — Git branch (hidden when not in a repo) —
+					// Git branch, hidden when not in a repo.
 					const branch = footerData.getGitBranch();
 					if (branch) {
 						leftParts.push(theme.fg("dim", ` ${branch}`));
 					}
 
-					// — Context usage bar (▰▱, 10 segments) —
+					// Context usage bar with 10 segments.
 					const usage = ctx.getContextUsage?.();
 					if (usage && usage.percent != null) {
 						const pct = Math.round(usage.percent);
@@ -214,14 +214,14 @@ export default function (pi: ExtensionAPI) {
 						leftParts.push(theme.fg(color, `${bar} ${pct}%`));
 					}
 
-					// — Cost (cached; recomputed on branch change + turn end) —
+					// Cost, cached until a branch change or agent settlement.
 					if (cachedCost > 0) {
 						leftParts.push(theme.fg("dim", `$${cachedCost.toFixed(2)}`));
 					}
 
 					const left = leftParts.join(sep);
 
-					// — Right side: status icon + model id (model agnostic) —
+					// Right side: status icon and model id.
 					// Animated spinner while busy, static check when idle.
 					const icon = busy
 						? theme.fg("accent", SPINNER_FRAMES[spinnerFrame])
@@ -239,6 +239,7 @@ export default function (pi: ExtensionAPI) {
 	});
 
 	pi.on("session_shutdown", async (_event, ctx) => {
+		unsubscribeVimMode();
 		ctx.ui.setFooter(undefined);
 	});
 }
