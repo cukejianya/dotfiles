@@ -1,0 +1,27 @@
+#! /usr/bin/env zsh
+ 
+if [[ ! -d "$HOME/.cache/notes" ]]; then
+  mkdir ~/.cache/notes
+fi
+
+if [[ ! -f "$HOME/.cache/notes/last_active.txt" ]]; then
+  touch ~/.cache/notes/last_active.txt
+fi
+
+local last_active_file="$HOME/.cache/notes/last_active.txt"
+
+local active_app=$(aerospace list-windows --focused)
+local tmux_sessions=$(tmux list-sessions -F "#{session_attached} #S")
+
+if [[ $(echo "$active_app" | grep -ci "kitty") -gt 0 && $(echo "$tmux_sessions" | grep -ci "^1 notes") -gt 0 ]]; then
+    local last_active_tmux_session=$(awk 'NR==1' "$last_active_file")
+    echo $last_active_tmux_session
+    local last_tmux_session=$(echo "$last_active_tmux_session" | awk '{print $2}' | sed 's/\$//')
+    tmux switch-client -t "$last_tmux_session"
+else
+  echo "$tmux_sessions" | grep "1 .*" > "$last_active_file"
+  local kitty_tmux_session=$(echo "$tmux_sessions" | grep -i 'notes' | awk '{print $2}' | sed 's/\$//' )
+  open -a kitty
+  tmux switch-client -t "$kitty_tmux_session"
+fi
+

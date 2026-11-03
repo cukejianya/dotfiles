@@ -1,0 +1,14 @@
+#! /usr/bin/env zsh 
+
+switch_pane() {
+  local target_pane_title=$1
+
+  local target_pane_session=$(\
+    tmux list-panes -F "#{pane_index} #{pane_title}" \
+    | awk -v target="$target_pane_title" '$2 ~ target { print $1 }' \
+  )
+
+  tmux select-pane -Z -t "$target_pane_session"
+}
+
+switch_pane $1

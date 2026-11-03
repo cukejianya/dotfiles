@@ -19,3 +19,11 @@ config/zsh/.zprofile.local
 config/zsh/.zsh_history
 
 .zshrc-e
+
+config/qutebrowser/catppuccin/
+
+# Personal scripts. The global ignore file excludes bin/ everywhere else.
+!/bin/
+
+# gcal-events OAuth client secret and refresh token
+/config/gcal-events/

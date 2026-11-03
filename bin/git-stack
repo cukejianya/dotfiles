@@ -1,0 +1,358 @@
+#! /usr/bin/env zsh
+
+current_branch=$(git branch --show-current) || { echo "not in a git repo"; exit 1 }
+
+if [[ -z "$current_branch" ]]; then
+  echo "detached HEAD — checkout a branch first"
+  exit 1
+fi
+
+# A branch may be locked against restacking while something else owns its
+# history: an orchestrator mid-review, or a human mid-surgery. The lock is a
+# git config value so nothing here needs to know who set it or why.
+lock_reason() {
+  git config --get "branch.$1.lock" 2>/dev/null
+}
+
+stack_lock() {
+  local reason=${1:-"locked by hand"}
+  git config "branch.$current_branch.lock" "$reason"
+  echo "locked $current_branch: $reason"
+  echo "run 'git stack unlock' when the work owning it is done"
+}
+
+stack_unlock() {
+  local existing=$(lock_reason "$current_branch")
+  [[ -z "$existing" ]] && { echo "$current_branch is not locked"; return 0 }
+  git config --unset "branch.$current_branch.lock"
+  echo "unlocked $current_branch (was: $existing)"
+}
+
+find_children() {
+  local parent=$1
+  local result=()
+  local entries=$(git config --get-regexp '^branch\..*\.parent$' 2>/dev/null)
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    local branch_name=$(echo "$line" | sed 's/^branch\.//; s/\.parent .*//')
+    local branch_parent=$(echo "$line" | awk '{print $2}')
+    if [[ "$branch_parent" == "$parent" ]]; then
+      result+=($branch_name)
+    fi
+  done <<< "$entries"
+  echo "${result[@]}"
+}
+
+find_rebase_base() {
+  local saved_base=$1
+  local parent=$2
+
+  if git merge-base --is-ancestor "$saved_base" "$parent" 2>/dev/null; then
+    echo "$saved_base"
+    return 0
+  fi
+
+  local fork=$(git merge-base --fork-point "$parent" HEAD 2>/dev/null)
+  if [[ -n "$fork" ]]; then
+    echo "(base stale, using fork-point)" >&2
+    echo "$fork"
+    return 0
+  fi
+
+  echo "base is stale and reflog expired — run 'git stack reset $parent'" >&2
+  return 1
+}
+
+is_squash_merged() {
+  local branch=$1
+  local target=$2
+  local merge_base=$(git merge-base "$target" "$branch" 2>/dev/null) || return 1
+  local changed_files=$(git diff --name-only "$merge_base".."$branch" 2>/dev/null)
+  [[ -z "$changed_files" ]] && return 1
+  git diff --quiet "$branch" "$target" -- $changed_files 2>/dev/null
+}
+
+stack_on() {
+  local parent_branch=$1
+  [[ -z "$parent_branch" ]] && { echo "usage: git stack on <parent-branch>"; exit 1 }
+
+  git rev-parse --verify "$parent_branch" &>/dev/null || { echo "branch '$parent_branch' not found"; exit 1 }
+
+  local old_parent=$(git config --get "branch.$current_branch.parent" 2>/dev/null)
+  local old_base=$(git config --get "branch.$current_branch.base" 2>/dev/null)
+
+  if [[ -n "$old_parent" ]]; then
+    echo "re-parenting $current_branch: $old_parent -> $parent_branch"
+    if [[ -n "$old_base" ]] && git cat-file -t "$old_base" &>/dev/null; then
+      local effective_base=$(find_rebase_base "$old_base" "$old_parent") || exit 1
+      git rebase --onto "$parent_branch" "$effective_base" "$current_branch" || {
+        echo "rebase failed — resolve conflicts, then run 'git rebase --continue'"
+        exit 1
+      }
+    else
+      echo "old base commit gone — setting parent fresh (no rebase)"
+    fi
+  fi
+
+  git config "branch.$current_branch.parent" "$parent_branch"
+  git config "branch.$current_branch.base" "$(git rev-parse "$parent_branch")"
+  echo "$current_branch -> $parent_branch"
+}
+
+stack_restack() {
+  local own_lock=$(lock_reason "$current_branch")
+  if [[ -n "$own_lock" ]]; then
+    echo "$current_branch is locked: $own_lock"
+    echo "run 'git stack unlock' if you are sure, then restack again"
+    exit 1
+  fi
+
+  local parent=$(git config --get "branch.$current_branch.parent" 2>/dev/null)
+  [[ -z "$parent" ]] && { echo "no parent set — run 'git stack on <parent>'"; exit 1 }
+
+  local base=$(git config --get "branch.$current_branch.base" 2>/dev/null)
+  [[ -z "$base" ]] && { echo "no base set — run 'git stack on $parent' to re-anchor"; exit 1 }
+
+  git cat-file -t "$base" &>/dev/null || {
+    echo "base commit $base gone — run 'git stack on $parent' to re-anchor"
+    exit 1
+  }
+
+  local effective_base=$(find_rebase_base "$base" "$parent") || exit 1
+  git rebase --onto "$parent" "$effective_base" "$current_branch" || {
+    echo "rebase conflict on $current_branch — resolve and run 'git rebase --continue'"
+    exit 1
+  }
+  git config "branch.$current_branch.base" "$(git rev-parse "$parent")"
+  echo "restacked $current_branch"
+
+  cascade_queue=($(find_children $current_branch))
+
+  if (( ${#cascade_queue[@]} == 0 )); then
+    echo "no children to cascade"
+  else
+    echo "cascading to: ${cascade_queue[*]}"
+  fi
+
+  while (( ${#cascade_queue[@]} > 0 )); do
+    local child=${cascade_queue[1]}
+    cascade_queue=(${cascade_queue[2,-1]})
+
+    local child_lock=$(lock_reason "$child")
+    if [[ -n "$child_lock" ]]; then
+      # Skip the whole subtree: the grandchildren are consistent with the child
+      # where it stands, and moving them would strand it.
+      echo "skipping $child and everything under it — locked: $child_lock"
+      continue
+    fi
+
+    local child_parent=$(git config --get "branch.$child.parent" 2>/dev/null)
+    local child_base=$(git config --get "branch.$child.base" 2>/dev/null)
+
+    if [[ -z "$child_base" ]] || ! git cat-file -t "$child_base" &>/dev/null; then
+      echo "skipping $child — base commit invalid, run 'git stack on $child_parent' from $child"
+      continue
+    fi
+
+    local effective_child_base=$(find_rebase_base "$child_base" "$child_parent") || {
+      echo "skipping $child — base stale, run 'git stack reset $child_parent' from $child"
+      continue
+    }
+    git rebase --onto "$child_parent" "$effective_child_base" "$child" || {
+      echo "conflict restacking $child — resolve and run 'git rebase --continue'"
+      if (( ${#cascade_queue[@]} > 0 )); then
+        echo "remaining un-restacked: ${cascade_queue[*]}"
+      fi
+      exit 1
+    }
+    git config "branch.$child.base" "$(git rev-parse "$child_parent")"
+    echo "restacked $child"
+
+    local grandchildren=($(find_children $child))
+    for gc in $grandchildren; do
+      cascade_queue+=($gc)
+    done
+  done
+
+  git checkout "$current_branch" 2>/dev/null
+  echo ""
+  echo "run 'git push --force-with-lease' to update remote"
+}
+
+stack_unstack() {
+  local own_lock=$(lock_reason "$current_branch")
+  if [[ -n "$own_lock" ]]; then
+    echo "$current_branch is locked: $own_lock"
+    echo "run 'git stack unlock' if you are sure, then unstack again"
+    exit 1
+  fi
+
+  local force=false
+  [[ "$1" == "--force" ]] && force=true
+
+  local parent=$(git config --get "branch.$current_branch.parent" 2>/dev/null)
+  [[ -z "$parent" ]] && { echo "no parent set — nothing to unstack"; exit 1 }
+
+  local base=$(git config --get "branch.$current_branch.base" 2>/dev/null)
+  [[ -z "$base" ]] && { echo "no base set — run 'git stack on $parent' to re-anchor"; exit 1 }
+
+  if ! $force; then
+    git merge-base --is-ancestor "$parent" master 2>/dev/null || \
+      is_squash_merged "$parent" master || {
+        echo "$parent not yet merged to master"
+        echo "if it was squash-merged, run: git stack unstack --force"
+        exit 1
+      }
+  fi
+
+  local effective_base=$(find_rebase_base "$base" "$parent") || exit 1
+  git rebase --onto master "$effective_base" "$current_branch" || {
+    echo "rebase conflict — resolve and run 'git rebase --continue'"
+    exit 1
+  }
+
+  git config --unset "branch.$current_branch.parent"
+  git config --unset "branch.$current_branch.base"
+  echo "unstacked $current_branch — now based on master"
+  echo ""
+  echo "run 'git push --force-with-lease' to update remote"
+}
+
+stack_status() {
+  local entries=$(git config --get-regexp '^branch\..*\.parent$' 2>/dev/null)
+
+  if [[ -z "$entries" ]]; then
+    echo "no stacked branches"
+    return
+  fi
+
+  typeset -A parents
+  typeset -A bases
+
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    local branch_name=$(echo "$line" | sed 's/^branch\.//; s/\.parent .*//')
+    local branch_parent=$(echo "$line" | awk '{print $2}')
+    parents[$branch_name]=$branch_parent
+    bases[$branch_name]=$(git config --get "branch.$branch_name.base" 2>/dev/null)
+  done <<< "$entries"
+
+  print_tree() {
+    local node=$1
+    local indent=$2
+
+    local children=()
+    for branch in ${(k)parents}; do
+      if [[ "${parents[$branch]}" == "$node" ]]; then
+        children+=($branch)
+      fi
+    done
+
+    children=(${(o)children})
+
+    for child in $children; do
+      local exists=true
+      git rev-parse --verify "$child" &>/dev/null || exists=false
+
+      local marker=""
+      [[ "$child" == "$current_branch" ]] && marker=" *"
+
+      local info=""
+      if $exists; then
+        local ahead=$(git rev-list --count "${parents[$child]}..$child" 2>/dev/null)
+        info="[${ahead} ahead"
+
+        local saved_base=${bases[$child]}
+        local parent_tip=$(git rev-parse "${parents[$child]}" 2>/dev/null)
+        if [[ -n "$saved_base" && "$saved_base" != "$parent_tip" ]]; then
+          info="$info, needs restack"
+        fi
+        local child_lock=$(lock_reason "$child")
+        if [[ -n "$child_lock" ]]; then
+          info="$info, LOCKED: $child_lock"
+        fi
+        info="$info]"
+      else
+        info="(deleted)"
+      fi
+
+      echo "${indent}└─ ${child}  ${info}${marker}"
+
+      if $exists; then
+        print_tree "$child" "${indent}    "
+      fi
+    done
+  }
+
+  local roots=()
+  for branch in ${(k)parents}; do
+    local p=${parents[$branch]}
+    if [[ -z "${parents[$p]}" ]]; then
+      if [[ " ${roots[*]} " != *" $p "* ]]; then
+        roots+=($p)
+      fi
+    fi
+  done
+
+  for root in ${(o)roots}; do
+    echo "$root"
+    print_tree "$root" " "
+  done
+}
+
+stack_cleanup() {
+  local entries=$(git config --get-regexp '^branch\..*\.parent$' 2>/dev/null)
+  local cleaned=0
+
+  if [[ -z "$entries" ]]; then
+    echo "no stacked branches — nothing to clean"
+    return
+  fi
+
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    local branch_name=$(echo "$line" | sed 's/^branch\.//; s/\.parent .*//')
+
+    if ! git rev-parse --verify "$branch_name" &>/dev/null; then
+      git config --unset "branch.$branch_name.parent" 2>/dev/null
+      git config --unset "branch.$branch_name.base" 2>/dev/null
+      echo "removed config for deleted branch: $branch_name"
+      (( cleaned++ ))
+    fi
+  done <<< "$entries"
+
+  if (( cleaned == 0 )); then
+    echo "nothing to clean up"
+  else
+    echo "cleaned $cleaned orphaned entries"
+  fi
+}
+
+stack_reset() {
+  local parent_branch=$1
+  [[ -z "$parent_branch" ]] && { echo "usage: git stack reset <parent-branch>"; exit 1 }
+
+  git rev-parse --verify "$parent_branch" &>/dev/null || { echo "branch '$parent_branch' not found"; exit 1 }
+
+  git config --unset "branch.$current_branch.parent" 2>/dev/null
+  git config --unset "branch.$current_branch.base" 2>/dev/null
+
+  git config "branch.$current_branch.parent" "$parent_branch"
+  git config "branch.$current_branch.base" "$(git rev-parse "$parent_branch")"
+  echo "$current_branch -> $parent_branch (reset, no rebase)"
+}
+
+cmd=$1
+shift 2>/dev/null
+
+case $cmd in
+  on)      stack_on "$@" ;;
+  reset)   stack_reset "$@" ;;
+  restack) stack_restack ;;
+  unstack) stack_unstack "$@" ;;
+  status)  stack_status ;;
+  cleanup) stack_cleanup ;;
+  lock)    stack_lock "$@" ;;
+  unlock)  stack_unlock ;;
+  *)       echo "usage: git stack {on|reset|restack|unstack|status|cleanup|lock|unlock}" ;;
+esac

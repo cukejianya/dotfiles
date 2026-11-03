@@ -1,0 +1,119 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+usage() {
+  print -u2 "Usage: position-quick-notes TITLE WIDTH_PERCENT HEIGHT_PERCENT OUTER_TOP OUTER_BOTTOM OUTER_LEFT OUTER_RIGHT"
+  return 2
+}
+
+[[ $# -eq 7 ]] || usage
+
+title="$1"
+width_percent="$2"
+height_percent="$3"
+outer_top="$4"
+outer_bottom="$5"
+outer_left="$6"
+outer_right="$7"
+
+[[ "$width_percent" == <-> && "$width_percent" -gt 0 && "$width_percent" -le 100 ]] || usage
+[[ "$height_percent" == <-> && "$height_percent" -gt 0 && "$height_percent" -le 100 ]] || usage
+for gap in "$outer_top" "$outer_bottom" "$outer_left" "$outer_right"; do
+  [[ "$gap" == <-> ]] || usage
+done
+
+window_geometry=$(/usr/bin/osascript - "$title" <<'APPLESCRIPT'
+on run argv
+  set targetTitle to item 1 of argv
+
+  tell application "System Events"
+    repeat with appProcess in every application process whose bundle identifier is "net.kovidgoyal.kitty"
+      repeat with appWindow in windows of appProcess
+        set windowName to name of appWindow
+        if windowName is targetTitle then
+          set {windowX, windowY} to position of appWindow
+          set {windowWidth, windowHeight} to size of appWindow
+          return (windowX as text) & "|" & (windowY as text) & "|" & (windowWidth as text) & "|" & (windowHeight as text)
+        end if
+      end repeat
+    end repeat
+  end tell
+
+  error "Quick-note window not found"
+end run
+APPLESCRIPT
+)
+
+IFS='|' read -r window_x window_y window_width window_height <<< "$window_geometry"
+window_center_x=$((window_x + window_width / 2))
+window_center_y=$((window_y + window_height / 2))
+
+screens=$(/usr/bin/osascript -l JavaScript <<'JXA'
+ObjC.import('AppKit')
+
+const screens = $.NSScreen.screens
+const mainHeight = Number(screens.objectAtIndex(0).frame.size.height)
+const output = []
+
+for (let index = 0; index < screens.count; index++) {
+  const frame = screens.objectAtIndex(index).visibleFrame
+  const x = Math.round(Number(frame.origin.x))
+  const y = Math.round(mainHeight - Number(frame.origin.y) - Number(frame.size.height))
+  const width = Math.round(Number(frame.size.width))
+  const height = Math.round(Number(frame.size.height))
+  output.push(`${x}|${y}|${width}|${height}`)
+}
+
+output.join('\n')
+JXA
+)
+
+screen_geometry=""
+while IFS='|' read -r screen_x screen_y screen_width screen_height; do
+  if (( window_center_x >= screen_x && window_center_x < screen_x + screen_width \
+      && window_center_y >= screen_y && window_center_y < screen_y + screen_height )); then
+    screen_geometry="$screen_x|$screen_y|$screen_width|$screen_height"
+    break
+  fi
+done <<< "$screens"
+
+[[ -n "$screen_geometry" ]] || screen_geometry="${screens%%$'\n'*}"
+IFS='|' read -r screen_x screen_y screen_width screen_height <<< "$screen_geometry"
+
+workspace_x=$((screen_x + outer_left))
+workspace_y=$((screen_y + outer_top))
+workspace_width=$((screen_width - outer_left - outer_right))
+workspace_height=$((screen_height - outer_top - outer_bottom))
+(( workspace_width > 0 && workspace_height > 0 )) || usage
+
+target_width=$((screen_width * width_percent / 100))
+target_height=$((screen_height * height_percent / 100))
+(( target_width > workspace_width )) && target_width=$workspace_width
+(( target_height > workspace_height )) && target_height=$workspace_height
+target_x=$((workspace_x + (workspace_width - target_width) / 2))
+target_y=$((workspace_y + (workspace_height - target_height) / 2))
+
+/usr/bin/osascript - "$title" "$target_x" "$target_y" "$target_width" "$target_height" <<'APPLESCRIPT'
+on run argv
+  set targetTitle to item 1 of argv
+  set targetX to (item 2 of argv) as integer
+  set targetY to (item 3 of argv) as integer
+  set targetWidth to (item 4 of argv) as integer
+  set targetHeight to (item 5 of argv) as integer
+
+  tell application "System Events"
+    repeat with appProcess in every application process whose bundle identifier is "net.kovidgoyal.kitty"
+      repeat with appWindow in windows of appProcess
+        set windowName to name of appWindow
+        if windowName is targetTitle then
+          set size of appWindow to {targetWidth, targetHeight}
+          set position of appWindow to {targetX, targetY}
+          return
+        end if
+      end repeat
+    end repeat
+  end tell
+
+  error "Quick-note window not found"
+end run
+APPLESCRIPT

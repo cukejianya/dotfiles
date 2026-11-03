@@ -1,0 +1,15 @@
+#! /usr/bin/env zsh
+
+if [ -z "$1" ]; then
+  tmux popup -E "tmux list-windows -F '#{window_last_flag} #W' \
+    | sort -r \
+    | sed '1d'\
+    | awk '{ print \$2 }' \
+    | fzf \
+    | xargs tmux select-window -t"
+else
+  local tmux_windows=$(tmux list-windows -F "#W")
+  local selected_tmux_window=$( echo "$tmux_windows" | fzf --query="$1" --select-1 --exit-0)
+  tmux select-window -t "$selected_tmux_window"
+fi
+

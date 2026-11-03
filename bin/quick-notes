@@ -1,0 +1,255 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+export PATH="${PATH:-/usr/bin:/bin}:$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+
+readonly WINDOW_TITLE="quick-notes"
+readonly KITTY_BUNDLE_ID="net.kovidgoyal.kitty"
+readonly HIDDEN_WORKSPACE="N"
+readonly POPUP_WIDTH_PERCENT=60
+readonly POPUP_HEIGHT_PERCENT=70
+readonly WORKSPACE_OUTER_TOP=15
+readonly WORKSPACE_OUTER_BOTTOM=185
+readonly WORKSPACE_OUTER_LEFT=50
+readonly WORKSPACE_OUTER_RIGHT=50
+readonly POSITION_COMMAND="${QUICK_NOTES_POSITION_COMMAND:-${0:A:h}/position-quick-notes}"
+readonly KITTY_COMMAND_OVERRIDE="${QUICK_NOTES_KITTY_COMMAND:-}"
+readonly CACHE_DIR="${QUICK_NOTES_CACHE_DIR:-$HOME/.cache/quick-notes}"
+readonly LOG_FILE="$CACHE_DIR/error.log"
+readonly LOCK_FILE="$CACHE_DIR/lock"
+readonly PREVIOUS_WINDOW_FILE="$CACHE_DIR/previous-window"
+readonly PREVIOUS_WORKSPACE_FILE="$CACHE_DIR/previous-workspace"
+readonly CURRENT_DATE_FILE="$CACHE_DIR/current-date"
+readonly NVIM_SOCKET="$CACHE_DIR/nvim.sock"
+
+mkdir -p "$CACHE_DIR"
+
+if [[ "${QUICK_NOTES_LOCKED:-false}" != true ]]; then
+  export QUICK_NOTES_LOCKED=true
+  if /usr/bin/lockf -k -s -t 0 "$LOCK_FILE" "$0" "$@"; then
+    exit 0
+  else
+    lock_status=$?
+    (( lock_status == 75 )) && exit 0
+    exit "$lock_status"
+  fi
+fi
+
+fail() {
+  local message="$1"
+  print -r -- "$(date '+%Y-%m-%d %H:%M:%S') $message" >> "$LOG_FILE"
+  if [[ "${QUICK_NOTES_DISABLE_NOTIFICATION:-false}" != true ]]; then
+    /usr/bin/osascript -e 'display notification "See ~/.cache/quick-notes/error.log" with title "Quick Notes"' >/dev/null 2>&1 || true
+  fi
+  print -u2 -r -- "$message"
+  exit 1
+}
+
+require_command() {
+  command -v "$1" >/dev/null 2>&1 || fail "Required command not found: $1"
+}
+
+popup_record() {
+  aerospace list-windows --monitor all \
+    --app-bundle-id "$KITTY_BUNDLE_ID" \
+    --format '%{window-id}|%{window-title}|%{workspace}' \
+    | awk -F '|' -v title="$WINDOW_TITLE" '$2 == title { print $1 "|" $3; exit }'
+}
+
+save_previous_focus() {
+  local focused_window="$1"
+  local focused_workspace="$2"
+
+  if [[ -n "$focused_window" ]]; then
+    print -r -- "$focused_window" > "$PREVIOUS_WINDOW_FILE"
+  else
+    rm -f "$PREVIOUS_WINDOW_FILE"
+  fi
+
+  if [[ -n "$focused_workspace" ]]; then
+    print -r -- "$focused_workspace" > "$PREVIOUS_WORKSPACE_FILE"
+  else
+    rm -f "$PREVIOUS_WORKSPACE_FILE"
+  fi
+}
+
+restore_previous_focus() {
+  local previous_window=""
+  local previous_workspace=""
+
+  [[ -f "$PREVIOUS_WINDOW_FILE" ]] && previous_window=$(<"$PREVIOUS_WINDOW_FILE")
+  [[ -f "$PREVIOUS_WORKSPACE_FILE" ]] && previous_workspace=$(<"$PREVIOUS_WORKSPACE_FILE")
+
+  if [[ -n "$previous_window" ]] && aerospace focus --window-id "$previous_window" 2>/dev/null; then
+    return
+  fi
+
+  if [[ -n "$previous_workspace" && "$previous_workspace" != "$HIDDEN_WORKSPACE" ]]; then
+    aerospace workspace -- "$previous_workspace" 2>/dev/null || true
+  fi
+}
+
+focus_popup() {
+  local window_id="$1"
+
+  aerospace focus --window-id "$window_id" >/dev/null 2>&1 \
+    || fail "Could not focus the quick-note window."
+}
+
+position_popup() {
+  for _ in {1..20}; do
+    if "$POSITION_COMMAND" "$WINDOW_TITLE" "$POPUP_WIDTH_PERCENT" "$POPUP_HEIGHT_PERCENT" \
+      "$WORKSPACE_OUTER_TOP" "$WORKSPACE_OUTER_BOTTOM" "$WORKSPACE_OUTER_LEFT" "$WORKSPACE_OUTER_RIGHT" \
+      >/dev/null 2>&1; then
+      return
+    fi
+    sleep 0.05
+  done
+
+  fail "Could not size and center the quick-note window."
+}
+
+show_popup() {
+  local window_id="$1"
+  local workspace="$2"
+
+  aerospace layout --window-id "$window_id" floating >/dev/null 2>&1 \
+    || fail "Could not set the quick-note window to floating layout."
+  aerospace move-node-to-workspace --window-id "$window_id" -- "$workspace" >/dev/null 2>&1 \
+    || fail "Could not move the quick-note window to workspace $workspace."
+  focus_popup "$window_id"
+  position_popup
+}
+
+hide_popup() {
+  local window_id="$1"
+
+  aerospace move-node-to-workspace --window-id "$window_id" -- "$HIDDEN_WORKSPACE" >/dev/null 2>&1 \
+    || fail "Could not hide the quick-note window."
+  restore_previous_focus
+}
+
+refresh_daily_note() {
+  local daily_note_command="$1"
+  local current_date="$2"
+  local saved_date=""
+  local note_path=""
+
+  [[ -f "$CURRENT_DATE_FILE" ]] && saved_date=$(<"$CURRENT_DATE_FILE")
+  [[ "$saved_date" == "$current_date" ]] && return
+  [[ -S "$NVIM_SOCKET" ]] || fail "The quick-note Neovim server is unavailable. Close the popup and try again."
+
+  note_path=$("$daily_note_command" --path) \
+    || fail "Could not create or find today's daily note."
+  grep -qx '## Quick Capture' "$note_path" \
+    || fail "Heading not found in today's note: ## Quick Capture"
+  nvim --server "$NVIM_SOCKET" --remote-tab "$note_path" >/dev/null 2>&1 \
+    || fail "Could not open today's note in the quick-note window."
+  nvim --server "$NVIM_SOCKET" --remote-send '<Cmd>silent /^## Quick Capture$/<CR>j$' >/dev/null 2>&1 \
+    || fail "Could not move to the Quick Capture section."
+  print -r -- "$current_date" > "$CURRENT_DATE_FILE"
+}
+
+stop_process() {
+  local pid="$1"
+
+  kill "$pid" 2>/dev/null || return
+  for _ in {1..20}; do
+    kill -0 "$pid" 2>/dev/null || return
+    sleep 0.1
+  done
+  kill -KILL "$pid" 2>/dev/null || true
+}
+
+stop_popup_by_title() {
+  local popup_pid
+  popup_pid=$(/usr/bin/osascript - "$KITTY_BUNDLE_ID" "$WINDOW_TITLE" <<'APPLESCRIPT'
+on run argv
+  set targetBundleId to item 1 of argv
+  set targetTitle to item 2 of argv
+
+  tell application "System Events"
+    repeat with appProcess in every application process whose bundle identifier is targetBundleId
+      if exists (first window of appProcess whose name is targetTitle) then
+        return unix id of appProcess
+      end if
+    end repeat
+  end tell
+
+  return ""
+end run
+APPLESCRIPT
+  )
+  [[ -n "$popup_pid" ]] && stop_process "$popup_pid"
+}
+
+start_popup() {
+  local daily_note_command="$1"
+  local workspace="$2"
+  local current_date="$3"
+  local launched_pid=""
+  local record=""
+
+  rm -f "$NVIM_SOCKET"
+  if [[ -n "$KITTY_COMMAND_OVERRIDE" ]]; then
+    DAILY_NOTE_NVIM_LISTEN="$NVIM_SOCKET" \
+      "$KITTY_COMMAND_OVERRIDE" --title "$WINDOW_TITLE" "$daily_note_command" --edit quick-capture \
+      >/dev/null 2>> "$LOG_FILE" &!
+    launched_pid=$!
+  else
+    DAILY_NOTE_NVIM_LISTEN="$NVIM_SOCKET" \
+      /usr/bin/open -na kitty --args --title "$WINDOW_TITLE" "$daily_note_command" --edit quick-capture \
+      >/dev/null 2>> "$LOG_FILE"
+  fi
+
+  for _ in {1..50}; do
+    record=$(popup_record)
+    if [[ -n "$record" ]]; then
+      print -r -- "$current_date" > "$CURRENT_DATE_FILE"
+      show_popup "${record%%|*}" "$workspace"
+      return
+    fi
+    sleep 0.1
+  done
+
+  if [[ -n "$launched_pid" ]]; then
+    stop_process "$launched_pid"
+  else
+    stop_popup_by_title
+  fi
+  fail "The quick-note window did not appear within five seconds."
+}
+
+require_command aerospace
+require_command kitty
+require_command nvim
+require_command daily-note
+[[ -x "$POSITION_COMMAND" ]] || fail "Position command is not executable: $POSITION_COMMAND"
+
+focused_window=$(aerospace list-windows --focused --format '%{window-id}' 2>/dev/null || true)
+focused_workspace=$(aerospace list-workspaces --focused 2>/dev/null || true)
+[[ -n "$focused_workspace" ]] || fail "AeroSpace did not report a focused workspace."
+
+current_date=$(date +%F)
+daily_note_command=$(command -v daily-note)
+record=$(popup_record)
+if [[ -n "$record" ]]; then
+  popup_window="${record%%|*}"
+  popup_workspace="${record#*|}"
+
+  if [[ "$focused_window" == "$popup_window" ]]; then
+    hide_popup "$popup_window"
+  else
+    save_previous_focus "$focused_window" "$focused_workspace"
+    refresh_daily_note "$daily_note_command" "$current_date"
+    if [[ "$popup_workspace" == "$HIDDEN_WORKSPACE" ]]; then
+      show_popup "$popup_window" "$focused_workspace"
+    else
+      focus_popup "$popup_window"
+      position_popup
+    fi
+  fi
+else
+  save_previous_focus "$focused_window" "$focused_workspace"
+  start_popup "$daily_note_command" "$focused_workspace" "$current_date"
+fi

@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+"""Interactive tmux pane mirror. Runs inside a tmux popup."""
+
+import os
+import select
+import signal
+import subprocess
+import sys
+import termios
+import tty
+
+REFRESH_INTERVAL = 0.1
+CTRL_CLOSE_BRACKET = 0x1d
+
+
+def capture_pane(pane_id):
+    try:
+        result = subprocess.run(
+            ["tmux", "capture-pane", "-t", pane_id, "-p", "-e"],
+            capture_output=True, timeout=2,
+        )
+    except (subprocess.TimeoutExpired, OSError):
+        return None
+    if result.returncode != 0:
+        return None
+    return result.stdout
+
+
+def refresh_display(pane_id):
+    content = capture_pane(pane_id)
+    if content is None:
+        return False
+    sys.stdout.buffer.write(b"\033[H\033[2J")
+    sys.stdout.buffer.write(content)
+    sys.stdout.buffer.flush()
+    return True
+
+
+def main():
+    if len(sys.argv) != 2:
+        print(f"Usage: {sys.argv[0]} <pane_id>", file=sys.stderr)
+        sys.exit(1)
+
+    pane_id = sys.argv[1]
+
+    if not capture_pane(pane_id):
+        print(f"Error: Cannot capture pane {pane_id}", file=sys.stderr)
+        sys.exit(1)
+
+    signal.signal(signal.SIGWINCH, lambda *_: None)
+
+    old_settings = termios.tcgetattr(sys.stdin)
+    try:
+        tty.setraw(sys.stdin)
+
+        while True:
+            if not refresh_display(pane_id):
+                break
+
+            readable, _, _ = select.select([sys.stdin], [], [], REFRESH_INTERVAL)
+            if readable:
+                data = os.read(sys.stdin.fileno(), 1024)
+                if not data:
+                    break
+                if CTRL_CLOSE_BRACKET in data:
+                    break
+                hex_keys = " ".join(f"{b:02x}" for b in data)
+                subprocess.run(
+                    ["tmux", "send-keys", "-t", pane_id, "-H", hex_keys],
+                    capture_output=True, timeout=2,
+                )
+    finally:
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+        sys.stdout.write("\033[H\033[2J")
+        sys.stdout.flush()
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,120 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+usage() {
+  print -u2 "Usage: daily-note [--edit quick-capture | --path]"
+  return 2
+}
+
+mode="create"
+if (( $# > 0 )); then
+  if [[ $# -eq 1 && "$1" == "--path" ]]; then
+    mode="path"
+  elif [[ $# -eq 2 && "$1" == "--edit" && "$2" == "quick-capture" ]]; then
+    mode="edit"
+  else
+    usage
+  fi
+fi
+
+notes_dir="${DAILY_NOTES_DIR:-$HOME/notes/02_work/2026_notes/01_daily}"
+template="$notes_dir/template.md"
+editor="${DAILY_NOTE_EDITOR:-nvim}"
+
+IFS='|' read -r year week month day month_name day_of_week <<< "$(date '+%Y|%V|%m|%d|%B|%a')"
+day_num=$((10#$day))
+
+if (( day_num % 100 >= 11 && day_num % 100 <= 13 )); then
+  suffix="th"
+elif (( day_num % 10 == 1 )); then
+  suffix="st"
+elif (( day_num % 10 == 2 )); then
+  suffix="nd"
+elif (( day_num % 10 == 3 )); then
+  suffix="rd"
+else
+  suffix="th"
+fi
+
+filename="${year}W${week}${month}${day}_daily.md"
+filepath="$notes_dir/$filename"
+
+create_note() {
+  if [[ ! -f "$template" ]]; then
+    print -u2 "Template not found: $template"
+    return 1
+  fi
+
+  local meetings_file draft enriched
+  meetings_file=$(mktemp)
+  draft=$(mktemp "$notes_dir/.daily-note.XXXXXX")
+  enriched="$draft.with-meetings"
+
+  cleanup_note_draft() {
+    rm -f "$meetings_file" "$draft" "$enriched"
+  }
+
+  sed "1s/.*/# ${month_name} ${day_num}${suffix} ${day_of_week} Daily/" "$template" > "$draft" \
+    || { cleanup_note_draft; return 1; }
+
+  if command -v gcal-events >/dev/null 2>&1; then
+    gcal-events > "$meetings_file" 2>/dev/null || true
+  fi
+
+  if [[ -s "$meetings_file" ]]; then
+    awk -v mf="$meetings_file" '
+      {print}
+      /^## Meetings$/ {print ""; while ((getline line < mf) > 0) print line}
+    ' "$draft" > "$enriched" || { cleanup_note_draft; return 1; }
+    mv "$enriched" "$draft" || { cleanup_note_draft; return 1; }
+  fi
+
+  if ln "$draft" "$filepath" 2>/dev/null; then
+    cleanup_note_draft
+    return 0
+  fi
+
+  cleanup_note_draft
+  [[ -f "$filepath" ]] && return 3
+  print -u2 "Could not create: $filepath"
+  return 1
+}
+
+created=false
+if [[ ! -f "$filepath" ]]; then
+  if create_note; then
+    created=true
+  elif [[ $? -ne 3 ]]; then
+    exit 1
+  fi
+fi
+
+if [[ "$mode" == "path" ]]; then
+  print -r -- "$filepath"
+  exit 0
+fi
+
+if [[ "$created" == true ]]; then
+  print "Created: $filepath"
+else
+  print "Already exists: $filepath"
+fi
+
+if [[ "$mode" == "edit" ]]; then
+  if ! command -v "$editor" >/dev/null 2>&1; then
+    print -u2 "Editor not found: $editor"
+    exit 1
+  fi
+
+  editor_options=()
+  if [[ -n "${DAILY_NOTE_NVIM_LISTEN:-}" ]]; then
+    editor_options=(--listen "$DAILY_NOTE_NVIM_LISTEN")
+  fi
+
+  if grep -qx '## Quick Capture' "$filepath"; then
+    exec "$editor" "${editor_options[@]}" '+/^## Quick Capture$/' '+normal! j$' -- "$filepath"
+  fi
+
+  print -u2 "Heading not found: ## Quick Capture"
+  exec "$editor" "${editor_options[@]}" "+echoerr 'Heading not found: ## Quick Capture'" -- "$filepath"
+fi

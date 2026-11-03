@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# Generate commit messages using Claude without conventional commit format
+# Usage: ./scripts/generate-simple-commit.sh
+
+set -e
+
+# Check if we're in a git repository
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    echo "Error: Not in a git repository"
+    exit 1
+fi
+
+# Check if there are staged changes
+if git diff --staged --quiet; then
+    echo "Error: No staged changes found. Please stage your changes first with 'git add'"
+    exit 1
+fi
+
+# Get staged changes and recent commits for context
+STAGED_DIFF=$(git diff --staged)
+RECENT_COMMITS=$(git log --oneline -3 --no-merges)
+
+# Generate commit message using Claude
+PROMPT="Generate a concise commit message for these staged changes. 
+
+Requirements:
+- 1 phrase
+- Use imperative mood (e.g., 'Fix bug' not 'Fixed bug')
+- Focus on what changed and why
+- NO conventional commit format (no type(scope): prefix)
+- Be descriptive but brief
+
+Recent commits for context:
+$RECENT_COMMITS
+
+Staged changes:
+$STAGED_DIFF
+
+Return only the commit message:"
+
+if command -v claude &> /dev/null; then
+    COMMIT_MESSAGE=$(echo "$PROMPT" | claude -p)
+    
+    echo "Generated commit message:"
+    echo "\"$COMMIT_MESSAGE\""
+    echo ""
+    
+    read -p "Use this message? (y/n): " -n 1 -r
+    echo
+    
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        git commit -m "$COMMIT_MESSAGE"
+        echo "Commit created!"
+    else
+        echo "Cancelled."
+    fi
+else
+    echo "Claude CLI not installed. Install with: npm install -g @anthropic-ai/claude-cli"
+fi

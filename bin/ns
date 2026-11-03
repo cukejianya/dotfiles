@@ -1,0 +1,5 @@
+#! /usr/bin/env zsh
+
+# Use to open new tmux session
+
+tmux popup -E "tmuxinator list | awk 'NR != 1 { print \$0 }' | tr -s ' ' '\n' | grep -v -F -f <(tmux list-sessions -F '#S') | fzf | xargs tmuxinator"
