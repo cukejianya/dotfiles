@@ -19,7 +19,6 @@ brew "ripgrep"
 brew "the_silver_searcher"
 brew "tmux"
 brew "tmuxinator"
-brew "zsh-syntax-highlighting"
 
 cask "font-fira-code-nerd-font"
 cask "keepassxc"

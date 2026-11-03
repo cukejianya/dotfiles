@@ -2,12 +2,27 @@ source <(fzf --zsh)
 sourceIfAvailable "$ZDOTDIR/themes/robbyrussell.zsh"
 sourceIfAvailable "$ZDOTDIR/plugins/wd/wd.plugin.zsh"
 
+# --- Plugins ---
+# plug <github-user>/<repo>: clone on first use, then load. Update with plug-update.
+# ponytail: not pinned, new machines get upstream HEAD. Pin with `git -C <dir> checkout <sha>` if one breaks.
+ZSH_PLUGIN_HOME="$XDG_DATA_HOME/zsh/plugins"
+plug() {
+  local name=${1:t} dir=$ZSH_PLUGIN_HOME/${1:t}
+  [[ -d $dir ]] || git clone --depth 1 "https://github.com/$1" "$dir"
+  fpath+=("$dir" "$dir/src")
+  [[ -f $dir/$name.plugin.zsh ]] && source "$dir/$name.plugin.zsh"
+}
+plug-update() {
+  local d
+  for d in $ZSH_PLUGIN_HOME/*/.git(N:h); do git -C "$d" pull --ff-only; done
+}
+
 # ---  Completion ---
-fpath=($ZDOTDIR/plugins/zsh-completions/src $fpath)
+plug zsh-users/zsh-completions # before compinit: it only adds to fpath
 fpath=($ZDOTDIR/plugins/wd $fpath)
 autoload -U compinit && compinit -C
 
-# source "$ZDOTDIR/plugins/fzf-tab.plugin.zsh"
+# plug Aloxaf/fzf-tab # after compinit
 
 ## History file configuration
 [ -z "$HISTFILE" ] && HISTFILE="$HOME/.zsh_history"
@@ -55,14 +70,9 @@ set -o vi
 # Bind vv to command line editor
 bindkey vv edit-command-line
 
-case "$OSTYPE" in
-linux* | *bsd*)
-  source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-  ;;
-darwin*)
-  source $ZDOTDIR/.zsh_mac
-  ;;
-esac
+[[ "$OSTYPE" == darwin* ]] && source $ZDOTDIR/.zsh_mac
+
+plug zsh-users/zsh-syntax-highlighting # load after other widget plugins
 
 # Reload alias
 alias tmuxreload="tmux source-file $TMUX_HOME/tmux.conf"

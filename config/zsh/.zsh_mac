@@ -4,7 +4,6 @@ addToPath "$PATH:$HOME/.spicetify"
 
 source <(kubectl completion zsh)
 source <(kubectl-site completion zsh)
-source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 export FZF_BASE=$(brew --prefix)/opt/fzf
 
 sdk() {
