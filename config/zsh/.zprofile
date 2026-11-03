@@ -40,7 +40,6 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 export PKG_CONFIG_PATH="${PKG_CONFIG_PATH} /usr/local/opt/zlib/lib/pkgconfig"
 
 ## --- Path configuration ---
-addToPathFront "/opt/spotify-devex/bin"
 addToPathFront "$BUN_INSTALL/bin"
 addToPathFront "$XDG_BIN_HOME:/usr/local/bin"
 

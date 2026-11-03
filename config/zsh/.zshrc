@@ -317,3 +317,7 @@ export PATH=/opt/spotify-devex/bin:$PATH
 
 # bun completions
 [ -s "/Users/chinedumu/.bun/_bun" ] && source "/Users/chinedumu/.bun/_bun"
+
+# Remove duplicate PATH/fpath entries. path_helper and tool blocks above use
+# string assignments, which bypass -U, so this must stay the last line.
+typeset -U fpath path
