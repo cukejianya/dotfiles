@@ -8,6 +8,7 @@ export XDG_BIN_HOME="${XDG_BIN_HOME:-$HOME/.local/bin}"
 export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 export TMUX_HOME="$XDG_CONFIG_HOME/tmux"
 export DOT_HOME="$HOME/.dotfiles"
+export DOT_WORK_HOME="$HOME/.dotfiles-work"
 export SRC_HOME="$HOME/src"
 export DEV_HOME="$HOME/dev"
 

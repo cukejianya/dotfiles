@@ -42,6 +42,7 @@ export PKG_CONFIG_PATH="${PKG_CONFIG_PATH} /usr/local/opt/zlib/lib/pkgconfig"
 ## --- Path configuration ---
 addToPathFront "$BUN_INSTALL/bin"
 addToPathFront "$XDG_BIN_HOME:/usr/local/bin"
+addToPathFront "$XDG_DATA_HOME/pnpm/bin"
 
 addToPath "/usr/local/sbin"
 addToPath "/usr/local/opt/php@7.2/bin"
@@ -55,4 +56,4 @@ addToPath "$HOME/.rvm/bin"
 
 
 sourceIfAvailable $ZDOTDIR/.zprofile.local
-
+sourceIfAvailable "$DOT_WORK_HOME/zsh/zprofile"

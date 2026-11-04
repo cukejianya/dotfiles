@@ -14,22 +14,19 @@ return {
     "claydugo/browsher.nvim",
     cmd = "Browsher",
     config = function()
-      -- Specify empty to use below default options
-      require("browsher").setup({
-        open_cmd = "open",
-        providers = {
-          -- ["github.com"] = {
-          --   url_template = "%s/blob/%s/%s",
-          --   single_line_format = "#L%d",
-          --   multi_line_format = "#L%d-L%d",
-          -- },
-          ["ghe.spotify.net"] = {
-            url_template = "%s/blob/%s/%s",
-            single_line_format = "#L%d",
-            multi_line_format = "#L%d-L%d",
-          },
-        },
-      })
+      local providers = {
+        -- ["github.com"] = {
+        --   url_template = "%s/blob/%s/%s",
+        --   single_line_format = "#L%d",
+        --   multi_line_format = "#L%d-L%d",
+        -- },
+      }
+      -- Private work overlay. pcall skips it if the file is absent.
+      local ok, extra = pcall(dofile, vim.fn.expand("~/.dotfiles-work/nvim/browsher.lua"))
+      if ok then
+        providers = vim.tbl_extend("force", providers, extra)
+      end
+      require("browsher").setup({ open_cmd = "open", providers = providers })
     end,
   },
 }

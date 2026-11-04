@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+#
+# Check every commit that this push sends to the remote. Git writes one line
+# per ref on stdin: <local ref> <local sha> <remote ref> <remote sha>
+set -euo pipefail
+
+check="$(dirname "${BASH_SOURCE[0]}")/leak-check"
+remote="$1"
+zero=$(git hash-object --stdin </dev/null | tr '0-9a-f' '0')
+
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+  # A branch delete sends no commits.
+  [[ "$local_sha" == "$zero" ]] && continue
+  if [[ "$remote_sha" == "$zero" ]] || ! git cat-file -e "$remote_sha^{commit}" 2>/dev/null; then
+    # New branch, or a force-push over history that is not local: check the
+    # commits that the remote does not have yet.
+    range="$local_sha --not --remotes=$remote"
+  else
+    range="$remote_sha..$local_sha"
+  fi
+  "$check" range "$range"
+done

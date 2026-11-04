@@ -9,7 +9,7 @@
 #   2. generic setup       symlinks, directories, node, tmux, nvim, shell
 #   3. work overlay        ~/.dotfiles-work/blast-off.sh, when this is a work
 #                          computer. That repo is private and holds all work
-#                          config.
+#                          config. See .githooks/leak-check.
 set -euo pipefail
 
 DOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -92,6 +92,10 @@ link "$DOT/.gitconfig" "$HOME/.gitconfig"
 for script in "$DOT"/bin/*; do
   [[ -f "$script" ]] && link "$script" "$XDG_BIN_HOME/$(basename "$script")"
 done
+
+step "Git hooks"
+# Block commits and pushes that leak work data or secrets.
+git -C "$DOT" config core.hooksPath .githooks
 
 step "Directories"
 mkdir -p "$HOME/dev" "$HOME/src" "$HOME/screenshots"

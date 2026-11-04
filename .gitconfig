@@ -1,9 +1,7 @@
 # This is Git's per-user configuration file.
 [user]
-# Please adapt and uncomment the following lines:
 	name = Chinedum Ukejianya
-	email = chinedumu@spotify.com
-  
+	email = cukejianya@gmail.com
 [core]
   editor = nvim
 [filter "lfs"]
@@ -15,8 +13,6 @@
   diff = delta --paging "always"
 [init]
 	defaultBranch = main
-[maintenance]
-	repo = /Users/chinedumu/monorepo/main
 [include]
   path = ~/.config/delta/themes.gitconfig
 [delta]
@@ -24,3 +20,7 @@
   hyperlinks = true
   side-by-side = false
   hyperlinks-file-link-format = nvim-popup://{path}:{line}
+# Private work overlay: work email, GHE credentials, maintenance repos.
+# Git skips an include path that does not exist.
+[include]
+  path = ~/.dotfiles-work/gitconfig

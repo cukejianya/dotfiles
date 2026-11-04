@@ -1,3 +1,5 @@
+import os
+
 import catppuccin
 
 config.load_autoconfig()
@@ -25,14 +27,16 @@ c.zoom.default = "125%"
 
 c.url.searchengines = {
     'DEFAULT': 'https://duckduckgo.com/?q={}',
-    'cs': 'https://codesearch.spotify.net/search?q={}',
     'gc': 'https://calendar.google.com/calendar/u/0/r/search?q={}',
-    'ghe': 'https://ghe.spotify.net/search?q={}',
     'git': 'https://github.com/search?q={}',
     'gm': 'https://www.google.com/maps?q={}',
-    'j': 'https://spotify.atlassian.net/browse/{}',
     'y': 'https://youtube.com/results?search_query={}',
 }
+
+# Private work overlay: extra search engines.
+work_config = os.path.expanduser('~/.dotfiles-work/qutebrowser/work.py')
+if os.path.exists(work_config):
+    config.source(work_config)
 
 config.bind('<Alt-Shift-u>', 'spawn --userscript qute-keepassxc --key 177C5800F00A9FAB', mode='insert')
 config.bind('pw', 'spawn --userscript qute-keepassxc --key 177C5800F00A9FAB', mode='normal')
@@ -43,11 +47,11 @@ config.bind('x', 'tab-close')
 
 config.bind('<Ctrl-O>', 'tab-focus last')
 
-config.bind('yo', 'spawn open -a "Vivaldi" {url}')
+config.bind('yo', 'spawn open {url} -a "Vivaldi"')
 config.bind('ys', 'spawn ~/.local/bin/skd {url}')
 
-config.bind('gv', 'spawn umpv {url}')
-config.bind(';v', 'hint links spawn umpv {hint-url}')
+config.bind('gv', 'spawn /usr/local/bin/umpv {url}')
+config.bind(';v', 'hint links spawn /usr/local/bin/umpv {hint-url}')
 config.bind(';s', 'hint links spawn ~/.local/bin/skd {hint-url}')
 
 config.bind('<Ctrl-J>','completion-item-focus next',  mode='command')

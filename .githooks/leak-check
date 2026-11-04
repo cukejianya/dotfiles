@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+#
+# Block work data and secrets from entering this public repo.
+#
+# Usage:
+#   leak-check staged          check the staged changes (pre-commit)
+#   leak-check range <range>   check the commits in a rev range (pre-push)
+#
+# Two checks run:
+#   1. Deny patterns. One extended regex per line, read from
+#      $DOT_WORK_HOME/deny-patterns (default ~/.dotfiles-work/deny-patterns).
+#      The file is in the private overlay, so the patterns stay private too.
+#      The check covers added lines, file paths, and commit emails.
+#   2. gitleaks, for generic secrets such as tokens and private keys.
+#
+# Bypass once with `git commit --no-verify` or `git push --no-verify`.
+set -euo pipefail
+
+mode="${1:?usage: leak-check staged | range <rev-range>}"
+patterns_file="${DOT_WORK_HOME:-$HOME/.dotfiles-work}/deny-patterns"
+red=$'\033[1;31m' yellow=$'\033[1;33m' reset=$'\033[0m'
+failed=0
+
+case "$mode" in
+  staged)
+    added=$(git diff --cached -U0 --no-color --no-ext-diff | grep '^+' | grep -v '^+++' || true)
+    paths=$(git diff --cached --name-only --diff-filter=ACR)
+    emails=$(git var GIT_AUTHOR_IDENT | sed -E 's/.*<(.*)>.*/\1/')
+    ;;
+  range)
+    range="${2:?usage: leak-check range <rev-range>}"
+    added=$(git log -p -U0 --no-color --no-ext-diff --format= $range | grep '^+' | grep -v '^+++' || true)
+    paths=$(git log --name-only --format= --diff-filter=ACR $range | sort -u)
+    emails=$(git log --format='%ae%n%ce' $range | sort -u)
+    ;;
+  *)
+    echo "usage: leak-check staged | range <rev-range>" >&2
+    exit 2
+    ;;
+esac
+
+# 1. Deny patterns
+if [[ -f "$patterns_file" ]]; then
+  regex=$(grep -v -e '^#' -e '^[[:space:]]*$' "$patterns_file" || true)
+  if [[ -n "$regex" ]]; then
+    hits=$(printf '%s\n' "$added" "$paths" "$emails" | grep -i -E -f <(printf '%s\n' "$regex") || true)
+    if [[ -n "$hits" ]]; then
+      echo "${red}leak-check: these lines match $patterns_file:${reset}" >&2
+      printf '%s\n' "$hits" | cut -c1-200 | sed 's/^/  /' >&2
+      echo "Move work config to the private overlay. See ~/.dotfiles-work/README.md." >&2
+      failed=1
+    fi
+  fi
+else
+  echo "${yellow}leak-check: $patterns_file not found. Only gitleaks runs.${reset}" >&2
+fi
+
+# 2. gitleaks
+if command -v gitleaks >/dev/null; then
+  if [[ "$mode" == staged ]]; then
+    gitleaks git --staged --no-banner --redact --verbose --log-level warn || failed=1
+  else
+    gitleaks git --log-opts="$range" --no-banner --redact --verbose --log-level warn || failed=1
+  fi
+else
+  echo "${yellow}leak-check: gitleaks is not installed. Run: brew install gitleaks${reset}" >&2
+fi
+
+exit "$failed"

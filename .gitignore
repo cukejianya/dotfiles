@@ -1,29 +1,79 @@
-packages/
+# Allowlist. Ignore everything, then re-include each tracked path with "!".
+#
+# ~/.config is a symlink to config/, so every tool writes its state, caches,
+# and credentials into this repo. With an allowlist, a new path stays
+# invisible until you add a "!" line for it on purpose. To track a new tool,
+# add "!/config/<tool>/" below.
+#
+# Git cannot re-include a path if its parent directory is ignored. To allow
+# one file in a directory, allow the directory, ignore its contents, then
+# allow the file. See the config/pi block for an example.
 
-config/jgit/
-config/ghc/
-config/gcloud/
-config/configstore/
-config/yarn/
-config/pip/
+/*
 
-config/pi/agent/auth.json
-config/pi/agent/mcp*
-config/pi/agent/sessions/
-config/pi/agent/bin/
-config/pi/agent/npm/
-
-config/zsh/.zcompcache/
-config/zsh/.zcompdump*
-config/zsh/.zprofile.local
-config/zsh/.zsh_history
-
-.zshrc-e
-
-config/qutebrowser/catppuccin/
-
-# Personal scripts. The global ignore file excludes bin/ everywhere else.
+!/.gitignore
+!/.gitconfig
+!/.githooks/
+!/.vimrc
+!/Agent.md
 !/bin/
+!/blast-off.sh
+!/blast-off.mac.sh
+!/docs/
+!/misc/
+!/packages/
+!/tests/
 
-# gcal-events OAuth client secret and refresh token
-/config/gcal-events/
+!/config/
+/config/*
+!/config/aerospace/
+!/config/delta/
+!/config/eza/
+!/config/git/
+!/config/hypr/
+!/config/kitty/
+!/config/nvim/
+!/config/spotify-player/
+!/config/tmux/
+/config/tmux/plugins/
+!/config/zsh/
+
+!/config/gh/
+/config/gh/*
+!/config/gh/config.yml
+
+!/config/karabiner/
+/config/karabiner/*
+!/config/karabiner/karabiner.json
+
+!/config/pi/
+/config/pi/*
+!/config/pi/agent/
+/config/pi/agent/*
+!/config/pi/agent/AGENTS.md
+!/config/pi/agent/extensions/
+!/config/pi/agent/keybindings.json
+!/config/pi/agent/settings.json
+!/config/pi/agent/themes/
+
+# quickmarks is in the private overlay: qutebrowser rewrites it on save.
+!/config/qutebrowser/
+/config/qutebrowser/*
+!/config/qutebrowser/config.py
+
+!/config/spicetify/
+/config/spicetify/*
+!/config/spicetify/Extensions/
+!/config/spicetify/config-xpui.ini
+
+# Generated files inside allowed directories
+/config/zsh/.zcompcache/
+/config/zsh/.zcompdump*
+/config/zsh/.zprofile.local
+/config/zsh/.zsh_history
+/packages/java-debug/
+/packages/vscode-java-test/
+/packages/lombok.jar
+/packages/umpv*
+*.un~
+.zshrc-e

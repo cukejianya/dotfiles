@@ -74,6 +74,9 @@ bindkey vv edit-command-line
 
 plug zsh-users/zsh-syntax-highlighting # load after other widget plugins
 
+# Setup fnm
+eval "$(fnm env --use-on-cd --shell zsh)"
+
 # Reload alias
 alias tmuxreload="tmux source-file $TMUX_HOME/tmux.conf"
 
@@ -251,10 +254,6 @@ mark() {
   fi
 }
 
-pi() {
-     TASKFORCE_API_KEY="$(secret env/TASKFORCE_API_KEY)" command pi "$@"
-}
-
 # --- Secrets (KeePassXC) ---
 # DB password is cached in the macOS keychain (see mac_setup.sh) so we never
 # type it interactively. All lookups are lazy — nothing is unlocked at startup.
@@ -313,10 +312,11 @@ if [[ -z "$TMUX" ]]; then
 fi
 
 
-export PATH=/opt/spotify-devex/bin:$PATH
-
 # bun completions
 [ -s "/Users/chinedumu/.bun/_bun" ] && source "/Users/chinedumu/.bun/_bun"
+
+# Private work overlay. Skipped if ~/.dotfiles-work is absent.
+sourceIfAvailable "$DOT_WORK_HOME/zsh/zshrc"
 
 # Remove duplicate PATH/fpath entries. path_helper and tool blocks above use
 # string assignments, which bypass -U, so this must stay the last line.
