@@ -1,9 +1,67 @@
-import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import type { AgentToolResult } from "@earendil-works/pi-agent-core";
+import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
+import { Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
 
 interface ChoiceItem {
 	label: string;
 	checked: boolean;
+}
+
+interface ChoiceDetails {
+	cancelled: boolean;
+	selected: string[];
+	invalid?: boolean;
+}
+
+interface ChoiceInput {
+	question: string;
+	options: string[];
+	allowMultiple?: boolean;
+	preselected?: string[];
+}
+
+interface ChoiceRenderState {
+	choiceDetails?: ChoiceDetails;
+}
+
+export function receiptRows(
+	options: string[],
+	details: ChoiceDetails,
+): { status?: string; rows: Array<{ marker: "●" | "○" | "·"; label: string }> } {
+	if (details.invalid) return { status: "no valid options", rows: [] };
+	if (details.cancelled) {
+		return { status: "cancelled", rows: options.map((label) => ({ marker: "·", label })) };
+	}
+	const selected = new Set(details.selected);
+	return {
+		status: selected.size === 0 ? "none selected" : undefined,
+		rows: options.map((label) => ({ marker: selected.has(label) ? "●" : "○", label })),
+	};
+}
+
+function renderReceipt(
+	result: AgentToolResult<unknown>,
+	isPartial: boolean,
+	theme: Theme,
+	input: ChoiceInput,
+): Text {
+	const prefix = theme.fg("dim", "  ⎿ ");
+	if (isPartial) return new Text(prefix + theme.fg("dim", "waiting for selection"), 0, 0);
+	const details = (result.details ?? { cancelled: false, selected: [], invalid: true }) as ChoiceDetails;
+	const receipt = receiptRows(normalizeOptions(input.options ?? []), details);
+	const lines: string[] = [];
+	if (receipt.status) {
+		const color = receipt.status === "no valid options" ? "error" : "muted";
+		lines.push(prefix + theme.fg(color, receipt.status));
+	}
+	for (const row of receipt.rows) {
+		const marker = row.marker === "●"
+			? theme.fg("success", row.marker)
+			: theme.fg(row.marker === "○" ? "dim" : "muted", row.marker);
+		lines.push(`  ${marker} ${row.label}`);
+	}
+	return new Text(lines.join("\n"), 0, 0);
 }
 
 const MAX_VISIBLE = 12;
@@ -177,7 +235,7 @@ async function pickMany(
 	});
 }
 
-export default function (pi: ExtensionAPI) {
+export default function interactiveChoicesExtension(pi: ExtensionAPI) {
 	// Remember pi-vim's real editor mode so we can restore the statusline
 	// indicator after the picker closes. Ignore our own emissions while active.
 	let lastEditorMode = "insert";
@@ -201,7 +259,7 @@ export default function (pi: ExtensionAPI) {
 
 	pi.registerTool({
 		name: "ask_user_choice",
-		label: "Ask User Choice",
+		label: "Ask User",
 		description:
 			"Ask the user to choose from explicit options via UI selection. Supports single-select and multi-select.",
 		promptSnippet:
@@ -220,12 +278,41 @@ export default function (pi: ExtensionAPI) {
 				Type.Array(Type.String(), { description: "Options preselected in multi-select mode" }),
 			),
 		}),
+		renderShell: "self",
+		renderCall(args, theme, context) {
+			const details = (context.state as ChoiceRenderState).choiceDetails;
+			const glyph = details?.invalid || context.isError
+				? theme.fg("error", "✗")
+				: details?.cancelled
+					? theme.fg("muted", "○")
+					: context.executionStarted && !context.isPartial
+						? theme.fg("success", "✓")
+						: theme.fg("accent", "●");
+			const title = glyph + " " + theme.fg("toolTitle", theme.bold("Ask User"));
+			const question = (args as ChoiceInput).question?.trim();
+			return new Text(question ? `${title}\n  ${theme.fg("dim", question)}` : title, 0, 0);
+		},
+		renderResult(result, options, theme, context) {
+			const details = result.details as ChoiceDetails | undefined;
+			const state = context.state as ChoiceRenderState;
+			if (!options.isPartial && details && state.choiceDetails !== details) {
+				state.choiceDetails = details;
+				queueMicrotask(() => context.invalidate?.());
+			}
+			return renderReceipt(
+				result as AgentToolResult<unknown>,
+				options.isPartial,
+				theme,
+				(context.args ?? {}) as ChoiceInput,
+			);
+		},
 		async execute(_toolCallId, input, _signal, _onUpdate, ctx) {
 			const options = normalizeOptions(input.options ?? []);
 			if (!options.length) {
 				return {
 					isError: true,
 					content: [{ type: "text", text: "No valid options were provided." }],
+					details: { cancelled: false, selected: [], invalid: true },
 				};
 			}
 
@@ -296,4 +383,71 @@ export default function (pi: ExtensionAPI) {
 			);
 		},
 	});
+}
+
+if (import.meta.main) {
+	const { deepStrictEqual: equal, strictEqual } = await import("node:assert");
+	const options = ["Alpha", "Beta", "Gamma"];
+	equal(receiptRows(options, { cancelled: false, selected: ["Beta"] }), {
+		status: undefined,
+		rows: [
+			{ marker: "○", label: "Alpha" },
+			{ marker: "●", label: "Beta" },
+			{ marker: "○", label: "Gamma" },
+		],
+	});
+	equal(receiptRows(options, { cancelled: false, selected: [] }).status, "none selected");
+	equal(receiptRows(options, { cancelled: true, selected: [] }), {
+		status: "cancelled",
+		rows: options.map((label) => ({ marker: "·", label })),
+	});
+	equal(receiptRows([], { cancelled: false, selected: [], invalid: true }), {
+		status: "no valid options",
+		rows: [],
+	});
+
+	const { ToolExecutionComponent, initTheme } = await import("@earendil-works/pi-coding-agent");
+	initTheme("dark", false);
+	let tool: unknown;
+	interactiveChoicesExtension({
+		events: { on: () => () => {}, emit: () => {} },
+		on: () => {},
+		registerTool: (definition: unknown) => { tool = definition; },
+		registerCommand: () => {},
+	} as unknown as ExtensionAPI);
+	const args = { question: "Question?", options };
+	const component = new ToolExecutionComponent(
+		"ask_user_choice",
+		"call-1",
+		args,
+		undefined,
+		tool as never,
+		{ requestRender() {} } as never,
+		process.cwd(),
+	);
+	component.markExecutionStarted();
+	component.setArgsComplete();
+	component.updateResult({
+		content: [{ type: "text", text: "User selected: Beta" }],
+		details: { cancelled: false, selected: ["Beta"] },
+		isError: false,
+	});
+	let rendered = component.render(100).join("\n");
+	strictEqual(rendered.split("Alpha").length - 1, 1);
+	strictEqual(rendered.split("Beta").length - 1, 1);
+	strictEqual(rendered.split("Gamma").length - 1, 1);
+	await new Promise<void>((resolve) => queueMicrotask(resolve));
+
+	component.updateResult({
+		content: [{ type: "text", text: "User cancelled selection." }],
+		details: { cancelled: true, selected: [] },
+		isError: false,
+	});
+	await new Promise<void>((resolve) => queueMicrotask(resolve));
+	rendered = component.render(100).join("\n");
+	strictEqual(rendered.split("Alpha").length - 1, 1);
+	strictEqual(rendered.split("Beta").length - 1, 1);
+	strictEqual(rendered.split("Gamma").length - 1, 1);
+	strictEqual(rendered.includes("cancelled"), true);
+	console.log("interactive-choices.ts self-check: ok");
 }

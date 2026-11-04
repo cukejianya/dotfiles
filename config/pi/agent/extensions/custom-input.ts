@@ -44,17 +44,29 @@ const COLOR_CODES: Record<string, string> = {
 const TICKET_SGR = "\x1b[97m"; // bright white
 const DIM_SGR = "\x1b[2m";
 
-// Workflow phases (rename-session states) -> phase color. On a rename that
-// carries a state, the phase drives the shared accent (Option A: phase wins).
+// Workflow phases (state labels from orch's session name, src/naming.ts) ->
+// phase color. When the name carries a state, the phase drives the shared
+// accent (Option A: phase wins).
 const PHASE_SGR: Record<string, string> = {
-	brainstorm: `\x1b[${COLOR_CODES.yellow}m`,
+	// magenta/red: a gate, waiting for a human (red: something broke)
+	"pr gate": `\x1b[${COLOR_CODES.magenta}m`,
+	conflict: `\x1b[${COLOR_CODES.red}m`,
+	// yellow: the agent plans
 	plan: `\x1b[${COLOR_CODES.yellow}m`,
+	grill: `\x1b[${COLOR_CODES.yellow}m`,
+	// blue: the agent writes code
 	implement: `\x1b[${COLOR_CODES.blue}m`,
-	"code review": `\x1b[${COLOR_CODES.blue}m`,
+	review: `\x1b[${COLOR_CODES.blue}m`,
+	feedback: `\x1b[${COLOR_CODES.blue}m`,
+	// cyan: orch does the work, nobody needs to act
+	refresh: `\x1b[${COLOR_CODES.cyan}m`,
+	publish: `\x1b[${COLOR_CODES.cyan}m`,
+	push: `\x1b[${COLOR_CODES.cyan}m`,
+	finalize: `\x1b[${COLOR_CODES.cyan}m`,
+	analyze: `\x1b[${COLOR_CODES.cyan}m`,
+	// green: the PR is open or merged
 	pr: `\x1b[${COLOR_CODES.green}m`,
-	review: `\x1b[${COLOR_CODES.green}m`,
-	merge: `\x1b[${COLOR_CODES.green}m`,
-	merged: `\x1b[${COLOR_CODES.green}m`,
+	merged: `\x1b[${COLOR_CODES.brightgreen}m`,
 	// closed without merge -> gray
 	close: `\x1b[${COLOR_CODES.gray}m`,
 };
@@ -98,6 +110,8 @@ function parseName(raw: string): ParsedName | null {
 		} else {
 			out.title = s.trim() || undefined; // unknown left, keep whole remainder
 		}
+	} else if (PHASE_SGR[s.trim().toLowerCase()]) {
+		out.state = s.trim(); // "[TICKET] Plan": orch names a workflow before its title is known
 	} else {
 		out.title = s.trim() || undefined;
 	}

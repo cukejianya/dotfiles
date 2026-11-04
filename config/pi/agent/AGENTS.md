@@ -1,7 +1,3 @@
-- Whenever a message references a Jira ticket key (e.g. ADSD-5731) or a Jira URL,
-immediately invoke the rename-session skill. As the session progress through
-work, keep invoking the rename-session till it matches state/step
-
 - Never use the em dash "—"
 
 - When writing commit messages, NEVER auto-add your agent name as co-author

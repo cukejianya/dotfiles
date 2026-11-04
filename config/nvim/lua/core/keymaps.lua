@@ -32,7 +32,6 @@ map("n", "<C-H>", "<C-W><C-H>", opts)
 map({ "n", "v" }, "<leader>y", [["+y]], opts) -- yank to system clipboard
 map("n", "<leader>p", [["+p]], opts)
 
-
 -- Costum csv formatter
 map(
   "n",
@@ -47,7 +46,7 @@ map(
 )
 
 map("n", "<leader>hh", function()
-  local project_path = vim.fs.relpath(vim.fs.root(0, ".git"), vim.api.nvim_buf_get_name(0))
+  local project_path = "~/" .. vim.fs.relpath(vim.fn.expand("$HOME"), vim.api.nvim_buf_get_name(0))
   print("Copy path " .. project_path)
   vim.fn.setreg("+", project_path)
 end, opts)
@@ -58,7 +57,7 @@ map("v", "<leader>hh", function()
   if startline > endline then
     endline, startline = startline, endline
   end
-  local project_path = vim.fs.relpath(vim.fs.root(0, ".git"), vim.api.nvim_buf_get_name(0))
+  local project_path = "~/" .. vim.fs.relpath(vim.fn.expand("$HOME"), vim.api.nvim_buf_get_name(0))
   local project_path_with_lines = project_path .. "#L" .. startline .. "-" .. endline
   print("Copy path " .. project_path_with_lines)
   vim.fn.setreg("+", project_path_with_lines)

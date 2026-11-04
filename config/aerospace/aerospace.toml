@@ -33,12 +33,12 @@ on-window-detected = [
     run = ['layout tiling', 'move-node-to-workspace J']
   },
   {
-    if = 'test %{app-bundle-id} = org.keepassxc.keepassxc',
-    run = ['layout tiling', 'move-node-to-workspace P']
+    if = 'test %{app-bundle-id} = com.markmcguill.strongbox',
+    run = ['layout tiling', 'move-node-to-workspace L']
   },
   {
     if = 'test %{app-bundle-id} = mpv',
-    run = ['layout tiling', 'move-node-to-workspace L']
+    run = ['layout tiling', 'move-node-to-workspace P']
   },
   {
     if = 'test %{app-bundle-id} = com.apple.systempreference',
@@ -138,11 +138,11 @@ automatically-unhide-macos-hidden-apps = true
     alt-f = 'fullscreen'
     alt-d = '''exec-and-forget osascript -e 'tell application "System Events" to key code 103''''
     alt-h = "exec-and-forget ~/.local/bin/cycle-through-windows"
-    alt-l = "exec-and-forget aerospace focus --window-id $(aerospace list-windows --all | grep mpv | awk '{ print $1 }' | head -1)"
+    alt-semicolon = "exec-and-forget aerospace focus --window-id $(aerospace list-windows --all | grep mpv | awk '{ print $1 }' | head -1)"
 
     alt-k = "exec-and-forget open -a kitty"
     alt-j = "exec-and-forget zsh -lc 'open -a qutebrowser'"
-    alt-semicolon = 'exec-and-forget open -a keepassxc'
+    alt-l = 'exec-and-forget open -a strongbox'
     alt-s = "exec-and-forget ~/.local/bin/skw" # Open slack web client
     alt-m = "exec-and-forget ~/.local/bin/mt" # Google Meets
     alt-n = "exec-and-forget ~/.dotfiles/bin/quick-notes" # Toggle quick notes

@@ -42,7 +42,7 @@ import { type Component, Text, truncateToWidth, visibleWidth } from "@earendil-w
 import type { Static, TSchema } from "typebox";
 
 /** Renders zero lines. Used by `hidden` mode to drop a tool row entirely. */
-const EMPTY: Component = { render: () => [] };
+const EMPTY: Component = { render: () => [], invalidate: () => {} };
 
 // Continuation glyph for the result row (Claude-style corner).
 const RESULT_GLYPH = "⎿";
@@ -277,6 +277,9 @@ class BashTreeComponent implements Component {
 		private readonly theme: Theme,
 		private readonly expanded: boolean,
 	) {}
+
+	// Stateless: nothing is cached, so there is nothing to drop.
+	invalidate(): void {}
 
 	render(width: number): string[] {
 		const t = this.theme;
@@ -523,9 +526,8 @@ export default function (pi: ExtensionAPI) {
 	// renderers (captured from the tool factory), restoring full syntax
 	// highlighting / diffs rather than a degraded fallback.
 	let enabled = true;
-	// Third view state, reachable only while enabled: tool rows render nothing.
-	// ctrl+o cycles collapsed → expanded → hidden.
-	let hidden = false;
+	// Start with tool rows hidden. Ctrl+O reveals collapsed rows, then expanded rows.
+	let hidden = true;
 
 	function applyThinkingLabel(
 		ui: { setHiddenThinkingLabel(label?: string): void; theme: Theme },
@@ -755,7 +757,7 @@ export default function (pi: ExtensionAPI) {
 	// extension shortcuts, so `keybindings.json` unbinds it and this handler owns
 	// the key. Expansion itself still goes through pi, via setToolsExpanded().
 	pi.registerShortcut("ctrl+o", {
-		description: "Cycle tool rows: collapsed → expanded → hidden",
+		description: "Cycle tool rows: hidden, collapsed, expanded",
 		handler: async (ctx) => {
 			const ui = ctx.ui;
 			if (!enabled) {

@@ -5,7 +5,11 @@
  * extension wraps the Markdown component and restores it at session shutdown.
  */
 
-import type { ExtensionAPI, Theme } from "@earendil-works/pi-coding-agent";
+import {
+	type ExtensionAPI,
+	type Theme,
+	UserMessageComponent,
+} from "@earendil-works/pi-coding-agent";
 import {
 	Markdown,
 	type MarkdownTheme,
@@ -64,8 +68,12 @@ const CALLOUTS = {
 } as const;
 
 const ANSI_RE = /\x1b(?:\[[0-?]*[ -/]*[@-~]|\](?:[^\x07\x1b]|\x1b(?!\\))*(?:\x07|\x1b\\))/g;
+const BACKGROUND_SGR_RE = /\x1b\[(?:4[0-9]|10[0-7]|48;(?:2;\d+;\d+;\d+|5;\d+))m/g;
 const FENCE_RE = /^(\s*)```([^`]*)\s*$/;
 const PROSE_WIDTH = 96;
+const OSC133_ZONE_START = "\x1b]133;A\x07";
+const OSC133_ZONE_END = "\x1b]133;B\x07";
+const OSC133_ZONE_FINAL = "\x1b]133;C\x07";
 
 type UiTheme = Pick<Theme, "bg" | "bold" | "fg">;
 type CalloutName = keyof typeof CALLOUTS;
@@ -95,8 +103,29 @@ interface MarkdownPrototype {
 	renderToken: RenderToken;
 }
 
+interface UserMessagePrototype {
+	render: typeof UserMessageComponent.prototype.render;
+}
+
 interface Patch {
 	restore(): void;
+}
+
+interface GlobalPatchState {
+	refs: number;
+	theme: UiTheme;
+	markdownPrototype: MarkdownPrototype;
+	userPrototype: UserMessagePrototype;
+	originalRender: typeof Markdown.prototype.render;
+	originalRenderToken: RenderToken;
+	originalUserRender: typeof UserMessageComponent.prototype.render;
+	patchedRender: typeof Markdown.prototype.render;
+	patchedRenderToken: RenderToken;
+	patchedUserRender: typeof UserMessageComponent.prototype.render;
+}
+
+interface PatchGlobal {
+	__piEditorialMarkdownPatchV1?: GlobalPatchState;
 }
 
 function stripAnsi(text: string): string {
@@ -136,6 +165,30 @@ function removeVisiblePrefix(text: string, count: number): string {
 	}
 	ANSI_RE.lastIndex = 0;
 	return out;
+}
+
+function userPromptCard(lines: string[], width: number, theme: UiTheme): string[] {
+	if (width < 20 || lines.length === 0) return lines;
+	const clean = lines.map((line) =>
+		line
+			.replaceAll(OSC133_ZONE_START, "")
+			.replaceAll(OSC133_ZONE_END, "")
+			.replaceAll(OSC133_ZONE_FINAL, "")
+			.replace(BACKGROUND_SGR_RE, ""),
+	);
+	while (clean.length > 1 && stripAnsi(clean[0]).trim() === "") clean.shift();
+	while (clean.length > 1 && stripAnsi(clean.at(-1) ?? "").trim() === "") clean.pop();
+
+	const label = "󰍡 Prompt";
+	const topTail = ` ${"─".repeat(Math.max(0, width - visibleWidth(label) - 5))}╮`;
+	const border = (text: string) => theme.fg("borderMuted", text);
+	const top = border("╭─ ") + theme.fg("accent", label) + border(topTail);
+	const bodyWidth = width - 2;
+	const body = clean.map(
+		(line) => border("│") + fill(line, bodyWidth) + border("│"),
+	);
+	const bottom = border(`╰${"─".repeat(width - 2)}╯`);
+	return [OSC133_ZONE_START + top, ...body, OSC133_ZONE_END + OSC133_ZONE_FINAL + bottom];
 }
 
 function codeBlockCards(lines: string[], width: number, theme: UiTheme): string[] {
@@ -286,18 +339,42 @@ function styleHeading(
 }
 
 export function installMarkdownStyle(theme: UiTheme): Patch {
-	const prototype = Markdown.prototype as unknown as MarkdownPrototype;
-	const originalRender = prototype.render;
-	const originalRenderToken = prototype.renderToken;
+	const root = globalThis as typeof globalThis & PatchGlobal;
+	const markdownPrototype = Markdown.prototype as unknown as MarkdownPrototype;
+	const userPrototype = UserMessageComponent.prototype as unknown as UserMessagePrototype;
+	const existing = root.__piEditorialMarkdownPatchV1;
+	if (
+		existing &&
+		markdownPrototype.render === existing.patchedRender &&
+		markdownPrototype.renderToken === existing.patchedRenderToken &&
+		userPrototype.render === existing.patchedUserRender
+	) {
+		existing.refs++;
+		existing.theme = theme;
+		return patchHandle(existing, root);
+	}
 
-	const patchedRenderToken: RenderToken = function (token, width, nextTokenType, styleContext) {
+	const state: GlobalPatchState = {
+		refs: 1,
+		theme,
+		markdownPrototype,
+		userPrototype,
+		originalRender: markdownPrototype.render,
+		originalRenderToken: markdownPrototype.renderToken,
+		originalUserRender: userPrototype.render,
+		patchedRender: undefined as never,
+		patchedRenderToken: undefined as never,
+		patchedUserRender: undefined as never,
+	};
+
+	state.patchedRenderToken = function (token, width, nextTokenType, styleContext) {
 		const markdown = this as InternalMarkdown;
 		if (token.type === "heading") {
-			return styleHeading(markdown, originalRenderToken, token, width, nextTokenType, styleContext, theme);
+			return styleHeading(markdown, state.originalRenderToken, token, width, nextTokenType, styleContext, state.theme);
 		}
 		if (token.type === "paragraph") {
 			const proseWidth = Math.min(width, PROSE_WIDTH);
-			return originalRenderToken
+			return state.originalRenderToken
 				.call(this, token, proseWidth, nextTokenType, styleContext)
 				.flatMap((line) => wrapTextWithAnsi(line, proseWidth));
 		}
@@ -306,12 +383,12 @@ export function installMarkdownStyle(theme: UiTheme): Patch {
 			markdown.theme = { ...previous, italic: (text) => text };
 			let lines: string[];
 			try {
-				lines = originalRenderToken.call(this, token, width, nextTokenType, styleContext);
+				lines = state.originalRenderToken.call(this, token, width, nextTokenType, styleContext);
 			} finally {
 				markdown.theme = previous;
 			}
 			const name = calloutName(token);
-			return name ? calloutCard(lines, width, name, theme) : lines;
+			return name ? calloutCard(lines, width, name, state.theme) : lines;
 		}
 		if (token.type === "table") {
 			if (width < 50) {
@@ -319,39 +396,64 @@ export function installMarkdownStyle(theme: UiTheme): Patch {
 				if (stacked) return stacked;
 			}
 			return quietTable(
-				originalRenderToken.call(this, token, width, nextTokenType, styleContext),
+				state.originalRenderToken.call(this, token, width, nextTokenType, styleContext),
 				width,
-				theme,
+				state.theme,
 			);
 		}
-		return originalRenderToken.call(this, token, width, nextTokenType, styleContext);
+		return state.originalRenderToken.call(this, token, width, nextTokenType, styleContext);
 	};
 
-	const patchedRender: typeof Markdown.prototype.render = function (width: number): string[] {
+	state.patchedRender = function (width: number): string[] {
 		const markdown = this as InternalMarkdown;
 		const previous = markdown.theme;
 		markdown.theme = {
 			...previous,
-			code: (text) => theme.bg("selectedBg", previous.code(text)),
+			code: (text) => state.theme.bg("selectedBg", previous.code(text)),
 			listBullet: (marker) => previous.listBullet(listMarker(marker)),
-			quoteBorder: (text) => theme.fg("dim", text),
+			quoteBorder: (text) => state.theme.fg("dim", text),
 		};
 		let lines: string[];
 		try {
-			lines = originalRender.call(this, width);
+			lines = state.originalRender.call(this, width);
 		} finally {
 			markdown.theme = previous;
 		}
-		return codeBlockCards(lines, width, theme);
+		return codeBlockCards(lines, width, state.theme);
 	};
 
-	prototype.renderToken = patchedRenderToken;
-	prototype.render = patchedRender;
+	state.patchedUserRender = function (width: number): string[] {
+		if (width < 20) return state.originalUserRender.call(this, width);
+		return userPromptCard(state.originalUserRender.call(this, width - 2), width, state.theme);
+	};
 
+	markdownPrototype.renderToken = state.patchedRenderToken;
+	markdownPrototype.render = state.patchedRender;
+	userPrototype.render = state.patchedUserRender;
+	root.__piEditorialMarkdownPatchV1 = state;
+	return patchHandle(state, root);
+}
+
+function patchHandle(state: GlobalPatchState, root: typeof globalThis & PatchGlobal): Patch {
+	let restored = false;
 	return {
 		restore() {
-			if (prototype.render === patchedRender) prototype.render = originalRender;
-			if (prototype.renderToken === patchedRenderToken) prototype.renderToken = originalRenderToken;
+			if (restored) return;
+			restored = true;
+			state.refs--;
+			if (state.refs > 0) return;
+			if (state.markdownPrototype.render === state.patchedRender) {
+				state.markdownPrototype.render = state.originalRender;
+			}
+			if (state.markdownPrototype.renderToken === state.patchedRenderToken) {
+				state.markdownPrototype.renderToken = state.originalRenderToken;
+			}
+			if (state.userPrototype.render === state.patchedUserRender) {
+				state.userPrototype.render = state.originalUserRender;
+			}
+			if (root.__piEditorialMarkdownPatchV1 === state) {
+				delete root.__piEditorialMarkdownPatchV1;
+			}
 		},
 	};
 }
@@ -506,6 +608,8 @@ export default function (pi: ExtensionAPI) {
 
 if (import.meta.main) {
 	const { deepStrictEqual: equal, match, ok } = await import("node:assert");
+	const { initTheme } = await import("@earendil-works/pi-coding-agent");
+	initTheme("dark", false);
 	const identity = (text: string) => text;
 	const markdownTheme: MarkdownTheme = {
 		heading: identity,
@@ -529,9 +633,22 @@ if (import.meta.main) {
 		bold: identity,
 	} as unknown as UiTheme;
 	const prototype = Markdown.prototype as unknown as MarkdownPrototype;
+	const userPrototype = UserMessageComponent.prototype as unknown as UserMessagePrototype;
 	const originalRender = prototype.render;
 	const originalRenderToken = prototype.renderToken;
-	const installed = installMarkdownStyle(uiTheme);
+	const originalUserRender = userPrototype.render;
+	const promptCard = userPromptCard(
+		[OSC133_ZONE_START + "                  ", " prompt           ", OSC133_ZONE_END + OSC133_ZONE_FINAL + "                  "],
+		20,
+		uiTheme,
+	);
+	equal(promptCard.length, 3);
+	ok(promptCard[0].startsWith(OSC133_ZONE_START));
+	match(stripAnsi(promptCard[0]), /╭─ 󰍡 Prompt/);
+	match(stripAnsi(promptCard[1]), /^│ prompt\s+│$/);
+	ok(promptCard[2].startsWith(OSC133_ZONE_END + OSC133_ZONE_FINAL));
+	const firstInstall = installMarkdownStyle(uiTheme);
+	const secondInstall = installMarkdownStyle(uiTheme);
 	try {
 		const source = [
 			"# Result",
@@ -590,11 +707,24 @@ if (import.meta.main) {
 			.map((line) => stripAnsi(line).trimEnd())
 			.join("\n");
 		ok(unknownCallout.includes("[!UNKNOWN]"));
+
+		const userLines = new UserMessageComponent("Submitted prompt", markdownTheme, 1).render(40);
+		const userText = userLines.map((line) => stripAnsi(line).trimEnd()).join("\n");
+		match(userText, /╭─ 󰍡 Prompt/);
+		match(userText, /│ Submitted prompt\s+│/);
+		ok(!userLines.some((line) => /\x1b\[(?:4[0-9]|10[0-7]|48;)/.test(line)));
+		ok(userLines[0].startsWith(OSC133_ZONE_START));
+		ok(userLines.at(-1)?.startsWith(OSC133_ZONE_END + OSC133_ZONE_FINAL));
+
+		secondInstall.restore();
+		ok(userPrototype.render !== originalUserRender);
 	} finally {
-		installed.restore();
+		secondInstall.restore();
+		firstInstall.restore();
 	}
 	equal(prototype.render, originalRender);
 	equal(prototype.renderToken, originalRenderToken);
+	equal(userPrototype.render, originalUserRender);
 	equal(listMarker("- [x] "), "• [✓] ");
 	equal(listMarker("- [ ] "), "• [○] ");
 	equal(listMarker("- "), "• ");
