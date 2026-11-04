@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 #
 # Back up local state that git must not hold: the secrets vault, zsh history,
-# orch state, and agent session logs.
+# orch state, orch plans and analysis, and agent session logs.
 #
 # Usage: BACKUP_DIR=<dir> backup-state
 #
 # Layout in $BACKUP_DIR:
 #   snapshots/YYYY-MM-DD/   secrets.kdbx, zsh_history, orch.db, orch-ledger.json
 #                           The newest $BACKUP_KEEP_DAYS (default 14) are kept.
-#   mirror/orch-logs/       rsync copies. New and changed files are copied.
-#   mirror/pi-sessions/     Files deleted locally stay in the mirror.
+#   mirror/orch-artifacts/  rsync copies: per-ticket plan, analysis, review.
+#   mirror/orch-logs/       New and changed files are copied. Files deleted
+#   mirror/pi-sessions/     locally stay in the mirror.
 #
 # Each snapshot is built in a local temp directory, then copied in. So SQLite
 # never writes into a synced folder, and a half-written snapshot never appears.
@@ -68,6 +69,7 @@ mv "$dest.partial" "$dest"
 log "snapshot $dest"
 
 mkdir -p "$BACKUP_DIR/mirror"
+[[ -d "$orch/artifacts" ]] && rsync -a "$orch/artifacts/" "$BACKUP_DIR/mirror/orch-artifacts/"
 [[ -d "$orch/logs" ]] && rsync -a "$orch/logs/" "$BACKUP_DIR/mirror/orch-logs/"
 [[ -d "$sessions" ]] && rsync -a "$sessions/" "$BACKUP_DIR/mirror/pi-sessions/"
 log "mirror $BACKUP_DIR/mirror"
