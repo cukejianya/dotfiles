@@ -32,7 +32,9 @@ return {
               exe = "$JAVA_HOME/bin/java",
               args = {
                 "-jar",
-                "$HOME/.dotfiles/misc/google-java-format-1.36.1-all-deps.jar",
+                -- blast-off.sh downloads this jar. Keep the version in sync.
+                (os.getenv("XDG_DATA_HOME") or (os.getenv("HOME") .. "/.local/share"))
+                  .. "/google-java-format/google-java-format-1.36.1-all-deps.jar",
                 "--replace",
               },
               stdin = false,

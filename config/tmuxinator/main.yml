@@ -1,0 +1,8 @@
+# /Users/chinedumu/.config/tmuxinator/main.yml
+
+name: main 
+root: $HOME/
+
+windows:
+  - home:
+      layout: main-vertical

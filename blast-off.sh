@@ -106,6 +106,19 @@ fnm install --lts
 fnm default lts-latest
 npm install -g tldr
 
+step "google-java-format"
+# nvim's formatter.lua reads this path. Keep the version in sync.
+gjf_version=1.36.1
+gjf_sha256=25b400f003089d23cc5320cdaf1a16cabee19b8aa3434d0ff021b3d9f42154b4
+gjf="$XDG_DATA_HOME/google-java-format/google-java-format-$gjf_version-all-deps.jar"
+if [[ ! -f "$gjf" ]]; then
+  mkdir -p "$(dirname "$gjf")"
+  curl -fsSL -o "$gjf.tmp" \
+    "https://github.com/google/google-java-format/releases/download/v$gjf_version/google-java-format-$gjf_version-all-deps.jar"
+  echo "$gjf_sha256  $gjf.tmp" | shasum -a 256 -c -
+  mv "$gjf.tmp" "$gjf"
+fi
+
 step "tmux plugin manager"
 tpm="$XDG_CONFIG_HOME/tmux/plugins/tpm"
 [[ -d "$tpm" ]] || git clone https://github.com/tmux-plugins/tpm "$tpm"

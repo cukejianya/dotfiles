@@ -31,16 +31,31 @@
 !/config/eza/
 !/config/git/
 !/config/hypr/
+!/config/glow/
 !/config/kitty/
+!/config/mpv/
 !/config/nvim/
 !/config/spotify-player/
 !/config/tmux/
 /config/tmux/plugins/
+!/config/vivaldi/
 !/config/zsh/
 
 !/config/gh/
 /config/gh/*
 !/config/gh/config.yml
+
+!/config/opencode/
+/config/opencode/*
+!/config/opencode/opencode.json
+!/config/opencode/plugin/
+!/config/opencode/themes/
+
+# Work layouts live in the private overlay and are linked in here.
+!/config/tmuxinator/
+/config/tmuxinator/*
+!/config/tmuxinator/claude.yml
+!/config/tmuxinator/main.yml
 
 !/config/karabiner/
 /config/karabiner/*
@@ -51,8 +66,10 @@
 !/config/pi/agent/
 /config/pi/agent/*
 !/config/pi/agent/AGENTS.md
+!/config/pi/agent/APPEND_SYSTEM.md
 !/config/pi/agent/extensions/
 !/config/pi/agent/keybindings.json
+!/config/pi/agent/models.json
 !/config/pi/agent/settings.json
 !/config/pi/agent/themes/
 
@@ -67,6 +84,8 @@
 !/config/spicetify/config-xpui.ini
 
 # Generated files inside allowed directories
+# blast-off.sh downloads jars to $XDG_DATA_HOME.
+/misc/*.jar
 /config/zsh/.zcompcache/
 /config/zsh/.zcompdump*
 /config/zsh/.zprofile.local

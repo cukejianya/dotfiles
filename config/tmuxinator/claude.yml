@@ -1,0 +1,7 @@
+# /Users/chinedumu/.config/tmuxinator/claude.yml
+
+name: claude
+root: ~/
+
+windows:
+  - sessions: claude-sessions
