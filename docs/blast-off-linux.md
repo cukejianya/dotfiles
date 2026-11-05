@@ -16,6 +16,10 @@ Until it exists, `blast-off.sh` stops on Linux with a pointer to this file.
 `blast-off.linux.sh` must:
 
 - Start with `#!/usr/bin/env bash` and `set -euo pipefail`.
+- Source `blast-off.lib.sh`, call `blast_off_log_start "$@"`, and run each
+  step with `run "<description>" <command>`. A failed step is then recorded
+  in the shared logs and the next step runs. Use `die` only when later steps
+  cannot work, and end with `finish`. See `blast-off.mac.sh`.
 - Be safe to run again. Use `pacman -S --needed`, `mkdir -p`, and
   `[[ -d x ]] || git clone`.
 - Run on its own, not only from `blast-off.sh`.
