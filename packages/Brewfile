@@ -74,6 +74,7 @@ brew "trash", link: true
 # Display directories as trees (with optional color/HTML output)
 brew "tree"
 # Fish shell like syntax highlighting for zsh
+brew "uv"
 brew "zsh-syntax-highlighting"
 # i3-like tiling window manager
 cask "aerospace"
