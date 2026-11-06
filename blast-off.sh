@@ -108,6 +108,64 @@ run "Symlinks" symlinks
 # Every later step, and the work overlay, uses these links.
 [[ -L "$XDG_CONFIG_HOME" && -L "$HOME/.gitconfig" ]] || die "Symlinks are missing"
 
+notes_repo() {
+  [[ -d "$HOME/notes/.git" ]] && return 0
+  # The repo is private. HTTPS with the gh login: a new Mac has no SSH key.
+  if ! gh auth status --hostname github.com >/dev/null 2>&1; then
+    gh auth login --hostname github.com --git-protocol https --web
+  fi
+  git clone https://github.com/cukejianya/notes.git "$HOME/notes"
+}
+notes_backup_job() {
+  local label="com.$USER.notes-backup"
+  local plist="$HOME/Library/LaunchAgents/$label.plist"
+  local log="$XDG_STATE_HOME/notes-backup/backup.log"
+  mkdir -p "$(dirname "$plist")" "$(dirname "$log")"
+  # A launchd job, not cron: it runs in the login session, so git can get the
+  # gh token from the keychain.
+  cat > "$plist" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Written by ~/.dotfiles/blast-off.sh. Runs bin/notes-backup every 15 minutes. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>$label</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>$XDG_BIN_HOME/notes-backup</string>
+  </array>
+  <key>StartInterval</key>
+  <integer>900</integer>
+  <key>StandardOutPath</key>
+  <string>$log</string>
+  <key>StandardErrorPath</key>
+  <string>$log</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/bin:/bin</string>
+  </dict>
+</dict>
+</plist>
+PLIST
+  plutil -lint "$plist" >/dev/null
+  launchctl bootout "gui/$(id -u)/$label" 2>/dev/null || true
+  launchctl bootstrap "gui/$(id -u)" "$plist"
+  # An older setup ran the backup from cron. Remove that line, so the two jobs
+  # never commit at the same time.
+  local tab
+  tab=$(crontab -l 2>/dev/null || true)
+  if [[ "$tab" == *git-notes-backup* ]]; then
+    printf '%s\n' "$tab" | { grep -v 'git-notes-backup' || true; } | crontab -
+  fi
+}
+step "Notes"
+run "Notes repo (~/notes)" notes_repo
+if [[ "$os" == mac ]]; then
+  run "Notes backup job" notes_backup_job
+fi
+
 step "Git hooks"
 # Block commits and pushes that leak work data or secrets.
 run "Git hooks" git -C "$DOT" config core.hooksPath .githooks

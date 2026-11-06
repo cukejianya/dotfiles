@@ -20,6 +20,11 @@
   hyperlinks = true
   side-by-side = false
   hyperlinks-file-link-format = nvim-popup://{path}:{line}
+# HTTPS to github.com uses the gh login. Programs such as launchd jobs run git
+# with a minimal PATH, so the helper also tries the Homebrew locations for gh.
+[credential "https://github.com"]
+	helper =
+	helper = "!f() { for g in gh /opt/homebrew/bin/gh /home/linuxbrew/.linuxbrew/bin/gh; do command -v \"$g\" >/dev/null 2>&1 && exec \"$g\" auth git-credential \"$@\"; done; echo \"git: gh not found\" >&2; exit 1; }; f"
 # Private work overlay: work email, GHE credentials, maintenance repos.
 # Git skips an include path that does not exist.
 [include]

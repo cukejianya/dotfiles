@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+#
+# Commit changed Markdown files in the notes repo, then sync with the remote.
+# blast-off.sh installs a launchd job that runs this every 15 minutes.
+#
+# Usage: notes-backup            (NOTES_DIR overrides ~/notes)
+set -euo pipefail
+
+notes="${NOTES_DIR:-$HOME/notes}"
+cd "$notes"
+
+# Skip this run if the previous one is still busy (for example, a slow push).
+lock="${TMPDIR:-/tmp}/notes-backup.lock"
+mkdir "$lock" 2>/dev/null || { echo "notes-backup: already running"; exit 0; }
+trap 'rmdir "$lock"' EXIT
+
+git add -A -- '*.md'
+git diff --cached --quiet && exit 0
+
+git commit -q -m "git backup: $(date '+%Y-%m-%d %H:%M:%S')"
+git pull -q --rebase
+git push -q
