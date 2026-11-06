@@ -110,11 +110,13 @@ run "Symlinks" symlinks
 
 notes_repo() {
   [[ -d "$HOME/notes/.git" ]] && return 0
-  # The repo is private. HTTPS with the gh login: a new Mac has no SSH key.
-  if ! gh auth status --hostname github.com >/dev/null 2>&1; then
+  local url
+  url=$(clone_url github.com cukejianya/notes)
+  # The repo is private. Over HTTPS, the gh login supplies the credentials.
+  if [[ "$url" == https://* ]] && ! gh auth status --hostname github.com >/dev/null 2>&1; then
     gh auth login --hostname github.com --git-protocol https --web
   fi
-  git clone https://github.com/cukejianya/notes.git "$HOME/notes"
+  git clone "$url" "$HOME/notes"
 }
 notes_backup_job() {
   local label="com.$USER.notes-backup"

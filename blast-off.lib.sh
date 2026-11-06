@@ -92,6 +92,19 @@ failure_count() {
   fi
 }
 
+# clone_url <host> <owner/repo>: print the SSH URL if an SSH key already works
+# for the host, else the HTTPS URL (the gh credential helper supplies the
+# login). BatchMode never prompts, so an unknown host key also means HTTPS.
+clone_url() {
+  local host="$1" repo="$2" out
+  out=$(ssh -o BatchMode=yes -o ConnectTimeout=10 -T "git@$host" 2>&1 || true)
+  if [[ "$out" == *"successfully authenticated"* ]]; then
+    printf 'git@%s:%s.git\n' "$host" "$repo"
+  else
+    printf 'https://%s/%s.git\n' "$host" "$repo"
+  fi
+}
+
 # die <reason>: record the failure and stop, because later steps cannot work.
 die() {
   record_failure "$1 (cannot continue)" 1
